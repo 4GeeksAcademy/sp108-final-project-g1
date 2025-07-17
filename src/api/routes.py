@@ -9,8 +9,6 @@ from api.models import db, Users, Huts
 api = Blueprint('api', __name__)
 CORS(api)  # Allow CORS requests to this API
 
-host = 'https://friendly-guide-g4v6q796wprf9q67-3001.app.github.dev/admin/'
-
 
 @api.route('/hello', methods=['GET'])
 def handle_hello():
@@ -31,4 +29,3 @@ def get_huts():
 @api.route('/huts/<int:huts.id>', methods=['POST'])
 def post_huts():
     pass
-    
