@@ -130,6 +130,3 @@ def get_huts():
     return response_body, 200
 
 
-@api.route('/huts/<int:huts.id>', methods=['POST'])
-def post_huts():
-    pass
