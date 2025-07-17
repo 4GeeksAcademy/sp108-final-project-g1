@@ -53,7 +53,7 @@ def login():
 
 
 @api.route('/users', methods=['GET', 'POST'])
-def get_users():
+def users():
     response_body = {}
     if request.method == 'GET':
         response_body['message'] = "RECIBIDO"
@@ -74,7 +74,7 @@ def get_users():
         user.password = bcrypt.generate_password_hash(password).decode("utf-8")
         user.first_name = data.get('first_name', None)
         user.last_name = data.get('last_name', None)
-        user.email = data.get('email', 'user@email.com').lower()
+        user.email = data.get('email', None).lower()
         user.phone_number = data.get('phone_number', None)
         user.is_active = True
         user.is_admin = data.get('is_admin', False)
@@ -119,14 +119,75 @@ def user(id):
         response_body['message'] = f'Usuario {id} eliminado'
         response_body['results'] = None
         return response_body, 200
-    
+
+
+@api.route('/bookings', methods=['GET'])
+@jwt_required()
+def get_bookings():
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['user_id']
+    is_admin = claims.get('is_admin', False)
+    if is_admin:
+        bookings = Bookings.query.all()
+    else:
+        bookings = Bookings.query.filter_by(user_id=user_id).all()
+
+    response_body['message'] = 'Lista de reservas'
+    response_body['results'] = [booking.serialize() for booking in bookings]
+    return response_body, 200   
+
+
+@api.route('/bookings', methods = ['POST'])
+@jwt_required()
+def post_bookings():  
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['user_id']
+    data = request.json
+    booking = Bookings()
+     
+    booking.start_date = data.get('start_date', None)
+    booking.end_date = data.get('end_date', None)
+
+    booking.hut_id = data.get('hut_id')
+    overlapping_booking = Bookings.query.filter(
+        Bookings.hut_id == booking.hut_id,
+        Bookings.status_reserved == 'active',  
+        Bookings.start_date <= booking.end_date,
+        Bookings.end_date >= booking.start_date
+    ).first()
+    if overlapping_booking:
+        return "La cabaña ya esta ocupada", 409
+
+    booking.user_id = user_id
+    booking.hut_id = data.get('hut_id')
+    booking.start_date = data.get('start_date', None)
+    booking.end_date = data.get('end_date', None)
+    booking.total_price = data.get('total_price', None)
+    booking.status_reserved = data.get('status_reserved', 'active')
+    booking.guests = data.get('guests', None)
+    booking.special_requests = data.get('special_requests', None)
+    booking.created_at = data.get('created_at', None)
+    booking.payment_date = data.get('payment_date', None)
+    booking.transaction_payment = data.get('transation_payment', 'Card')
+    booking.status_payment = data.get('status_payment', True)
+    db.session.add(booking)
+    db.session.commit()
+    response_body['message'] = 'Respuesta del post de Bookings'
+    response_body['result'] = booking.serialize()
+    return response_body, 201
+        
+
+
+
    
 @api.route('/huts', methods=['GET'])
 def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [rows.serialize() for row in rows]
+    response_body['result'] = [row.serialize() for row in rows]
     return response_body, 200
 
 
