@@ -50,6 +50,8 @@ def login():
     return response_body, 200
 
 
+
+
 @api.route('/users', methods=['GET', 'POST'])
 def get_users():
     response_body = {}
@@ -81,9 +83,6 @@ def get_users():
         response_body['results'] = user.serialize()
         response_body['message'] = 'Respuesta del POST de Users'
     return response_body, 201
-
-
-
 
 
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
@@ -121,5 +120,16 @@ def user(id):
         response_body['results'] = None
         return response_body, 200
     
-
    
+@api.route('/huts', methods=['GET'])
+def get_huts():
+    response_body = {}
+    response_body['message'] = "Las cabañas se han cargado correctamente."
+    rows = db.session.execute(db.select(Huts)).scalars()
+    response_body['result'] = [rows.serialize() for row in rows]
+    return response_body, 200
+
+
+@api.route('/huts/<int:huts.id>', methods=['POST'])
+def post_huts():
+    pass

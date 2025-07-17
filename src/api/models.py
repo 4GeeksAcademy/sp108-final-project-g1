@@ -38,7 +38,7 @@ class Bookings(db.Model):
     end_date = db.Column(db.Date, unique= False, nullable=False)
     total_price= db.Column(db.Float, unique=False, nullable=False)
     status_reserved = db.Column(db.Enum("active","ocupated", "cancelled", name="status_reserved"),
-                                     nullable=False, default= "active")
+                                    nullable=False, default= "active")
     guests = db.Column(db.Integer, nullable=False)
     special_requests = db.Column(db.String(500), unique=False, nullable=False)
     created_at = db.Column(db.Date, default=datetime.utcnow) 
@@ -51,10 +51,11 @@ class Bookings(db.Model):
     user_to= db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):
-            return f'<Booking {self.id} - Hut {self.hut_id}>'
+        return f'<Booking {self.id} - Hut {self.hut_id}>'
 
     def serialize(self):
-        return {'id': self.id,
+        return {
+                'id': self.id,
                 'hut_id': self.hut_id,
                 'user_id': self.user_id,
                 'start_date': self.start_date.isoformat(),
@@ -78,10 +79,10 @@ class Huts(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     location_to = db.relationship('Location', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
-       
+    
     def __repr__(self):
         return f'<Huts {self.name}>'
-       
+    
     def serialize(self):
         return {'id': self.id,
                 'name': self.name,
@@ -118,10 +119,10 @@ class Huts_album(db.Model):
     image_url = db.Column(db.String, unique=True, nullable=False)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-        
+    
     def __prep__(self):
-        return f'<Huts_album {self.id}>'
-        
+        return {f'<Huts_album {self.id}>'}
+    
     def serialize(self):
         return {'id': self.id,
                 'hut_id': self.hut_id,
@@ -138,10 +139,10 @@ class Location(db.Model):
     address = db.Column(db.String, unique=True, nullable=False)
     city = db.Column(db.String, unique=True, nullable=False)
     region = db.Column(db.String, unique=True, nullable=False)
-       
+    
     def __repr__(self):
         return f'<Location {self.id} - {self.city}>'
-       
+    
     def serialize(self):
         return {'id': self.id,
                 'complex': self.complex,
@@ -150,8 +151,8 @@ class Location(db.Model):
                 'address': self.address,
                 'city': self.city,
                 'region': self.region}
-   
-   
+
+
 class Review(db.Model):
     __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
@@ -162,10 +163,10 @@ class Review(db.Model):
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[user_id])
-       
+    
     def __repr__(self):
         return f'<Review {self.id} - Hut {self.hut_id} by User {self.user_id}>'
-       
+    
     def serialize(self):
         return {'id': self.id,
                 'hut_id': self.hut_id,
