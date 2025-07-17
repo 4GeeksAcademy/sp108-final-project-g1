@@ -121,7 +121,7 @@ class Huts_album(db.Model):
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     
     def __prep__(self):
-        return {f'<Huts_album {self.id}>'}
+        return f'<Huts_album {self.id}>'
     
     def serialize(self):
         return {'id': self.id,
