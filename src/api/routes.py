@@ -29,3 +29,12 @@ def get_huts():
 @api.route('/huts/<int:huts.id>', methods=['POST'])
 def post_huts():
     pass
+@api.route('/users', methods=['GET'])
+def get_users():
+    response_body = {}
+    response_body['message'] = "RECIBIDO"
+    rows = db.session.execute(
+        db.select(Users).where(Users.is_active)).scalars()
+    response_body['result'] = [row.serialize()
+                               for row in rows]
+    return response_body, 200

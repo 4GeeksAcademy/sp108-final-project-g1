@@ -10,12 +10,12 @@ db = SQLAlchemy()
 class Users(db.Model):
     __tablename__='users'
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String, unique=False, nullable = False)
-    last_name = db.Column(db.String, unique=False, nullable = False)
+    first_name = db.Column(db.String, unique=False, nullable = True)
+    last_name = db.Column(db.String, unique=False, nullable = True)
     email = db.Column(db.String, unique=True, nullable=False)
     phone_number = db.Column(db.String, unique=True, nullable=True)
     password = db.Column(db.String, unique=False, nullable=False)
-    creat_at = db.Column(db.Date, default=datetime.utcnow)
+    created_at = db.Column(db.Date, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False)
 
@@ -95,6 +95,23 @@ class Huts(db.Model):
                 'is_active': self.is_active}
     
 
+class Hut_favorites(db.Model):
+    __tablename__='hut_favorites'
+    id = db.Column(db.Integer, primary_key=True)
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
+    hut_to = db.relationship('Huts', foreign_keys=[hut_id])
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id')) 
+    user_to = db.relationship('Users', foreign_keys=[user_id])  
+
+    def __prep__(self):
+        return f'<Huts_favorites:{self.id}'
+    
+    def serialize(self):
+        return {'id': self.id,
+                'hut_id': self.hut_id,
+                'user_id': self.user_id}
+ 
+
 class Huts_album(db.Model):
     __tablename__ = 'huts_album'
     id = db.Column(db.Integer, primary_key=True)
@@ -110,9 +127,8 @@ class Huts_album(db.Model):
         return {'id': self.id,
                 'hut_id': self.hut_id,
                 'type': self.type,
-                'image_url': self.image_url
-            }
-    
+                'image_url': self.image_url}
+        
 # REVISAR EL UNIQUE
 class Location(db.Model):
     __tablename__ = 'location'
