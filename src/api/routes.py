@@ -15,3 +15,14 @@ def handle_hello():
     response_body = {}
     response_body['message'] = "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
     return response_body, 200
+
+
+@api.route('/users', methods=['GET'])
+def get_users():
+    response_body = {}
+    response_body['message'] = "RECIBIDO"
+    rows = db.session.execute(
+        db.select(Users).where(Users.is_active)).scalars()
+    response_body['result'] = [row.serialize()
+                               for row in rows]
+    return response_body, 200
