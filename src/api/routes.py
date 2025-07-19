@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.models import db, Users, Bookings, Huts, Hut_favorites, Huts_album, Location, Review
+from api.models import db, Users, Bookings, Huts, HutFavorites, HutAlbum, Location, Review
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -32,7 +32,7 @@ def login():
     password = request.json.get("password", None)
     # Buscar el email y el password en la BBDD y verificar si is_active es True.
     user = db.session.execute(db.select(Users).where(Users.email == email,
-                                                     Users.is_active == True)).scalar()                                                   
+                                                     Users.is_active == True)).scalar()
     if not user:
         response_body['message'] = 'Bad email'
         return response_body, 401
@@ -42,7 +42,6 @@ def login():
         return response_body, 401
     claims = {'user_id': user.serialize()['id'],
               'is_admin': user.serialize()['is_admin']}
-    print(claims)
     access_token = create_access_token(
         identity=email, additional_claims=claims)
     response_body['message'] = 'User logged OK'
@@ -50,54 +49,90 @@ def login():
     return response_body, 200
 
 
+@api.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    response_body = {}
+    # Access the identity of the current user with get_jwt_identity
+    current_user = get_jwt_identity()
+    additional_claims = get_jwt()  # Los datos adicionales
+    response_body['current_user'] = current_user
+    response_body['aditional_data'] = additional_claims
+    return response_body, 200
 
 
-@api.route('/users', methods=['GET', 'POST'])
+@api.route('/register', methods=['POST'])
+def register():
+    response_body = {}
+
+    data = request.json
+    password = data.get('password', None)
+    if password == None:
+        response_body['message'] = 'Falta Password'
+        response_body['result'] = {}
+        return response_body, 403
+    user = Users()
+    user.password = bcrypt.generate_password_hash(password).decode("utf-8")
+    user.first_name = data.get('first_name', None)
+    user.last_name = data.get('last_name', None)
+    user.email = data.get('email', None).lower()
+    user.phone_number = data.get('phone_number', None)
+    user.is_active = True
+    user.is_admin = data.get('is_admin', False)
+    db.session.add(user)
+    db.session.commit()
+    response_body['results'] = user.serialize()
+    response_body['message'] = 'Respuesta del POST de Users'
+    return response_body, 201
+    # response_body = {}
+    # data = request.json
+    # email = data.get('email', 'user@email.com').lower()
+    # # verificar que el mail no exista en mi DB
+    # user = Users()
+    # user.email = email
+    # user.password = data.get('password', '1')
+    # user.is_active = True
+    # user.is_admin = data.get('is_admin', False)
+    # user.first_name = data.get('first_name', None)
+    # user.last_name = data.get('last_name', None)
+    # db.session.add(user)
+    # db.session.commit()
+    # claims = {'user_id': user.serialize()['id'],
+    #           'is_admin': user.serialize()['is_admin']}
+    # access_token = create_access_token(identity=email, additional_claims=claims)
+
+    # response_body['access_token'] = access_token
+    # response_body['results'] = user.serialize()
+    # response_body['message'] = 'Usuario registrado ok'
+    # return response_body, 201
+
+@api.route('/users', methods=['GET'])
 def users():
     response_body = {}
     if request.method == 'GET':
         response_body['message'] = "RECIBIDO"
         rows = db.session.execute(
             db.select(Users).where(Users.is_active)).scalars()
-        response_body['result'] = [row.serialize()
-                                for row in rows]
+        response_body['results'] = [row.serialize()
+                                   for row in rows]
         return response_body, 200
+
     
-    if request.method == 'POST':
-        data = request.json
-        password = data.get('password', None)
-        if password == None:
-            response_body['message'] = 'Falta Password'
-            response_body['result'] = {}
-            return response_body,403
-        user = Users()
-        user.password = bcrypt.generate_password_hash(password).decode("utf-8")
-        user.first_name = data.get('first_name', None)
-        user.last_name = data.get('last_name', None)
-        user.email = data.get('email', None).lower()
-        user.phone_number = data.get('phone_number', None)
-        user.is_active = True
-        user.is_admin = data.get('is_admin', False)
-        db.session.add(user)
-        db.session.commit()
-        response_body['results'] = user.serialize()
-        response_body['message'] = 'Respuesta del POST de Users'
-    return response_body, 201
 
 
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-@jwt_required()   
+@jwt_required()
 def user(id):
     response_body = {}
     claims = get_jwt()
     user = db.session.execute(db.select(Users).where(Users.id == id)).scalar()
     if not user:
         response_body['message'] = f'Usuario {id} no encontrado'
-        response_body['result'] = {}
+        response_body['results'] = {}
         return response_body, 403
     if request.method == 'GET':
         response_body['message'] = f'Usuario {id} encontrado'
-        response_body['result'] = user.serialize()
+        response_body['results'] = user.serialize()
         return response_body, 200
     if request.method == 'PUT':
         if claims['user_id'] != id:
@@ -108,17 +143,20 @@ def user(id):
         user.is_admin = data.get('is_admin', user.is_admin)
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
+        user.phone_number = data.get('phone_number', None)
         db.session.commit()
         response_body['message'] = f'Usuario {id} modificado'
         response_body['results'] = user.serialize()
         return response_body, 200
-    
     if request.method == 'DELETE':
+        if claims['user_id'] != id:
+            response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
         user.is_active = False
         db.session.commit()
         response_body['message'] = f'Usuario {id} eliminado'
         response_body['results'] = None
         return response_body, 200
+    
 
 
 @api.route('/bookings', methods=['GET'])
@@ -135,25 +173,25 @@ def get_bookings():
 
     response_body['message'] = 'Lista de reservas'
     response_body['results'] = [booking.serialize() for booking in bookings]
-    return response_body, 200   
+    return response_body, 200
 
 
-@api.route('/bookings', methods = ['POST'])
+@api.route('/bookings', methods=['POST'])
 @jwt_required()
-def post_bookings():  
+def post_bookings():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
     data = request.json
     booking = Bookings()
-     
+
     booking.start_date = data.get('start_date', None)
     booking.end_date = data.get('end_date', None)
 
     booking.hut_id = data.get('hut_id')
     overlapping_booking = Bookings.query.filter(
         Bookings.hut_id == booking.hut_id,
-        Bookings.status_reserved == 'active',  
+        Bookings.status_reserved == 'active',
         Bookings.start_date <= booking.end_date,
         Bookings.end_date >= booking.start_date
     ).first()
@@ -175,19 +213,32 @@ def post_bookings():
     db.session.add(booking)
     db.session.commit()
     response_body['message'] = 'Respuesta del post de Bookings'
-    response_body['result'] = booking.serialize()
+    response_body['results'] = booking.serialize()
     return response_body, 201
-        
 
 
+@api.route('/hut-favorites', methods=['POST'])
+@jwt_required()
+def get_huts_favorites():
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['user_id']
+    data = request.json
+    hut_favorites = HutFavorites()
+    hut_favorites.hut_id = data.get('hut_id', None)
+    hut_favorites.user_id = user_id
+    db.session.add(hut_favorites)
+    db.session.commit()
+    response_body['message'] = 'Añadido en favoritos'
+    response_body['results'] = hut_favorites.serialize()
+    return response_body, 200
 
-   
+
 @api.route('/huts', methods=['GET'])
+@jwt_required()
 def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [row.serialize() for row in rows]
+    response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
-
-
