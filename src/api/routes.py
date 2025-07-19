@@ -32,7 +32,7 @@ def login():
     password = request.json.get("password", None)
     # Buscar el email y el password en la BBDD y verificar si is_active es True.
     user = db.session.execute(db.select(Users).where(Users.email == email,
-                                                     Users.is_active == True)).scalar()                                                   
+                                                     Users.is_active == True)).scalar()
     if not user:
         response_body['message'] = 'Bad email'
         return response_body, 401
@@ -50,8 +50,6 @@ def login():
     return response_body, 200
 
 
-
-
 @api.route('/users', methods=['GET', 'POST'])
 def get_users():
     response_body = {}
@@ -60,16 +58,16 @@ def get_users():
         rows = db.session.execute(
             db.select(Users).where(Users.is_active)).scalars()
         response_body['result'] = [row.serialize()
-                                for row in rows]
+                                   for row in rows]
         return response_body, 200
-    
+
     if request.method == 'POST':
         data = request.json
         password = data.get('password', None)
         if password == None:
             response_body['message'] = 'Falta Password'
             response_body['result'] = {}
-            return response_body,403
+            return response_body, 403
         user = Users()
         user.password = bcrypt.generate_password_hash(password).decode("utf-8")
         user.first_name = data.get('first_name', None)
@@ -86,7 +84,7 @@ def get_users():
 
 
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-@jwt_required()   
+@jwt_required()
 def user(id):
     response_body = {}
     claims = get_jwt()
@@ -112,21 +110,98 @@ def user(id):
         response_body['message'] = f'Usuario {id} modificado'
         response_body['results'] = user.serialize()
         return response_body, 200
-    
+
     if request.method == 'DELETE':
         user.is_active = False
         db.session.commit()
         response_body['message'] = f'Usuario {id} eliminado'
         response_body['results'] = None
         return response_body, 200
-    
-   
+
+
 @api.route('/huts', methods=['GET'])
 def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [rows.serialize() for row in rows]
+    response_body['result'] = [row.serialize() for row in rows]
     return response_body, 200
 
 
+@api.route('/locations', methods=['GET'])
+def get_locations():
+    locations = Location.query.all()
+    return jsonify([location.serialize() for location in locations]), 200
+
+
+@api.route('/locations/<int:id>', methods=['GET'])
+def get_location(id):
+    location = Location.query.get(id)
+    if not location:
+        return jsonify({"message": "Location not found"}), 404
+    return jsonify(location.serialize()), 200
+
+
+@api.route('/locations', methods=['POST'])
+def create_location():
+    data = request.get_json()
+    new_location = Location(
+        complex=data.get("complex"),
+        latitude=data.get("latitude"),
+        longitude=data.get("longitude"),
+        address=data.get("address"),
+        city=data.get("city"),
+        region=data.get("region")
+    )
+    db.session.add(new_location)
+    db.session.commit()
+    return jsonify(new_location.serialize()), 201
+
+
+@api.route('/locations/<int:id>', methods=['DELETE'])
+def delete_location(id):
+    location = Location.query.get(id)
+    if not location:
+        return jsonify({"message": "Location not found"}), 404
+    db.session.delete(location)
+    db.session.commit()
+    return jsonify({"message": "Location deleted"}), 200
+
+
+@api.route('/reviews', methods=['GET'])
+def get_reviews():
+    reviews = Review.query.all()
+    return jsonify([review.serialize() for review in reviews]), 200
+
+
+@api.route('/reviews/<int:id>', methods=['GET'])
+def get_review(id):
+    review = Review.query.get(id)
+    if not review:
+        return jsonify({"message": "Review not found"}), 404
+    return jsonify(review.serialize()), 200
+
+
+@api.route('/reviews', methods=['POST'])
+def create_review():
+    data = request.get_json()
+    new_review = Review(
+        hut_id=data.get("hut_id"),
+        user_id=data.get("user_id"),
+        rating=data.get("rating"),
+        comment=data.get("comment"),
+        created_at=data.get("created_at")
+    )
+    db.session.add(new_review)
+    db.session.commit()
+    return jsonify(new_review.serialize()), 201
+
+
+@api.route('/reviews/<int:id>', methods=['DELETE'])
+def delete_review(id):
+    review = Review.query.get(id)
+    if not review:
+        return jsonify({"message": "Review not found"}), 404
+    db.session.delete(review)
+    db.session.commit()
+    return jsonify({"message": "Review deleted"}), 200
