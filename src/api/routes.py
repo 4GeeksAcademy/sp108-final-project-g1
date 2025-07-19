@@ -134,7 +134,7 @@ def post_huts():
     claims = get_jwt()
     response_body = {}
     if not claims.get('is_admin', False):
-        response_body['message'] = 'El usuario no tiene permiso para añadir cabañas.'
+        response_body['message'] = 'Necesita permiso de administrador.'
         return response_body, 403
     data = request.json
     response_body = {}
@@ -161,7 +161,7 @@ def put_huts(id):
     data = request.json
     claims = get_jwt()
     if not claims.get('is_admin', False):
-        response_body['message'] = "Se necesita permiso del administrador."
+        response_body['message'] = "Se necesita permiso de administrador."
         return response_body, 403
     hut = db.session.get(Huts, id)
     if not hut:
@@ -209,7 +209,7 @@ def delete_hut(id):
 @api.route('/huts_album', methods=['GET'])
 def get_huts_album():
     response_body = {}
-    response_body['message'] = "Las fotografías de las cabañas se han cargado satisfactoriamente."
+    response_body['message'] = "Los albums de las cabañas se han cargado satisfactoriamente."
     rows = db.session.execute(db.select(HutsAlbum)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
@@ -221,7 +221,7 @@ def get_current_hut_album(id):
     if not db.session.get(Huts, id):
         response_body['message'] = "La cabaña no existe."
         return response_body, 404
-    response_body['message'] = "Las fotografías de las cabañas se han cargado satisfactoriamente."
+    response_body['message'] = "El album de la cabaña se ha cargado satisfactoriamente."
     rows = db.session.execute(db.select(HutsAlbum).where(
         HutsAlbum.hut_id == id)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
@@ -238,15 +238,17 @@ def post_huts_album():
                    "living_room", "kitchen", "other_picture"]
     claims = get_jwt()
     if not claims.get('is_admin', False):
-        response_body['message'] = "El usuario no tiene permiso para añadir fotografías."
+        response_body['message'] = "Se necesita permiso de administrador."
         return response_body, 403
     if not hut_id:
-        return {"message": "Se requiere hut_id"}, 400
+        response_body['message'] = "Se requiere hut_id"
+        return response_body, 400
     if 'type' in data and data['type'] not in valid_types:
         response_body['message'] = "Tipo no válido."
         return response_body, 400
     if not db.session.get(Huts, hut_id):
-        return {"message": "La cabaña no existe"}, 404
+        response_body['message'] = "La cabaña no existe"
+        return response_body, 404
     hut_album = HutsAlbum(
         hut_id=hut_id,
         type=data.get('type'),
@@ -267,7 +269,7 @@ def put_huts_album(id):
     valid_types = ['bedroom', 'bathroom', 'living_room', 'kitchen', 'other_picture']
     claims = get_jwt()
     if not claims.get('is_admin', False):
-        response_body['message'] = 'Se necesita permiso de usuario.'
+        response_body['message'] = 'Se necesita permiso de administrador.'
         return response_body, 403
     hut_album = db.session.get(HutsAlbum, id)
     if not hut_album:
@@ -281,7 +283,7 @@ def put_huts_album(id):
     if 'image_url' in data:
         hut_album.image_url = data['image_url']
     db.session.commit()
-    response_body['message'] = f'El album de la cabaña {hut_album.id} ha sido modificado correctamente.'
+    response_body['message'] = f'El album con el {id} ha sido modificado correctamente.'
     response_body['results'] = hut_album.serialize()
     return response_body, 200
 
@@ -292,7 +294,7 @@ def delete_hut_album(id):
     response_body = {}
     claims = get_jwt()
     if not claims.get('is_admin', False):
-        response_body['message'] = "Necesita el permiso del administrador."
+        response_body['message'] = "Necesita el permiso de administrador."
         return response_body, 403
     hut_album = db.session.get(HutsAlbum, id)
     if not hut_album:
