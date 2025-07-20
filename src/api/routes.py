@@ -49,62 +49,36 @@ def login():
     return response_body, 200
 
 
-@api.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    response_body = {}
-    # Access the identity of the current user with get_jwt_identity
-    current_user = get_jwt_identity()
-    additional_claims = get_jwt()  # Los datos adicionales
-    response_body['current_user'] = current_user
-    response_body['aditional_data'] = additional_claims
-    return response_body, 200
-
-
 @api.route('/register', methods=['POST'])
 def register():
     response_body = {}
-
     data = request.json
-    password = data.get('password', None)
-    if password == None:
+    user=Users()
+    user.email = data.get('email', None).lower()
+    user.password = data.get('password', None)
+    if user.password == None:
         response_body['message'] = 'Falta Password'
         response_body['result'] = {}
         return response_body, 403
-    user = Users()
-    user.password = bcrypt.generate_password_hash(password).decode("utf-8")
-    user.first_name = data.get('first_name', None)
-    user.last_name = data.get('last_name', None)
-    user.email = data.get('email', None).lower()
-    user.phone_number = data.get('phone_number', None)
+    if user.email == None:
+        response_body['message'] = 'Falta Email'
+        response_body['result'] = {}
+        return response_body, 403
+    user.password = bcrypt.generate_password_hash(user.password).decode("utf-8")
     user.is_active = True
     user.is_admin = data.get('is_admin', False)
     db.session.add(user)
     db.session.commit()
-    response_body['results'] = user.serialize()
-    response_body['message'] = 'Respuesta del POST de Users'
-    return response_body, 201
-    # response_body = {}
-    # data = request.json
-    # email = data.get('email', 'user@email.com').lower()
-    # # verificar que el mail no exista en mi DB
-    # user = Users()
-    # user.email = email
-    # user.password = data.get('password', '1')
-    # user.is_active = True
-    # user.is_admin = data.get('is_admin', False)
-    # user.first_name = data.get('first_name', None)
-    # user.last_name = data.get('last_name', None)
-    # db.session.add(user)
-    # db.session.commit()
-    # claims = {'user_id': user.serialize()['id'],
-    #           'is_admin': user.serialize()['is_admin']}
-    # access_token = create_access_token(identity=email, additional_claims=claims)
+    claims = {'user_id': user.serialize()['id'],
+              'is_admin': user.serialize()['is_admin']}
+    access_token = create_access_token(
+        identity=user.email, additional_claims=claims)
+    response_body['access_token'] = access_token
 
-    # response_body['access_token'] = access_token
-    # response_body['results'] = user.serialize()
-    # response_body['message'] = 'Usuario registrado ok'
-    # return response_body, 201
+    response_body['results'] = user.serialize()
+    response_body['message'] = 'Usuario registrado'
+    return response_body, 201
+    
 
 @api.route('/users', methods=['GET'])
 def users():
@@ -118,8 +92,6 @@ def users():
         return response_body, 200
 
     
-
-
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def user(id):
@@ -235,7 +207,6 @@ def get_huts_favorites():
 
 
 @api.route('/huts', methods=['GET'])
-@jwt_required()
 def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."

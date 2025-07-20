@@ -79,6 +79,7 @@ class Huts(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     location_to = db.relationship('Location', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
+    image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
 
     def __repr__(self):
         return f'<Huts {self.name}>'
@@ -92,7 +93,8 @@ class Huts(db.Model):
                 'bathroom': self.bathroom,
                 'price_per_night': self.price_per_night,
                 'location_id': self.location_id,
-                'is_active': self.is_active}
+                'is_active': self.is_active,
+                'image_url': self.image_url}
 
 
 class HutFavorites(db.Model):
@@ -103,15 +105,15 @@ class HutFavorites(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
-    def __prep__(self):
+    def __repr__(self):
         return f'<Huts_favorites:{self.id}'
 
     def serialize(self):
         return {'id': self.id,
                 'hut_id': self.hut_id,
                 'user_id': self.user_id,
-                # 'image_url': self.hut_id.serialize()['name']
-        }
+                'hut_name': self.hut_to.name,
+                'hut_image_url': self.hut_to.image_url}
 
 
 class HutAlbum(db.Model):
@@ -124,7 +126,7 @@ class HutAlbum(db.Model):
     hut_to = db.relationship('Huts', foreign_keys=[
                              hut_id], cascade='all,delete')
 
-    def __prep__(self):
+    def __repr__(self):
         return f'<HutAlbum {self.id}>'
 
     def serialize(self):
