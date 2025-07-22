@@ -206,10 +206,56 @@ def get_huts_favorites():
     return response_body, 200
 
 
+@api.route('/hut-favorite/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_location(id):
+    response_body = {}
+    claims = get_jwt()
+    hut_favorite = db.session.execute(db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
+    if not claims['user_id']:
+        response_body['message'] = f'No tienes permiso a cancelar el {id}'
+        return response_body, 409
+    db.session.delete(hut_favorite)
+    db.session.commit()
+    response_body['message'] = f'Cabaña {id} eliminada de favoritos'
+    return response_body, 200
+
+
 @api.route('/huts', methods=['GET'])
 def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
+    return response_body, 200
+
+
+
+
+
+
+
+
+@api.route('/locations', methods=['POST'])
+@jwt_required
+def post_location():
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['is_admin']
+    if user_id != id:
+        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para agregar la localizacion'
+        return response_body, 409
+    data = request.get_json()
+    new_location = Locations(
+        complex=data.get("complex"),
+        latitude=data.get("latitude"),
+        longitude=data.get("longitude"),
+        address=data.get("address"),
+        city=data.get("city"),
+        region=data.get("region")
+    )
+    db.session.add(new_location)
+    db.session.commit()
+    response_body['message'] = "La localización se ha añadido correctamente."
+    response_body['results'] = new_location.serialize()
     return response_body, 200

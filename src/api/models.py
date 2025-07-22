@@ -141,12 +141,12 @@ class HutAlbum(db.Model):
 class Location(db.Model):
     __tablename__ = 'location'
     id = db.Column(db.Integer, primary_key=True)
-    complex = db.Column(db.String, unique=True, nullable=False)
-    latitude = db.Column(db.Float, unique=True, nullable=False)
-    longitude = db.Column(db.Float, unique=True, nullable=False)
-    address = db.Column(db.String, unique=True, nullable=False)
-    city = db.Column(db.String, unique=True, nullable=False)
-    region = db.Column(db.String, unique=True, nullable=False)
+    complex = db.Column(db.String, unique=False, nullable=False)
+    latitude = db.Column(db.Float, unique=False, nullable=False)
+    longitude = db.Column(db.Float, unique=False, nullable=False)
+    address = db.Column(db.String, unique=False, nullable=False)
+    city = db.Column(db.String, unique=False, nullable=False)
+    region = db.Column(db.String, unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Location {self.id} - {self.city}>'
