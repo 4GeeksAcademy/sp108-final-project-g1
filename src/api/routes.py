@@ -1,6 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+from datetime import datetime
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
@@ -141,7 +142,7 @@ def get_bookings():
     if is_admin:
         bookings = Bookings.query.all()
     else:
-        bookings = Bookings.query.filter_by(user_id=user_id).all()
+        bookings = Bookings.query.filter_by(user_id=user_id, status_reserved='active').all() 
 
     response_body['message'] = 'Lista de reservas'
     response_body['results'] = [booking.serialize() for booking in bookings]
@@ -156,10 +157,8 @@ def post_bookings():
     user_id = claims['user_id']
     data = request.json
     booking = Bookings()
-
     booking.start_date = data.get('start_date', None)
     booking.end_date = data.get('end_date', None)
-
     booking.hut_id = data.get('hut_id')
     overlapping_booking = Bookings.query.filter(
         Bookings.hut_id == booking.hut_id,
@@ -169,7 +168,13 @@ def post_bookings():
     ).first()
     if overlapping_booking:
         return "La cabaña ya esta ocupada", 409
-
+    if data['start_date'] >= data['end_date']:
+        response_body['message'] = 'La fecha de fin debe ser posterior a la de inicio'
+        return response_body, 400
+    hut = db.session.get(Huts, data['hut_id'])
+    if not hut:
+        response_body['message'] = 'Cabaña no encontrada'
+        return response_body, 404
     booking.user_id = user_id
     booking.hut_id = data.get('hut_id')
     booking.start_date = data.get('start_date', None)
@@ -189,6 +194,39 @@ def post_bookings():
     return response_body, 201
 
 
+@api.route('/bookings/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_bookings(id):
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['user_id']
+    is_admin = claims['is_admin']
+    booking = Bookings.query.get(id)
+    if not booking:
+        response_body['message'] = 'La reserva no se ha encontrado'
+        return response_body, 403
+    if user_id != booking.user_id and not is_admin:
+        response_body['message'] = 'Usuario no autorizado'
+        return response_body, 409
+    booking.status_reserved = 'cancelled'
+    db.session.commit()
+    response_body['message'] = 'Reserva cancelada exitosamente'
+    response_body['results'] = booking.serialize()
+    return response_body, 200
+
+    
+@api.route('/hut-favorites', methods=['GET'])
+@jwt_required()
+def get_hut_favorites():
+    response_body = {}
+    claims = get_jwt()
+    user_id = claims['user_id']
+    hut_favorites = HutFavorites.query.filter_by(user_id = user_id).all()
+    response_body['message'] = 'Lista de favoritos'
+    response_body['results'] = [hut_favorite.serialize() for hut_favorite in hut_favorites]
+    return response_body, 200
+
+
 @api.route('/hut-favorites', methods=['POST'])
 @jwt_required()
 def get_huts_favorites():
@@ -196,6 +234,17 @@ def get_huts_favorites():
     claims = get_jwt()
     user_id = claims['user_id']
     data = request.json
+    hut_id = data.get('hut_id')
+    hut = db.session.execute(db.select(Huts).where(Huts.id == hut_id)).scalar()
+    if not hut:
+        response_body['message'] = f'La cabaña con ID {hut_id} no existe'
+        return response_body, 404
+    existing_favorite = db.session.execute(db.select(HutFavorites).where(
+            (HutFavorites.user_id == user_id) & 
+            (HutFavorites.hut_id == hut_id))).scalar()
+    if existing_favorite:
+        response_body['message'] = 'Esta cabaña ya está en tus favoritos'
+        return response_body, 409
     hut_favorites = HutFavorites()
     hut_favorites.hut_id = data.get('hut_id', None)
     hut_favorites.user_id = user_id
@@ -206,18 +255,22 @@ def get_huts_favorites():
     return response_body, 200
 
 
-@api.route('/hut-favorite/<int:id>', methods=['DELETE'])
+@api.route('/hut-favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_location(id):
+def delete_hut_favorite(id):
     response_body = {}
     claims = get_jwt()
     hut_favorite = db.session.execute(db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
-    if not claims['user_id']:
-        response_body['message'] = f'No tienes permiso a cancelar el {id}'
-        return response_body, 409
+    if not hut_favorite:
+        response_body['message'] = f'El favorito con id {id} no existe'
+        return response_body, 404
+    if hut_favorite.user_id != claims['user_id']:
+        response_body['message'] = 'No tienes permiso para eliminar este favorito'
+        return response_body, 403
+    
     db.session.delete(hut_favorite)
     db.session.commit()
-    response_body['message'] = f'Cabaña {id} eliminada de favoritos'
+    response_body['message'] = f'El usuario {claims['user_id']} ha eliminado Cabaña {id} de favoritos'
     return response_body, 200
 
 
@@ -236,26 +289,3 @@ def get_huts():
 
 
 
-@api.route('/locations', methods=['POST'])
-@jwt_required
-def post_location():
-    response_body = {}
-    claims = get_jwt()
-    user_id = claims['is_admin']
-    if user_id != id:
-        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para agregar la localizacion'
-        return response_body, 409
-    data = request.get_json()
-    new_location = Locations(
-        complex=data.get("complex"),
-        latitude=data.get("latitude"),
-        longitude=data.get("longitude"),
-        address=data.get("address"),
-        city=data.get("city"),
-        region=data.get("region")
-    )
-    db.session.add(new_location)
-    db.session.commit()
-    response_body['message'] = "La localización se ha añadido correctamente."
-    response_body['results'] = new_location.serialize()
-    return response_body, 200
