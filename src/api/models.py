@@ -76,8 +76,8 @@ class Huts(db.Model):
     bedrooms = db.Column(db.Integer, unique=False, nullable=False)
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
-    location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
-    location_to = db.relationship('Location', foreign_keys=[location_id])
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     
     def __repr__(self):
@@ -130,18 +130,18 @@ class Huts_album(db.Model):
                 'image_url': self.image_url}
         
 # REVISAR EL UNIQUE
-class Location(db.Model):
-    __tablename__ = 'location'
+class Locations(db.Model):
+    __tablename__ = 'locations'
     id = db.Column(db.Integer, primary_key=True)
-    complex = db.Column(db.String, unique=True, nullable=False)  
-    latitude = db.Column(db.Float, unique=True, nullable=False) 
-    longitude = db.Column(db.Float, unique=True, nullable=False)
-    address = db.Column(db.String, unique=True, nullable=False)
-    city = db.Column(db.String, unique=True, nullable=False)
-    region = db.Column(db.String, unique=True, nullable=False)
+    complex = db.Column(db.String, unique=False, nullable=False)  
+    latitude = db.Column(db.Float, unique=False, nullable=False) 
+    longitude = db.Column(db.Float, unique=False, nullable=False)
+    address = db.Column(db.String, unique=False, nullable=False)
+    city = db.Column(db.String, unique=False, nullable=False)
+    region = db.Column(db.String, unique=False, nullable=False)
     
     def __repr__(self):
-        return f'<Location {self.id} - {self.city}>'
+        return f'<Locations {self.id} - {self.city}>'
     
     def serialize(self):
         return {'id': self.id,
@@ -153,19 +153,19 @@ class Location(db.Model):
                 'region': self.region}
 
 
-class Review(db.Model):
-    __tablename__ = 'review'
+class Reviews(db.Model):
+    __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer)
     comment = db.Column(db.String)
-    created_at = db.Column(db.Date)
+    created_at = db.Column(db.Date, default=datetime.utcnow) 
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[user_id])
     
     def __repr__(self):
-        return f'<Review {self.id} - Hut {self.hut_id} by User {self.user_id}>'
+        return f'<Reviews {self.id} - Hut {self.hut_id} by User {self.user_id}>'
     
     def serialize(self):
         return {'id': self.id,

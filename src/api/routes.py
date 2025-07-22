@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
-from api.models import db, Users, Bookings, Huts, Hut_favorites, Huts_album, Location, Review
+from api.models import db, Users, Bookings, Huts, Hut_favorites, Huts_album, Locations, Reviews
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -130,78 +130,156 @@ def get_huts():
 
 @api.route('/locations', methods=['GET'])
 def get_locations():
-    locations = Location.query.all()
-    return jsonify([location.serialize() for location in locations]), 200
+    response_body = {}
+    locations = Locations.query.all()
+    response_body['message'] = "Las localizaciones se han cargado correctamente."
+    response_body['results'] = [location.serialize() for location in locations]
+    return response_body, 200
 
 
 @api.route('/locations/<int:id>', methods=['GET'])
 def get_location(id):
-    location = Location.query.get(id)
+    response_body = {}
+    location = Locations.query.get(id)
     if not location:
-        return jsonify({"message": "Location not found"}), 404
-    return jsonify(location.serialize()), 200
+        return jsonify({"message": "Localizacion no encontrada"}), 404
+    response_body['message'] = "La localización se ha cargado correctamente."
+    response_body['results'] = location.serialize()
+    return response_body, 200
 
 
 @api.route('/locations', methods=['POST'])
-def create_location():
+@jwt_required()
+def post_location():
+    response_body = {}
+    claims = get_jwt()
+    if not claims['is_admin']:
+        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para agregar la localizacion'
+        return response_body, 409
     data = request.get_json()
-    new_location = Location(
+    new_location = Locations(
         complex=data.get("complex"),
         latitude=data.get("latitude"),
         longitude=data.get("longitude"),
         address=data.get("address"),
         city=data.get("city"),
-        region=data.get("region")
-    )
+        region=data.get("region"))
     db.session.add(new_location)
     db.session.commit()
-    return jsonify(new_location.serialize()), 201
+    response_body['message'] = "La localización se ha añadido correctamente."
+    response_body['results'] = new_location.serialize()
+    return response_body, 200
+
+
+@api.route('locations/<int:id>',methods=['PUT'])
+@jwt_required()
+def put_location(id):
+    response_body = {}
+    claims = get_jwt()
+    location = db.session.execute(db.select(Locations).where(Locations.id == id)).scalar()
+    if not claims['is_admin']:
+        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para modificar la localizacion'
+        return response_body, 409
+    data = request.json
+    location.complex = data.get('complex',location.complex)
+    location.latitude = data.get('latitude',location.latitude)
+    location.longitude = data.get('longitude',location.longitude)
+    location.address = data.get('address',location.address)
+    location.city = data.get('city',location.city)
+    location.region = data.get('region',location.region)
+    db.session.commit()
+    response_body['message'] = f'Localizacion {id} modificado'
+    response_body['results'] = location.serialize()
+    return response_body, 200
 
 
 @api.route('/locations/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_location(id):
-    location = Location.query.get(id)
-    if not location:
-        return jsonify({"message": "Location not found"}), 404
+    response_body = {}
+    claims = get_jwt()
+    location = db.session.execute(db.select(Locations).where(Locations.id == id)).scalar()
+    if not claims['is_admin']:
+        response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
+        return response_body, 409
     db.session.delete(location)
     db.session.commit()
-    return jsonify({"message": "Location deleted"}), 200
+    response_body['message'] = f'Reseña {id} eliminada'
+    return response_body, 200
 
 
 @api.route('/reviews', methods=['GET'])
 def get_reviews():
-    reviews = Review.query.all()
-    return jsonify([review.serialize() for review in reviews]), 200
+    response_body={}
+    response_body['message']="Las reviews se han cargado correctamente"
+    rows = db.session.execute(db.select(Reviews)).scalars()
+    response_body['results']=[row.serialize() for row in rows]
+    return response_body,200 
 
 
 @api.route('/reviews/<int:id>', methods=['GET'])
 def get_review(id):
-    review = Review.query.get(id)
+    response_body = {}
+    review = Reviews.query.get(id)
     if not review:
-        return jsonify({"message": "Review not found"}), 404
-    return jsonify(review.serialize()), 200
+        response_body['message'] = 'La reseña no se ha encontrado'
+        return response_body, 404
+    response_body['message'] = 'La reseña se ha cargado correctamente'
+    response_body['results'] = review.serialize()
+    return response_body, 200
 
 
 @api.route('/reviews', methods=['POST'])
+@jwt_required()
 def create_review():
-    data = request.get_json()
-    new_review = Review(
+    response_body = {}
+    data = request.json
+    claims = get_jwt()
+    user_id = claims['user_id']
+    new_review = Reviews(
         hut_id=data.get("hut_id"),
-        user_id=data.get("user_id"),
+        user_id=user_id,
         rating=data.get("rating"),
         comment=data.get("comment"),
         created_at=data.get("created_at")
     )
     db.session.add(new_review)
     db.session.commit()
-    return jsonify(new_review.serialize()), 201
+    response_body['message'] = 'El comentario se ha añadido correctamente'
+    response_body['results'] = new_review.serialize()
+    return response_body, 201
 
 
 @api.route('/reviews/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_review(id):
-    review = Review.query.get(id)
+    claims = get_jwt()
+    response_body = {}
+    review = Reviews.query.get(id)
     if not review:
-        return jsonify({"message": "Review not found"}), 404
+        return jsonify({"message": "Reseña no encontrada"}), 404
+    # Verificar si el usuario es el autor del review o el usuario es admin
+    if claims["user_id"] != review.user_id and not claims["is_admin"]:
+        response_body['message'] = 'Usuario no autorizado'
+        return response_body, 409
     db.session.delete(review)
     db.session.commit()
-    return jsonify({"message": "Review deleted"}), 200
+    response_body['message'] = "Reseña eliminada correctamente"
+    return response_body, 200
+
+
+@api.route('reviews/<int:id>',methods=['PUT'])
+@jwt_required()
+def put_review(id):
+    response_body = {}
+    claims = get_jwt()
+    review = db.session.execute(db.select(Reviews).where(Reviews.id == id)).scalar()
+    if not claims['is_admin'] :
+        response_body['message'] = f'El usuario {claims['user_id']} no tiene permiso para modificar la reseña'
+    data = request.json
+    review.rating = data.get('rating',review.rating)
+    review.comment = data.get('comment',review.comment)
+    db.session.commit()
+    response_body['message'] = f'Reseña {id} modificado'
+    response_body['results'] = review.serialize()
+    return response_body, 200
