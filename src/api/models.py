@@ -70,7 +70,7 @@ class Bookings(db.Model):
 class Huts(db.Model):
     __tablename__ = 'huts'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, unique=False, nullable=False)
     description = db.Column(db.String, unique=False, nullable=False)
     capacity = db.Column(db.Integer, unique=False, nullable=False)
     bedrooms = db.Column(db.Integer, unique=False, nullable=False)
@@ -103,7 +103,7 @@ class HutFavorites(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
-    def __prep__(self):
+    def __repr__(self):
         return f'<Huts_favorites:{self.id}'
 
     def serialize(self):
@@ -117,11 +117,11 @@ class HutsAlbum(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Enum("bedroom", "bathroom", "living_room",
                      "kitchen", "other_picture", name="type"))
-    image_url = db.Column(db.String, unique=True, nullable=False)
+    image_url = db.Column(db.String, unique=False, nullable=False)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
 
-    def __prep__(self):
+    def __repr__(self):
         return f'<HutsAlbum {self.id}>'
 
     def serialize(self):
@@ -135,12 +135,12 @@ class HutsAlbum(db.Model):
 class Location(db.Model):
     __tablename__ = 'location'
     id = db.Column(db.Integer, primary_key=True)
-    complex = db.Column(db.String, unique=True, nullable=False)
-    latitude = db.Column(db.Float, unique=True, nullable=False)
-    longitude = db.Column(db.Float, unique=True, nullable=False)
-    address = db.Column(db.String, unique=True, nullable=False)
-    city = db.Column(db.String, unique=True, nullable=False)
-    region = db.Column(db.String, unique=True, nullable=False)
+    complex = db.Column(db.String, unique=False, nullable=False)
+    latitude = db.Column(db.Float, unique=False, nullable=False)
+    longitude = db.Column(db.Float, unique=False, nullable=False)
+    address = db.Column(db.String, unique=False, nullable=False)
+    city = db.Column(db.String, unique=False, nullable=False)
+    region = db.Column(db.String, unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Location {self.id} - {self.city}>'
