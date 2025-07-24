@@ -40,11 +40,11 @@ class Bookings(db.Model):
     status_reserved = db.Column(db.Enum("active", "ocupated", "cancelled", name="status_reserved"),
                                 nullable=False, default="active")
     guests = db.Column(db.Integer, nullable=False)
-    special_requests = db.Column(db.String(500), unique=False, nullable=True)
+    special_requests = db.Column(db.String(500), unique=False, nullable=False)
     created_at = db.Column(db.Date, default=datetime.utcnow)
     payment_date = db.Column(db.Date, default=datetime.utcnow)
-    transaction_payment = db.Column(db.String, unique=False, nullable=True)
-    status_payment = db.Column(db.Boolean, unique=False, nullable=True)
+    transaction_payment = db.Column(db.String, unique=False, nullable=False)
+    status_payment = db.Column(db.Boolean, unique=False, nullable=False)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -70,14 +70,14 @@ class Bookings(db.Model):
 class Huts(db.Model):
     __tablename__ = 'huts'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String, unique=False, nullable=False)
     description = db.Column(db.String, unique=False, nullable=False)
     capacity = db.Column(db.Integer, unique=False, nullable=False)
     bedrooms = db.Column(db.Integer, unique=False, nullable=False)
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
-    location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
-    location_to = db.relationship('Location', foreign_keys=[location_id])
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
 
@@ -116,18 +116,17 @@ class HutFavorites(db.Model):
                 'hut_image_url': self.hut_to.image_url}
 
 
-class HutAlbum(db.Model):
+class HutsAlbum(db.Model):
     __tablename__ = 'huts_album'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Enum("bedroom", "bathroom", "living_room",
                      "kitchen", "other_picture", name="type"))
-    image_url = db.Column(db.String, unique=True, nullable=False)
+    image_url = db.Column(db.String, unique=False, nullable=False)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
-    hut_to = db.relationship('Huts', foreign_keys=[
-                             hut_id], cascade='all,delete')
+    hut_to = db.relationship('Huts', foreign_keys=[hut_id])
 
     def __repr__(self):
-        return f'<HutAlbum {self.id}>'
+        return f'<HutsAlbum {self.id}>'
 
     def serialize(self):
         return {'id': self.id,
@@ -135,11 +134,9 @@ class HutAlbum(db.Model):
                 'type': self.type,
                 'image_url': self.image_url}
 
-# REVISAR EL UNIQUE
 
-
-class Location(db.Model):
-    __tablename__ = 'location'
+class Locations(db.Model):
+    __tablename__ = 'locations'
     id = db.Column(db.Integer, primary_key=True)
     complex = db.Column(db.String, unique=False, nullable=False)
     latitude = db.Column(db.Float, unique=False, nullable=False)
@@ -161,8 +158,8 @@ class Location(db.Model):
                 'region': self.region}
 
 
-class Review(db.Model):
-    __tablename__ = 'review'
+class Reviews(db.Model):
+    __tablename__ = 'reviews'
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer)
     comment = db.Column(db.String)
