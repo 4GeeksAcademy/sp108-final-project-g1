@@ -79,6 +79,7 @@ class Huts(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
+    image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
 
     def __repr__(self):
         return f'<Huts {self.name}>'
@@ -92,7 +93,8 @@ class Huts(db.Model):
                 'bathroom': self.bathroom,
                 'price_per_night': self.price_per_night,
                 'location_id': self.location_id,
-                'is_active': self.is_active}
+                'is_active': self.is_active,
+                'image_url': self.image_url}
 
 
 class HutFavorites(db.Model):
@@ -109,7 +111,9 @@ class HutFavorites(db.Model):
     def serialize(self):
         return {'id': self.id,
                 'hut_id': self.hut_id,
-                'user_id': self.user_id}
+                'user_id': self.user_id,
+                'hut_name': self.hut_to.name,
+                'hut_image_url': self.hut_to.image_url}
 
 
 class HutsAlbum(db.Model):
@@ -131,7 +135,6 @@ class HutsAlbum(db.Model):
                 'image_url': self.image_url}
 
 
-# REVISAR EL UNIQUE
 class Locations(db.Model):
     __tablename__ = 'locations'
     id = db.Column(db.Integer, primary_key=True)
