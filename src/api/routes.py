@@ -11,6 +11,8 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
 from flask_bcrypt import Bcrypt
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 
 
 api = Blueprint('api', __name__)
@@ -25,19 +27,69 @@ def handle_hello():
     return response_body, 200
 
 
+@api.route('/upload', methods=['POST'])
+@jwt_required()
+def upload_image():
+    response_body = {}
+    claims = get_jwt()
+    
+    if not claims:
+        response_body['message'] = 'Usuario no autenticado'
+        return response_body, 401
+        
+    if 'file' not in request.files:
+        response_body['message'] = 'No se encontró ningún archivo'
+        return response_body, 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        response_body['message'] = 'Nombre de archivo vacío'
+        return response_body, 400
+    
+    try:
+        
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder="huts_app",
+            quality="auto",
+            fetch_format="auto"
+        )
+        
+  
+        thumbnail_url, _ = cloudinary_url(
+            upload_result['public_id'],
+            width=300,
+            height=300,
+            crop="fill"
+        )
+        
+        response_body.update({
+            'message': 'Imagen subida correctamente',
+            'original_url': upload_result['secure_url'],
+            'public_id': upload_result['public_id'],
+            'thumbnail_url': thumbnail_url,  # URL transformada
+            'optimized_url': upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')  # Truco para URL optimizada
+        })
+        
+        return response_body, 200
+    
+    except Exception as e:
+        response_body['message'] = f'Error al subir la imagen: {str(e)}'
+        return response_body, 500
+
 @api.route("/login", methods=["POST"])
 def login():
     response_body = {}
     data = request.json
     email = data.get("email", None).lower()
     password = request.json.get("password", None)
-    # Buscar el email y el password en la BBDD y verificar si is_active es True.
+    
     user = db.session.execute(db.select(Users).where(Users.email == email,
                                                      Users.is_active == True)).scalar()
     if not user:
         response_body['message'] = 'Bad email'
         return response_body, 401
-    # Ahora comparar la password de la linea 30 con el user.password que tiene la password hasheada
+
     if not bcrypt.check_password_hash(user.password, password):
         response_body['message'] = 'Bad password'
         return response_body, 401
@@ -274,13 +326,6 @@ def delete_hut_favorite(id):
     return response_body, 200
 
 
-@api.route('/huts', methods=['GET'])
-def get_huts():
-    response_body = {}
-    response_body['message'] = "Las cabañas se han cargado correctamente."
-    rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [row.serialize() for row in rows]
-    return response_body, 200
 
 
 @api.route('/locations', methods=['GET'])
@@ -467,6 +512,15 @@ def post_huts():
     return response_body, 201
 
 
+@api.route('/huts', methods=['GET'])
+def get_huts():
+    response_body = {}
+    response_body['message'] = "Las cabañas se han cargado correctamente."
+    rows = db.session.execute(db.select(Huts)).scalars()
+    response_body['result'] = [row.serialize() for row in rows]
+    return response_body, 200
+
+
 @api.route('/huts/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_huts(id):
@@ -518,9 +572,71 @@ def delete_hut(id):
     response_body['message'] = f'La cabaña {hut.name} se ha eliminado correctamente.'
     return response_body, 200
 
+# PRUEBA MEJORA HUTS ALBUM
+@api.route('/huts_album', methods=['POST'])
+@jwt_required()
+def post_huts_album():
+    response_body = {}
+    claims = get_jwt()
+    
+    # Verificar permisos de administrador
+    if not claims.get('is_admin', False):
+        response_body['message'] = "Se necesita permiso de administrador."
+        return response_body, 403
 
-@api.route('/huts_album', methods=['GET'])
-def get_huts_album():
+    # Validar datos básicos
+    hut_id = request.form.get('hut_id')
+    photo_type = request.form.get('type')
+    
+    if not hut_id or not photo_type:
+        response_body['message'] = "Faltan hut_id o type"
+        return response_body, 400
+
+    # Validar carpeta en Cloudinary
+    valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
+    if photo_type not in valid_types:
+        response_body['message'] = "Tipo de foto no válido"
+        return response_body, 400
+
+    # Procesar múltiples archivos
+    uploaded_files = []
+    for file_key in request.files:
+        file = request.files[file_key]
+        
+        if file.filename == '':
+            continue  # Saltar archivos vacíos
+
+        try:
+            # Subir a Cloudinary con estructura organizada
+            upload_result = cloudinary.uploader.upload(
+                file,
+                folder=f"huts/{hut_id}/{photo_type}",
+                quality="auto",
+                fetch_format="auto"
+            )
+            
+            # Guardar en base de datos
+            new_photo = HutsAlbum(
+                hut_id=hut_id,
+                type=photo_type,
+                image_url=upload_result['secure_url'],
+                public_id=upload_result['public_id']
+            )
+            db.session.add(new_photo)
+            uploaded_files.append(new_photo.serialize())
+        
+        except Exception as e:
+            db.session.rollback()
+            response_body['message'] = f"Error al subir {file.filename}: {str(e)}"
+            return response_body, 500
+
+    db.session.commit()
+    response_body['message'] = f"{len(uploaded_files)} imágenes subidas"
+    response_body['results'] = uploaded_files
+    return response_body, 201
+
+# @api.route('/huts-album', methods=['GET'])
+# def get_huts_album():
     response_body = {}
     response_body['message'] = "Los albums de las cabañas se han cargado satisfactoriamente."
     rows = db.session.execute(db.select(HutsAlbum)).scalars()
@@ -528,7 +644,7 @@ def get_huts_album():
     return response_body, 200
 
 
-@api.route('/huts_album/<int:id>', methods=['GET'])
+@api.route('/huts-album/<int:id>', methods=['GET'])
 def get_current_hut_album(id):
     response_body = {}
     if not db.session.get(Huts, id):
@@ -541,7 +657,7 @@ def get_current_hut_album(id):
     return response_body, 200
 
 
-@api.route('/huts_album', methods=['POST'])
+@api.route('/huts-album', methods=['POST'])
 @jwt_required()
 def post_huts_album():
     response_body = {}
@@ -562,19 +678,37 @@ def post_huts_album():
     if not db.session.get(Huts, hut_id):
         response_body['message'] = "La cabaña no existe"
         return response_body, 404
-    hut_album = HutsAlbum(
-        hut_id=hut_id,
-        type=data.get('type'),
-        image_url=data['image_url']
-    )
-    db.session.add(hut_album)
-    db.session.commit()
-    response_body['message'] = "Las fotografías se han añadido satisfactoriamente."
-    response_body['results'] = hut_album.serialize()
-    return response_body, 201
+
+    if 'file' not in request.files:
+        response_body['message'] = "No se proporcionó imagen"
+        return response_body, 400
+
+    file = request.files['file']
+    data = request.form.to_dict()
+    
+    try:
+        # Subir imagen a Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        
+        hut_album = HutsAlbum(
+            hut_id=hut_id,
+            type=data.get('type'),
+            image_url=upload_result['secure_url'],
+            public_id=upload_result['public_id']  # Guardar para posible eliminación
+        )
+
+        db.session.add(hut_album)
+        db.session.commit()
+        response_body['message'] = "Las fotografías se han añadido satisfactoriamente."
+        response_body['results'] = hut_album.serialize()
+        return response_body, 201
+
+    except Exception as e:
+            response_body['message'] = f"Error al subir la imagen: {str(e)}"
+            return response_body, 500
 
 
-@api.route('/huts_album/<int:id>', methods=['PUT'])
+@api.route('/huts-album/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_huts_album(id):
     response_body = {}
@@ -601,7 +735,7 @@ def put_huts_album(id):
     return response_body, 200
 
 
-@api.route('/huts_album/<int:id>', methods=['DELETE'])
+@api.route('/huts-album/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_hut_album(id):
     response_body = {}
@@ -613,7 +747,15 @@ def delete_hut_album(id):
     if not hut_album:
         response_body['message'] = f'El album de la cabaña con ID {id} no existe.'
         return response_body, 404
-    db.session.delete(hut_album)
-    db.session.commit()
-    response_body['message'] = f'El album con el ID {id} ha sido eliminado.'
-    return response_body, 200
+    try:
+        if hut_album.public_id:
+            cloudinary.uploader.destroy(hut_album.public_id)
+        db.session.delete(hut_album)
+        db.session.commit()
+        response_body['message'] = f'El album con el ID {id} ha sido eliminado.'
+        return response_body, 200
+    
+    except Exception as e:
+        db.session.rollback()
+        response_body['message'] = f'Error al eliminar: {str(e)}'
+        return response_body, 500
