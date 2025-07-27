@@ -482,7 +482,7 @@ def put_review(id):
     db.session.commit()
     response_body['message'] = f'Reseña {id} modificado'
     response_body['results'] = review.serialize()
-    response_body['results'] = [row.serialize() for row in rows]
+    # response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
 
 
@@ -573,70 +573,70 @@ def delete_hut(id):
     return response_body, 200
 
 # PRUEBA MEJORA HUTS ALBUM
-@api.route('/huts_album', methods=['POST'])
-@jwt_required()
-def post_huts_album():
-    response_body = {}
-    claims = get_jwt()
+# @api.route('/huts_album', methods=['POST'])
+# @jwt_required()
+# def post_huts_album():
+#     response_body = {}
+#     claims = get_jwt()
     
-    # Verificar permisos de administrador
-    if not claims.get('is_admin', False):
-        response_body['message'] = "Se necesita permiso de administrador."
-        return response_body, 403
+#     # Verificar permisos de administrador
+#     if not claims.get('is_admin', False):
+#         response_body['message'] = "Se necesita permiso de administrador."
+#         return response_body, 403
 
-    # Validar datos básicos
-    hut_id = request.form.get('hut_id')
-    photo_type = request.form.get('type')
+#     # Validar datos básicos
+#     hut_id = request.form.get('hut_id')
+#     photo_type = request.form.get('type')
     
-    if not hut_id or not photo_type:
-        response_body['message'] = "Faltan hut_id o type"
-        return response_body, 400
+#     if not hut_id or not photo_type:
+#         response_body['message'] = "Faltan hut_id o type"
+#         return response_body, 400
 
-    # Validar carpeta en Cloudinary
-    valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
-    if photo_type not in valid_types:
-        response_body['message'] = "Tipo de foto no válido"
-        return response_body, 400
+#     # Validar carpeta en Cloudinary
+#     valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
+#     if photo_type not in valid_types:
+#         response_body['message'] = "Tipo de foto no válido"
+#         return response_body, 400
 
-    # Procesar múltiples archivos
-    uploaded_files = []
-    for file_key in request.files:
-        file = request.files[file_key]
+#     # Procesar múltiples archivos
+#     uploaded_files = []
+#     for file_key in request.files:
+#         file = request.files[file_key]
         
-        if file.filename == '':
-            continue  # Saltar archivos vacíos
+#         if file.filename == '':
+#             continue  # Saltar archivos vacíos
 
-        try:
-            # Subir a Cloudinary con estructura organizada
-            upload_result = cloudinary.uploader.upload(
-                file,
-                folder=f"huts/{hut_id}/{photo_type}",
-                quality="auto",
-                fetch_format="auto"
-            )
+#         try:
+#             # Subir a Cloudinary con estructura organizada
+#             upload_result = cloudinary.uploader.upload(
+#                 file,
+#                 folder=f"huts/{hut_id}/{photo_type}",
+#                 quality="auto",
+#                 fetch_format="auto"
+#             )
             
-            # Guardar en base de datos
-            new_photo = HutsAlbum(
-                hut_id=hut_id,
-                type=photo_type,
-                image_url=upload_result['secure_url'],
-                public_id=upload_result['public_id']
-            )
-            db.session.add(new_photo)
-            uploaded_files.append(new_photo.serialize())
+#             # Guardar en base de datos
+#             new_photo = HutsAlbum(
+#                 hut_id=hut_id,
+#                 type=photo_type,
+#                 image_url=upload_result['secure_url'],
+#                 public_id=upload_result['public_id']
+#             )
+#             db.session.add(new_photo)
+#             uploaded_files.append(new_photo.serialize())
         
-        except Exception as e:
-            db.session.rollback()
-            response_body['message'] = f"Error al subir {file.filename}: {str(e)}"
-            return response_body, 500
+#         except Exception as e:
+#             db.session.rollback()
+#             response_body['message'] = f"Error al subir {file.filename}: {str(e)}"
+#             return response_body, 500
 
-    db.session.commit()
-    response_body['message'] = f"{len(uploaded_files)} imágenes subidas"
-    response_body['results'] = uploaded_files
-    return response_body, 201
+#     db.session.commit()
+#     response_body['message'] = f"{len(uploaded_files)} imágenes subidas"
+#     response_body['results'] = uploaded_files
+#     return response_body, 201
 
-# @api.route('/huts-album', methods=['GET'])
-# def get_huts_album():
+@api.route('/huts-album', methods=['GET'])
+def get_huts_album():
     response_body = {}
     response_body['message'] = "Los albums de las cabañas se han cargado satisfactoriamente."
     rows = db.session.execute(db.select(HutsAlbum)).scalars()

@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import { register } from "../services/auth";
 
 const Register = () => {
+  const { dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    acceptTerms: false
+    password_confirmation: '',
+    agreeTerms: false
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -17,33 +25,96 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validar que las contraseñas coincidan
-    if (formData.password !== formData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+    setLoading(true);
+    setError(null);
+
+    // Validación básica de contraseñas
+    if (formData.password !== formData.password_confirmation) {
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
       return;
     }
-    // Aquí iría la lógica para manejar el registro
-    console.log(formData);
+
+    if (!formData.agreeTerms) {
+      setError('Debes aceptar los términos y condiciones');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const dataToSend = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.password_confirmation
+      };
+
+      const result = await register(dataToSend);
+
+      // Guardar token y redirigir
+      localStorage.setItem('token', result.access_token);
+      dispatch({ type: 'token', payload: result.access_token });
+      dispatch({ type: 'isLogged', payload: true });
+      dispatch({ type: 'currentUser', payload: result.user });
+
+      navigate('/');
+    } catch (err) {
+      setError(err.message || 'Error al registrar la cuenta');
+      dispatch({
+        type: 'handle_alert',
+        payload: {
+          text: 'Error al registrar',
+          background: 'danger',
+          visible: true
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      name: '',
+      email: '',
+      password: '',
+      password_confirmation: '',
+      agreeTerms: false
+    });
+    dispatch({
+      type: 'handle_alert',
+      payload: {
+        text: 'Formulario cancelado',
+        background: 'warning',
+        visible: true
+      }
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brown-250 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-350">
           Crear una cuenta
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-brown-150">
           ¿Ya tienes una cuenta?{' '}
-          <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-medium text-indigo-50 hover:text-green-150">
             Inicia sesión
-          </a>
+          </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
+              {error}
+            </div>
+          )}
+          
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -103,17 +174,17 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
                 Confirmar contraseña
               </label>
               <div className="mt-1">
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="password_confirmation"
+                  name="password_confirmation"
                   type="password"
                   autoComplete="new-password"
                   required
-                  value={formData.confirmPassword}
+                  value={formData.password_confirmation}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
@@ -122,28 +193,39 @@ const Register = () => {
 
             <div className="flex items-center">
               <input
-                id="acceptTerms"
-                name="acceptTerms"
+                id="agreeTerms"
+                name="agreeTerms"
                 type="checkbox"
                 required
-                checked={formData.acceptTerms}
+                checked={formData.agreeTerms}
                 onChange={handleChange}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="acceptTerms" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-900">
                 Acepto los{' '}
-                <a href="#" className="text-indigo-600 hover:text-indigo-500">
+                <Link to="/terms" className="text-indigo-600 hover:text-indigo-500">
                   términos y condiciones
-                </a>
+                </Link>
               </label>
             </div>
 
-            <div>
+            <div className="flex justify-between">
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={loading}
+                className={`flex-1 mr-2 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  loading ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
               >
-                Registrarse
+                {loading ? 'Registrando...' : 'Registrarse'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleReset}
+                className="flex-1 ml-2 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Cancelar
               </button>
             </div>
           </form>
