@@ -3,6 +3,8 @@ import { Layout } from "./pages/Layout.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Single } from "./pages/Single.jsx";
 import { Error404 } from "./pages/Error404.jsx";
+import Login from "./pages/Login.jsx"
+import Register from "./pages/Register.jsx";
 
 
 /* 
@@ -18,6 +20,11 @@ export const router = createBrowserRouter (
       <Route path="/" element={<Layout />} errorElement={<Error404/>} >
         <Route path= "/" element={<Home />} />
         <Route path="/single/:theId" element={ <Single />} />
+        <Route path="/demo" element={<Demo />} />
+        <Route path="/huts" element={<Huts />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
       </Route>
     )
 );

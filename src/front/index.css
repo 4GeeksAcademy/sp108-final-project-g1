@@ -9,13 +9,9 @@
     font-family: Fairplay;
 }
 
-body {
+.body {
     background: radial-gradient(circle, rgba(0,0,0,0.4), rgba(0,0,0,0.9)), url(../front/assets/img/casa-en-arbol.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 100vh;
 }
