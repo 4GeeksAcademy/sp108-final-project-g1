@@ -1,10 +1,8 @@
 export const Footer = () => {
 	return (
-		<footer className="footer mt-auto py-3 text-center">
-			<p>
-				Made with <i className="fa fa-heart text-danger" /> by{" "}
-				<a href="http://www.4geeksacademy.com" target="_blank">4Geeks Academy</a>
-			</p>
+		<footer class="bottom-0 w-full text-center bg-black/90 py-2">
+			<p>Realizado por Raúl, Federico y Fernando en Agosto de 2025</p>
+			<p>Proyecto para 4GEEKS ACADEMY</p>
 		</footer>
 	)
 };
