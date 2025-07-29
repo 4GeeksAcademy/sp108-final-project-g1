@@ -45,9 +45,9 @@ class Bookings(db.Model):
     payment_date = db.Column(db.Date, default=datetime.utcnow)
     transaction_payment = db.Column(db.String, unique=False, nullable=False)
     status_payment = db.Column(db.Boolean, unique=False, nullable=False)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):
@@ -76,7 +76,7 @@ class Huts(db.Model):
     bedrooms = db.Column(db.Integer, unique=False, nullable=False)
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
-    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id', ondelete="CASCADE"))
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
@@ -100,9 +100,9 @@ class Huts(db.Model):
 class HutFavorites(db.Model):
     __tablename__ = 'hut_favorites'
     id = db.Column(db.Integer, primary_key=True)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):
@@ -122,7 +122,7 @@ class HutsAlbum(db.Model):
     type = db.Column(db.Enum("bedroom", "bathroom", "living_room",
                      "kitchen", "other_picture", name="type"))
     image_url = db.Column(db.String, unique=False, nullable=False)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
 
     def __repr__(self):
@@ -164,9 +164,9 @@ class Reviews(db.Model):
     rating = db.Column(db.Integer)
     comment = db.Column(db.String)
     created_at = db.Column(db.Date, default=datetime.utcnow)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id'))
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):

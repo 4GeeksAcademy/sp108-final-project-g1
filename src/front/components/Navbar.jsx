@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Login from "../pages/Login"
 
 export const Navbar = () => {
 
@@ -9,8 +10,10 @@ export const Navbar = () => {
 					<span className="navbar-brand mb-0 h1">React Boilerplate</span>
 				</Link>
 				<div className="ml-auto">
-					<Link to="/demo" className="btn btn-primary">Demo</Link>
+					
+					<Link to="/login" className="btn btn-primary">Login</Link>
 				</div>
+				
 			</div>
 		</nav>
 	);
