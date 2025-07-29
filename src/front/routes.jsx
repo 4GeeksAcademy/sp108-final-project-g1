@@ -2,7 +2,6 @@ import { createBrowserRouter, createRoutesFromElements, Route } from "react-rout
 import { Layout } from "./pages/Layout.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Single } from "./pages/Single.jsx";
-import { Demo } from "./pages/Demo.jsx";
 import { Error404 } from "./pages/Error404.jsx";
 import { Huts } from "./pages/Huts.jsx"
 import Login from "./pages/Login.jsx"
