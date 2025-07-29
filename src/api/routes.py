@@ -437,7 +437,6 @@ def put_review(id):
     db.session.commit()
     response_body['message'] = f'Reseña {id} modificado'
     response_body['results'] = review.serialize()
-    response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
 
 
