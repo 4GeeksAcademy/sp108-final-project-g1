@@ -94,14 +94,32 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brown-250 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="relative min-h-screen bg-brown-250 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      >
+        <source src="https://res.cloudinary.com/dmtvki1tj/video/upload/v1753689318/1104240_1080p_Laugh_1280x720_hizoyi.mp4" type="video/mp4" />
+        
+      </video>
+      {/* Capa semitransparente para mejorar legibilidad */}
+      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+    </div>
+
+    {/* Contenido del login (encima del video) */}
+    <div className="relative z-10 px-4 py-12 bg-white bg-opacity-90 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl">
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-green-350">
           Crear una cuenta
         </h2>
         <p className="mt-2 text-center text-sm text-brown-150">
           ¿Ya tienes una cuenta?{' '}
-          <Link to="/login" className="font-medium text-indigo-50 hover:text-green-150">
+          <Link to="/login" className="font-medium text-green-150 hover:text-green-350">
             Inicia sesión
           </Link>
         </p>
@@ -270,6 +288,7 @@ const Register = () => {
                   </svg>
                 </a>
               </div>
+            </div>
             </div>
           </div>
         </div>

@@ -109,6 +109,7 @@ def register():
     user=Users()
     user.email = data.get('email', None).lower()
     user.password = data.get('password', None)
+    user.first_name = data.get('first_name', None)
     if user.password == None:
         response_body['message'] = 'Falta Password'
         response_body['result'] = {}
@@ -572,68 +573,6 @@ def delete_hut(id):
     response_body['message'] = f'La cabaña {hut.name} se ha eliminado correctamente.'
     return response_body, 200
 
-# PRUEBA MEJORA HUTS ALBUM
-# @api.route('/huts_album', methods=['POST'])
-# @jwt_required()
-# def post_huts_album():
-#     response_body = {}
-#     claims = get_jwt()
-    
-#     # Verificar permisos de administrador
-#     if not claims.get('is_admin', False):
-#         response_body['message'] = "Se necesita permiso de administrador."
-#         return response_body, 403
-
-#     # Validar datos básicos
-#     hut_id = request.form.get('hut_id')
-#     photo_type = request.form.get('type')
-    
-#     if not hut_id or not photo_type:
-#         response_body['message'] = "Faltan hut_id o type"
-#         return response_body, 400
-
-#     # Validar carpeta en Cloudinary
-#     valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
-#     if photo_type not in valid_types:
-#         response_body['message'] = "Tipo de foto no válido"
-#         return response_body, 400
-
-#     # Procesar múltiples archivos
-#     uploaded_files = []
-#     for file_key in request.files:
-#         file = request.files[file_key]
-        
-#         if file.filename == '':
-#             continue  # Saltar archivos vacíos
-
-#         try:
-#             # Subir a Cloudinary con estructura organizada
-#             upload_result = cloudinary.uploader.upload(
-#                 file,
-#                 folder=f"huts/{hut_id}/{photo_type}",
-#                 quality="auto",
-#                 fetch_format="auto"
-#             )
-            
-#             # Guardar en base de datos
-#             new_photo = HutsAlbum(
-#                 hut_id=hut_id,
-#                 type=photo_type,
-#                 image_url=upload_result['secure_url'],
-#                 public_id=upload_result['public_id']
-#             )
-#             db.session.add(new_photo)
-#             uploaded_files.append(new_photo.serialize())
-        
-#         except Exception as e:
-#             db.session.rollback()
-#             response_body['message'] = f"Error al subir {file.filename}: {str(e)}"
-#             return response_body, 500
-
-#     db.session.commit()
-#     response_body['message'] = f"{len(uploaded_files)} imágenes subidas"
-#     response_body['results'] = uploaded_files
-#     return response_body, 201
 
 @api.route('/huts-album', methods=['GET'])
 def get_huts_album():
@@ -657,55 +596,104 @@ def get_current_hut_album(id):
     return response_body, 200
 
 
+
+# PRUEBA MEJORA HUTS ALBUM
 @api.route('/huts-album', methods=['POST'])
 @jwt_required()
 def post_huts_album():
     response_body = {}
-    data = request.json
-    hut_id = data.get('hut_id')
-    valid_types = ["bedroom", "bathroom",
-                   "living_room", "kitchen", "other_picture"]
     claims = get_jwt()
+    
+    # Verificar permisos de administrador
     if not claims.get('is_admin', False):
         response_body['message'] = "Se necesita permiso de administrador."
         return response_body, 403
-    if not hut_id:
-        response_body['message'] = "Se requiere hut_id"
-        return response_body, 400
-    if 'type' in data and data['type'] not in valid_types:
-        response_body['message'] = "Tipo no válido."
-        return response_body, 400
-    if not db.session.get(Huts, hut_id):
-        response_body['message'] = "La cabaña no existe"
-        return response_body, 404
 
-    if 'file' not in request.files:
-        response_body['message'] = "No se proporcionó imagen"
-        return response_body, 400
-
-    file = request.files['file']
-    data = request.form.to_dict()
-    
-    try:
-        # Subir imagen a Cloudinary
-        upload_result = cloudinary.uploader.upload(file)
+    # Verificar si es JSON (para URLs) o form-data (para archivos)
+    if request.content_type == 'application/json':
+        data = request.json
+        hut_id = data.get('hut_id')
+        photo_type = data.get('type')
+        urls = data.get('urls', [])
         
-        hut_album = HutsAlbum(
-            hut_id=hut_id,
-            type=data.get('type'),
-            image_url=upload_result['secure_url'],
-            public_id=upload_result['public_id']  # Guardar para posible eliminación
-        )
+        # Validaciones
+        if not hut_id or not photo_type:
+            response_body['message'] = "Faltan hut_id o type"
+            return response_body, 400
+            
+        valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
+        if photo_type not in valid_types:
+            response_body['message'] = "Tipo de foto no válido"
+            return response_body, 400
 
-        db.session.add(hut_album)
+        saved_photos = []
+        for url in urls:
+            new_photo = HutsAlbum(
+                hut_id=hut_id,
+                type=photo_type,
+                image_url=url
+            )
+            db.session.add(new_photo)
+            saved_photos.append(new_photo.serialize())
+        
         db.session.commit()
-        response_body['message'] = "Las fotografías se han añadido satisfactoriamente."
-        response_body['results'] = hut_album.serialize()
+        response_body['message'] = f"{len(urls)} imágenes guardadas desde URLs"
+        response_body['results'] = saved_photos
         return response_body, 201
+        
+    else:
+        # Aquí iría tu lógica original para subida de archivos (form-data)
+        response_body['message'] = "Usa JSON con {hut_id, type, urls: []} para URLs existentes"
+        return response_body, 400
+# @api.route('/huts-album', methods=['POST'])
+# @jwt_required()
+# def post_huts_album():
+#     response_body = {}
+#     data = request.json
+#     hut_id = data.get('hut_id')
+#     valid_types = ["bedroom", "bathroom",
+#                    "living_room", "kitchen", "other_picture"]
+#     claims = get_jwt()
+#     if not claims.get('is_admin', False):
+#         response_body['message'] = "Se necesita permiso de administrador."
+#         return response_body, 403
+#     if not hut_id:
+#         response_body['message'] = "Se requiere hut_id"
+#         return response_body, 400
+#     if 'type' in data and data['type'] not in valid_types:
+#         response_body['message'] = "Tipo no válido."
+#         return response_body, 400
+#     if not db.session.get(Huts, hut_id):
+#         response_body['message'] = "La cabaña no existe"
+#         return response_body, 404
 
-    except Exception as e:
-            response_body['message'] = f"Error al subir la imagen: {str(e)}"
-            return response_body, 500
+#     if 'file' not in request.files:
+#         response_body['message'] = "No se proporcionó imagen"
+#         return response_body, 400
+
+#     file = request.files['file']
+#     data = request.form.to_dict()
+    
+#     try:
+#         # Subir imagen a Cloudinary
+#         upload_result = cloudinary.uploader.upload(file)
+        
+#         hut_album = HutsAlbum(
+#             hut_id=hut_id,
+#             type=data.get('type'),
+#             image_url=upload_result['secure_url'],
+#             public_id=upload_result['public_id']  # Guardar para posible eliminación
+#         )
+
+#         db.session.add(hut_album)
+#         db.session.commit()
+#         response_body['message'] = "Las fotografías se han añadido satisfactoriamente."
+#         response_body['results'] = hut_album.serialize()
+#         return response_body, 201
+
+#     except Exception as e:
+#             response_body['message'] = f"Error al subir la imagen: {str(e)}"
+#             return response_body, 500
 
 
 @api.route('/huts-album/<int:id>', methods=['PUT'])
