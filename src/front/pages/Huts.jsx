@@ -1,80 +1,127 @@
-import React from 'react';
+// src/front/pages/Huts.jsx
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import Register from './Register'; // Importamos el componente Register
 
-export const Huts = () => {
-  // Datos de ejemplo 
-  const cabañas = [
-    {
-      id: 1,
-      name: "Cabaña del Bosque",
-      description: "Acogedora cabaña con vista al bosque y chimenea.",
-      capacity: 4,
-      bedrooms: 2,
-      bathroom: 1,
-      price_per_night: 120.00,
-      location_id: 1,
-      is_active: true,
-      image_url: "https://ejemplo.com/cabana1.jpg" 
-    },
-    // Más cabañas...
-  ];
+const Huts = () => {
+  const [huts, setHuts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedHut, setSelectedHut] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem('token') !== null
+  );
+
+  useEffect(() => {
+    const fetchHuts = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/huts');
+        if (!response.ok) throw new Error('Error al cargar cabañas');
+        const data = await response.json();
+        setHuts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHuts();
+  }, []);
+
+  const handleReserveClick = (hut) => {
+    setSelectedHut(hut);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedHut(null);
+  };
+
+  if (loading) return <div className="text-center mt-8 text-lg text-brown-550">Cargando cabañas...</div>;
+  if (error) return <div className="text-center mt-8 text-lg text-red-500">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Título */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Nuestras Cabañas</h1>
-        <p className="text-xl text-gray-600">Conecta con la naturaleza en estos refugios únicos.</p>
-      </div>
-
-      {/* Lista de cabañas */}
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-        {cabañas.map((cabaña) => (
-          <div key={cabaña.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            {/* Imagen - Usando image_url del modelo */}
-            <div className="h-48 sm:h-64 overflow-hidden">
-              <img
-                src={cabaña.image_url || "https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg"} 
-                alt={`Foto de ${cabaña.name}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "https://via.placeholder.com/800x500?text=Imagen+no+disponible";
-                }}
-              />
-            </div>
-
-            {/* Detalles */}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8 text-green-550">Nuestras Cabañas</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {huts.map((hut) => (
+          <div key={hut.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+            <img
+              src={hut.image_url}
+              alt={hut.name}
+              className="w-full h-48 object-cover"
+              onError={(e) => e.target.src = 'https://via.placeholder.com/300x200'}
+            />
             <div className="p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">{cabaña.name}</h2>
-              <p className="text-gray-600 mb-4 line-clamp-2">{cabaña.description}</p>
-
-              {/* Características */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                  👥 Capacidad: {cabaña.capacity}
-                </span>
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                  🛏️ {cabaña.bedrooms} hab.
-                </span>
-                <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded">
-                  🚿 {cabaña.bathroom} baño(s)
-                </span>
-              </div>
-
-              {/* Precio  */}
-              <div className="flex justify-between items-center">
-                <p className="text-lg font-bold">
-                  ${cabaña.price_per_night.toFixed(2)} <span className="text-sm font-normal text-gray-500">/noche</span>
-                </p>
-                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm">
+              <h2 className="text-xl font-semibold text-green-550 mb-2">{hut.name}</h2>
+              <p className="text-brown-350 mb-4">{hut.description}</p>
+              <ul className="space-y-1 mb-4 text-brown-450">
+                <li>💤 Capacidad: {hut.capacity} personas</li>
+                <li>🛏️ Dormitorios: {hut.bedrooms}</li>
+                <li>🚽 Baños: {hut.bathroom}</li>
+                <li>💰 <span className="font-bold text-green-550">${hut.price_per_night}</span>/noche</li>
+              </ul>
+              <div className="flex justify-between mt-4">
+                <Link
+                  to={`/hut/${hut.id}`}
+                  className="px-4 py-2 bg-brown-150 text-brown-550 rounded hover:bg-brown-250 transition-colors"
+                >
                   Ver detalles
+                </Link>
+                <button
+                  onClick={() => handleReserveClick(hut)}
+                  className="px-4 py-2 bg-green-250 text-white rounded hover:bg-green-350 transition-colors"
+                >
+                  Reservar
                 </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Modal de Reserva/Registro */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md overflow-hidden">
+            <div className="flex justify-between items-center border-b p-4 bg-green-150">
+              <h3 className="text-lg font-bold text-green-550">
+                {isAuthenticated ? `Reservar ${selectedHut.name}` : "Regístrate para reservar"}
+              </h3>
+              <button
+                onClick={handleCloseModal}
+                className="text-brown-550 hover:text-brown-350"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6">
+              {isAuthenticated ? (
+                <div>
+                  <p className="mb-4">Formulario de reserva para <span className="font-bold">{selectedHut.name}</span></p>
+                  {/* Aquí iría el formulario de reserva */}
+                  <button className="w-full py-2 bg-green-350 text-white rounded hover:bg-green-450">
+                    Confirmar Reserva
+                  </button>
+                </div>
+              ) : (
+                <Register
+                  onSuccess={() => {
+                    setIsAuthenticated(true);
+                    // Aquí podrías cambiar automáticamente a mostrar el formulario de reserva
+                  }}
+                  hutName={selectedHut.name}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
+export default Huts;

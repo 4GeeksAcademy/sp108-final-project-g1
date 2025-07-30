@@ -487,164 +487,73 @@ def put_review(id):
     return response_body, 200
 
 
-@api.route('/huts', methods=['POST'])
-@jwt_required()
-def post_huts():
-    claims = get_jwt()
-    response_body = {}
-    if not claims.get('is_admin', False):
-        response_body['message'] = 'Necesita permiso de administrador.'
-        return response_body, 403
-    data = request.json
-    response_body = {}
-    hut = Huts()
-    hut.name = data.get('name', hut.name)
-    hut.description = data.get('description', hut.description)
-    hut.capacity = data.get('capacity', hut.capacity)
-    hut.bedrooms = data.get('bedrooms', hut.bedrooms)
-    hut.bathroom = data.get('bathroom', hut.bathroom)
-    hut.price_per_night = data.get('price_per_night', hut.price_per_night)
-    hut.location_id = data.get('location_id', hut.location_id)
-    hut.is_active = data.get('is_active', hut.is_active)
-    db.session.add(hut)
-    db.session.commit()
-    response_body['message'] = 'La cabaña se ha añadido correctamente.'
-    response_body['results'] = hut.serialize()
-    return response_body, 201
+class Huts(db.Model):
+    __tablename__ = 'huts'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, unique=False, nullable=False)
+    description = db.Column(db.String, unique=False, nullable=False)
+    capacity = db.Column(db.Integer, unique=False, nullable=False)
+    bedrooms = db.Column(db.Integer, unique=False, nullable=False)
+    bathroom = db.Column(db.Integer, unique=False, nullable=False)
+    price_per_night = db.Column(db.Float, unique=False, nullable=False)
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id', ondelete="CASCADE"))
+    location_to = db.relationship('Locations', foreign_keys=[location_id])
+    is_active = db.Column(db.Boolean, unique=False, nullable=False)
+    image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
+
+    def __repr__(self):
+        return f'<Huts {self.name}>'
+
+    def serialize(self):
+        return {'id': self.id,
+                'name': self.name,
+                'description': self.description,
+                'capacity': self.capacity,
+                'bedrooms': self.bedrooms,
+                'bathroom': self.bathroom,
+                'price_per_night': self.price_per_night,
+                'location_id': self.location_id,
+                'is_active': self.is_active,
+                'image_url': self.image_url}
 
 
-@api.route('/huts', methods=['GET'])
-def get_huts():
-    response_body = {}
-    response_body['message'] = "Las cabañas se han cargado correctamente."
-    rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [row.serialize() for row in rows]
-    return response_body, 200
+class HutFavorites(db.Model):
+    __tablename__ = 'hut_favorites'
+    id = db.Column(db.Integer, primary_key=True)
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_to = db.relationship('Huts', foreign_keys=[hut_id])
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    user_to = db.relationship('Users', foreign_keys=[user_id])
+
+    def __repr__(self):
+        return f'<Huts_favorites:{self.id}'
+
+    def serialize(self):
+        return {'id': self.id,
+                'hut_id': self.hut_id,
+                'user_id': self.user_id,
+                'hut_name': self.hut_to.name,
+                'hut_image_url': self.hut_to.image_url}
 
 
-@api.route('/huts/<int:id>', methods=['PUT'])
-@jwt_required()
-def put_huts(id):
-    response_body = {}
-    data = request.json
-    claims = get_jwt()
-    if not claims.get('is_admin', False):
-        response_body['message'] = "Se necesita permiso de administrador."
-        return response_body, 403
-    hut = db.session.get(Huts, id)
-    if not hut:
-        response_body['message'] = "Cabaña no encontrada."
-        return response_body, 404
-    if 'name' in data and data['name'] != hut.name:
-        existing_name = db.session.execute(
-            db.select(Huts).where(Huts.name == data['name'])).scalar()
-        if existing_name:
-            response_body['message'] = "El nombre ya existe."
-            return response_body, 409
-    hut.name = data.get('name', hut.name)
-    hut.description = data.get('description', hut.description)
-    hut.capacity = data.get('capacity', hut.capacity)
-    hut.bedrooms = data.get('bedrooms', hut.bedrooms)
-    hut.bathroom = data.get('bathroom', hut.bathroom)
-    hut.price_per_night = data.get('price_per_night', hut.price_per_night)
-    hut.location_id = data.get('location_id', hut.location_id)
-    hut.is_active = data.get('is_active', hut.is_active)
-    db.session.commit()
-    response_body['message'] = 'Los datos de la cabaña se han actualizado correctamente.'
-    response_body['results'] = hut.serialize()
-    return response_body, 200
+class HutsAlbum(db.Model):
+    __tablename__ = 'huts_album'
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Enum("bedroom", "bathroom", "living_room",
+                     "kitchen", "other_picture", name="type"))
+    image_url = db.Column(db.String, unique=False, nullable=False)
+    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_to = db.relationship('Huts', foreign_keys=[hut_id])
 
+    def __repr__(self):
+        return f'<HutsAlbum {self.id}>'
 
-@api.route('/huts/<int:id>', methods=['DELETE'])
-@jwt_required()
-def delete_hut(id):
-    response_body = {}
-    claims = get_jwt()
-    if not claims.get('is_admin', False):
-        response_body['message'] = 'Se requiere permiso de administrador'
-        return response_body, 403
-    hut = db.session.get(Huts, id)
-    if not hut:
-        response_body['message'] = f'La cabaña con ID {id} no existe.'
-        return response_body, 404
-    db.session.execute(db.delete(HutsAlbum).where(HutsAlbum.hut_id == id))
-    db.session.delete(hut)
-    db.session.commit()
-    response_body['message'] = f'La cabaña {hut.name} se ha eliminado correctamente.'
-    return response_body, 200
+    def serialize(self):
+        return {'id': self.id,
+                'hut_id': self.hut_id,
+                'type': self.type,
+                'image_url': self.image_url}
 
-
-@api.route('/huts-album', methods=['GET'])
-def get_huts_album():
-    response_body = {}
-    response_body['message'] = "Los albums de las cabañas se han cargado satisfactoriamente."
-    rows = db.session.execute(db.select(HutsAlbum)).scalars()
-    response_body['results'] = [row.serialize() for row in rows]
-    return response_body, 200
-
-
-@api.route('/huts-album/<int:id>', methods=['GET'])
-def get_current_hut_album(id):
-    response_body = {}
-    if not db.session.get(Huts, id):
-        response_body['message'] = "La cabaña no existe."
-        return response_body, 404
-    response_body['message'] = "El album de la cabaña se ha cargado satisfactoriamente."
-    rows = db.session.execute(db.select(HutsAlbum).where(
-        HutsAlbum.hut_id == id)).scalars()
-    response_body['results'] = [row.serialize() for row in rows]
-    return response_body, 200
-
-
-
-# PRUEBA MEJORA HUTS ALBUM
-@api.route('/huts-album', methods=['POST'])
-@jwt_required()
-def post_huts_album():
-    response_body = {}
-    claims = get_jwt()
-    
-    # Verificar permisos de administrador
-    if not claims.get('is_admin', False):
-        response_body['message'] = "Se necesita permiso de administrador."
-        return response_body, 403
-
-    # Verificar si es JSON (para URLs) o form-data (para archivos)
-    if request.content_type == 'application/json':
-        data = request.json
-        hut_id = data.get('hut_id')
-        photo_type = data.get('type')
-        urls = data.get('urls', [])
-        
-        # Validaciones
-        if not hut_id or not photo_type:
-            response_body['message'] = "Faltan hut_id o type"
-            return response_body, 400
-            
-        valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
-        if photo_type not in valid_types:
-            response_body['message'] = "Tipo de foto no válido"
-            return response_body, 400
-
-        saved_photos = []
-        for url in urls:
-            new_photo = HutsAlbum(
-                hut_id=hut_id,
-                type=photo_type,
-                image_url=url
-            )
-            db.session.add(new_photo)
-            saved_photos.append(new_photo.serialize())
-        
-        db.session.commit()
-        response_body['message'] = f"{len(urls)} imágenes guardadas desde URLs"
-        response_body['results'] = saved_photos
-        return response_body, 201
-        
-    else:
-        # Aquí iría tu lógica original para subida de archivos (form-data)
-        response_body['message'] = "Usa JSON con {hut_id, type, urls: []} para URLs existentes"
-        return response_body, 400
 # @api.route('/huts-album', methods=['POST'])
 # @jwt_required()
 # def post_huts_album():
