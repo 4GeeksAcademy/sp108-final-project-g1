@@ -36,15 +36,16 @@ class Bookings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     start_date = db.Column(db.Date, unique=False, nullable=False)
     end_date = db.Column(db.Date, unique=False, nullable=False)
-    total_price = db.Column(db.Float, unique=False, nullable=False)
+    total_price = db.Column(db.Float, unique=False, nullable=True)
     status_reserved = db.Column(db.Enum("active", "ocupated", "cancelled", name="status_reserved"),
                                 nullable=False, default="active")
+    # hut_price_per_night = db.Column(db.Float, unique=False, nullable=False )
     guests = db.Column(db.Integer, nullable=False)
-    special_requests = db.Column(db.String(500), unique=False, nullable=False)
+    special_requests = db.Column(db.String(500), unique=False, nullable=True)
     created_at = db.Column(db.Date, default=datetime.utcnow)
     payment_date = db.Column(db.Date, default=datetime.utcnow)
-    transaction_payment = db.Column(db.String, unique=False, nullable=False)
-    status_payment = db.Column(db.Boolean, unique=False, nullable=False)
+    transaction_payment = db.Column(db.String, unique=False, nullable=True)
+    status_payment = db.Column(db.Boolean, unique=False, nullable=True)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
@@ -151,8 +152,10 @@ class Locations(db.Model):
     def serialize(self):
         return {'id': self.id,
                 'complex': self.complex,
-                'latitude': self.latitude,
-                'longitude': self.longitude,
+                'position': {
+                'lat': self.latitude,
+                'lng': self.longitude
+                },
                 'address': self.address,
                 'city': self.city,
                 'region': self.region}

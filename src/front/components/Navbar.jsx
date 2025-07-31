@@ -37,7 +37,7 @@ export const Navbar = () => {
             <Link to="/" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Cabañas</Link>
           </li>
           <li>
-            <Link to="/" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Reservas</Link>
+            <Link to="/bookings" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Reservas</Link>
           </li>
           <li>
             <Link to="/" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Favoritos</Link>
@@ -48,9 +48,12 @@ export const Navbar = () => {
           <li>
             <Link to="/" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Mi Perfil</Link>
           </li>
+          <li>
+            <Link to="/maps" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Mapa</Link>
+          </li>
         </div>
         <li className="md:ml-14">
-          <Link to="/" onClick={handleConnected}>
+          <Link to="/login" onClick={handleConnected}>
             {
               !isConnected ?
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" stroke-linejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
@@ -71,7 +74,7 @@ export const Navbar = () => {
                 </Link>
               </li>
               <li className="group">
-                <Link to="/" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                <Link to="/bookings" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                   <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M9 7l1 0" /><path d="M9 13l6 0" /><path d="M13 17l2 0" /></svg>
                   <span>Reservas</span>
                 </Link>
@@ -92,6 +95,12 @@ export const Navbar = () => {
                 <Link to="/" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                   <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
                   <span>Mi perfil</span>
+                </Link>
+              </li>
+              <li className="group">
+                <Link to="/maps" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                  <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
+                  <span>Mapa</span>
                 </Link>
               </li>
             </ul>

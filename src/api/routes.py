@@ -81,8 +81,12 @@ def upload_image():
 def login():
     response_body = {}
     data = request.json
-    email = data.get("email", None).lower()
-    password = request.json.get("password", None)
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return {"message": "Email and password are required"}, 400
+    email = email.lower()
     
     user = db.session.execute(db.select(Users).where(Users.email == email,
                                                      Users.is_active == True)).scalar()
@@ -94,11 +98,13 @@ def login():
         response_body['message'] = 'Bad password'
         return response_body, 401
     claims = {'user_id': user.serialize()['id'],
-              'is_admin': user.serialize()['is_admin']}
+              'is_admin': user.serialize()['is_admin'],
+              'email': user.serialize()['email']}
     access_token = create_access_token(
         identity=email, additional_claims=claims)
     response_body['message'] = 'User logged OK'
     response_body['access_token'] = access_token
+    response_body['results'] = user.serialize()
     return response_body, 200
 
 
@@ -184,6 +190,46 @@ def user(id):
         return response_body, 200
     
 
+@api.route('/bookings/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_bookings(user_id):
+    response_body = {}
+
+    # Verificar que el usuario autenticado coincide con el user_id solicitado
+    current_user_id = get_jwt_identity()
+    
+    if current_user_id != user_id:
+        response_body['success'] = False
+        response_body['message'] = "No autorizado para ver estas reservas"
+        return response_body, 403
+
+    # Obtener las reservas del usuario
+    bookings = db.session.query(
+            Bookings,
+            Huts.name.label('hut_name'),
+            Locations.name.label('location_name')
+        ).join(
+            Huts, Bookings.hut_id == Huts.id
+        ).join(
+            Locations, Huts.location_id == Locations.id
+        ).filter(
+            Bookings.user_id == user_id
+        ).order_by(
+            Bookings.start_date.desc()
+        ).all()
+    
+    if not bookings:
+            response_body['success'] = True
+            response_body['message'] = "No se encontraron reservas"
+            response_body['results'] = []
+            return response_body, 200
+    
+    response_body['success'] = True
+    response_body['message'] = "Lista de reservas obtenida exitosamente"
+    response_body['results'] = [booking.serialize() for booking in bookings]
+    return response_body, 200
+
+
 
 @api.route('/bookings', methods=['GET'])
 @jwt_required()
@@ -232,10 +278,10 @@ def post_bookings():
     booking.hut_id = data.get('hut_id')
     booking.start_date = data.get('start_date', None)
     booking.end_date = data.get('end_date', None)
-    booking.total_price = data.get('total_price', None)
+    booking.total_price = data.get('total_price')
     booking.status_reserved = data.get('status_reserved', 'active')
     booking.guests = data.get('guests', None)
-    booking.special_requests = data.get('special_requests', None)
+    booking.special_requests = data.get('special_requests')
     booking.created_at = data.get('created_at', None)
     booking.payment_date = data.get('payment_date', None)
     booking.transaction_payment = data.get('transation_payment', 'Card')
@@ -327,6 +373,25 @@ def delete_hut_favorite(id):
     return response_body, 200
 
 
+@api.route('/huts/map-data', methods=['GET'])
+def get_huts_map_data():
+    try:
+        huts = Huts.query.join(Locations).filter(Huts.is_active == True).all()
+        
+        map_data = [{
+            'id': hut.id,
+            'name': hut.name,
+            'price': hut.price_per_night,
+            'position': {
+                'lat': hut.location_to.latitude,
+                'lng': hut.location_to.longitude
+            },
+            'image_url': hut.image_url
+        } for hut in huts]
+        
+        return jsonify(map_data), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @api.route('/locations', methods=['GET'])
@@ -645,55 +710,6 @@ def post_huts_album():
         # Aquí iría tu lógica original para subida de archivos (form-data)
         response_body['message'] = "Usa JSON con {hut_id, type, urls: []} para URLs existentes"
         return response_body, 400
-# @api.route('/huts-album', methods=['POST'])
-# @jwt_required()
-# def post_huts_album():
-#     response_body = {}
-#     data = request.json
-#     hut_id = data.get('hut_id')
-#     valid_types = ["bedroom", "bathroom",
-#                    "living_room", "kitchen", "other_picture"]
-#     claims = get_jwt()
-#     if not claims.get('is_admin', False):
-#         response_body['message'] = "Se necesita permiso de administrador."
-#         return response_body, 403
-#     if not hut_id:
-#         response_body['message'] = "Se requiere hut_id"
-#         return response_body, 400
-#     if 'type' in data and data['type'] not in valid_types:
-#         response_body['message'] = "Tipo no válido."
-#         return response_body, 400
-#     if not db.session.get(Huts, hut_id):
-#         response_body['message'] = "La cabaña no existe"
-#         return response_body, 404
-
-#     if 'file' not in request.files:
-#         response_body['message'] = "No se proporcionó imagen"
-#         return response_body, 400
-
-#     file = request.files['file']
-#     data = request.form.to_dict()
-    
-#     try:
-#         # Subir imagen a Cloudinary
-#         upload_result = cloudinary.uploader.upload(file)
-        
-#         hut_album = HutsAlbum(
-#             hut_id=hut_id,
-#             type=data.get('type'),
-#             image_url=upload_result['secure_url'],
-#             public_id=upload_result['public_id']  # Guardar para posible eliminación
-#         )
-
-#         db.session.add(hut_album)
-#         db.session.commit()
-#         response_body['message'] = "Las fotografías se han añadido satisfactoriamente."
-#         response_body['results'] = hut_album.serialize()
-#         return response_body, 201
-
-#     except Exception as e:
-#             response_body['message'] = f"Error al subir la imagen: {str(e)}"
-#             return response_body, 500
 
 
 @api.route('/huts-album/<int:id>', methods=['PUT'])

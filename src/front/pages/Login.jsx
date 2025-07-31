@@ -34,17 +34,14 @@ const Login = () => {
         password: formData.password
       });
 
-      // Guardar token según rememberMe
-      if (formData.rememberMe) {
-        localStorage.setItem('token', result.access_token);
-      } else {
-        sessionStorage.setItem('token', result.access_token);
-      }
+       const storage = formData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('token', result.access_token);
 
       // Actualizar estado global
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
+      console.log('Login result:', result);
 
       navigate('/');
     } catch (err) {
@@ -61,6 +58,8 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+
 
   const handleReset = () => {
     setFormData({

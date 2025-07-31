@@ -30,12 +30,6 @@ const Register = () => {
     setLoading(true);
     setError(null);
 
-    // Validación básica de contraseñas
-    if (formData.password !== formData.password_confirmation) {
-      setError('Las contraseñas no coinciden');
-      setLoading(false);
-      return;
-    }
 
     if (!formData.agreeTerms) {
       setError('Debes aceptar los términos y condiciones');
