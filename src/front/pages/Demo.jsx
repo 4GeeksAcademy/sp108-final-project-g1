@@ -9,7 +9,7 @@ export const Demo = () => {
     <div className="container">
       <h1 className="text-center text-primary">Demo</h1>
       <br />
-      <Link to="/" className="btn btn-primary">Back home</Link>
+      <Link to="/" className="btn btn-primary">Back Home</Link>
     </div>
   );
 };
