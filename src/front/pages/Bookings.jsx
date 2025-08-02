@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getBookingsDetail } from '../services/book';
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { calculateNights,calculateTotalStayCost } from '../tools/utilFunctions';
 
 
 
@@ -42,9 +43,6 @@ const Bookings = () => {
 
 
 
-  // Render condicional
-  if (loading) return <div>Cargando reservas...</div>;
-  if (error) return <div>Error: {error}</div>;
 
 
   // Formatear fecha
@@ -53,12 +51,7 @@ const Bookings = () => {
     return new Date(dateString).toLocaleDateString('es-ES', options);
   };
 
-  // Calcular noches
-  const calculateNights = (start, end) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
-  };
+
 
 
 
@@ -144,7 +137,8 @@ const Bookings = () => {
                       <div className="bg-green-150 p-4 rounded-lg border border-green-250">
                         <p className="text-sm text-brown-450 mb-1">Total</p>
                         <p className="text-2xl font-bold text-brown-550 mb-4">
-                          $ {booking.total_price ? `$ ${booking.total_price}` : "Precio no disponible"}</p>
+                       $ {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))}
+                    </p>
 
                       </div>
 
