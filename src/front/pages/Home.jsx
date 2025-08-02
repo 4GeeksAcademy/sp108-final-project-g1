@@ -9,7 +9,6 @@ export const Home = () => {
 
 	return (
 		<div className="h-[86vh] w-full flex flex-col justify-start">
-			
 			<section className="ml-10 my-10 md:left-5">
 				<h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">
 					<span className="bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent">MI</span><br />
@@ -24,6 +23,7 @@ export const Home = () => {
 					</div>
 				</article>
 				
+			
 				{/* md:absolute md:bottom-40 md:left-10 lg:bottom-5 lg:left-1/2 lg:-translate-x-1/2 gap-5 w-[300px] text-center */}
 				<article className="">
 					<audio src={forestBirds} controls className="[&::-webkit-media-controls-panel]:bg-gradient-to-br from-green-550 via-green-250 to-brown-550/80 [&::-webkit-media-controls-current-time-display]:text-white [&::-webkit-media-controls-time-remaining-display]:text-white accent-green-350"></audio>

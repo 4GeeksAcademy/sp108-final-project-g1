@@ -381,7 +381,6 @@ def delete_hut_favorite(id):
 def get_huts_map_data():
     try:
         huts = Huts.query.join(Locations).filter(Huts.is_active == True).all()
-        print(huts)
         map_data = [{
             'id': hut.id,
             'name': hut.name,
@@ -590,8 +589,9 @@ def get_huts():
     response_body = {}
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
-    response_body['result'] = [row.serialize() for row in rows]
-    return response_body, 200
+    response_body['results'] = [row.serialize() for row in rows]
+    print(response_body)
+    return jsonify(response_body), 200
 
 
 @api.route('/huts/<int:id>', methods=['PUT'])

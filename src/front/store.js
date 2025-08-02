@@ -7,7 +7,8 @@ export const initialStore = () => {
         token: token,
         users: [],
         isLogged: !!token,
-        bookingsDetail: []
+        bookingsDetail: [],
+        hutsDetail:[]
     };
 };
 
@@ -31,6 +32,9 @@ export default function storeReducer(store, action = {}) {
 
         case 'bookingsDetail':
          return { ...store, bookingsDetail: action.payload };;
+       
+        case 'hutsDetail':
+         return { ...store, hutsDetail: action.payload };;
 
         case 'logout':
             localStorage.removeItem('token');

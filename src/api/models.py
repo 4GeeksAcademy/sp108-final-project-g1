@@ -66,7 +66,8 @@ class Bookings(db.Model):
             'status_reserved': self.status_reserved,
             'guests': self.guests,
             'special_requests': self.special_requests,
-            'status_payment': self.status_payment}
+            'status_payment': self.status_payment,
+            'hut_to': self.hut_to.serialize()}
 
 
 class Huts(db.Model):
@@ -98,7 +99,9 @@ class Huts(db.Model):
                 'price_per_night': self.price_per_night,
                 'location_id': self.location_id,
                 'is_active': self.is_active,
-                'image_url': self.image_url}
+                'image_url': self.image_url,
+                'location_to' : self.location_to.serialize()
+                }
 
 
 class HutFavorites(db.Model):

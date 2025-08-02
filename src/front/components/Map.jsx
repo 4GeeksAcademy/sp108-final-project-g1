@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, InfoWindow} from '@react-google-maps/api';
+import { getHutsDetail } from '../services/hut';
+import useGlobalReducer from "../hooks/useGlobalReducer";
+
 
 const key_api_maps = import.meta.env.VITE_CLAVE_API_GOOGLE_MAPS
-let host = import.meta.env.VITE_BACKEND_URL;
+
+
 
 export const Map = () => {
-  const [huts, setHuts] = useState([]);
+
   const [selectedHut, setSelectedHut] = useState(null);
   const [center, setCenter] = useState({ lat: 41.3851, lng: 2.1734 }); // Barcelona por defecto
 
-  const uri = `${host}api/huts/map-data`
+const { store, dispatch } = useGlobalReducer();
+
+const huts = store.hutsDetail
 
   const mapStyles = {
     height: "70vh",
@@ -18,24 +24,20 @@ export const Map = () => {
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
   };
 
-  useEffect(() => {
-    const fetchHuts = async () => {
+  
+useEffect(() => {
+    const getHuts = async () => {
       try {
-        const response = await fetch(uri);
-        const data = await response.json();
-        console.log(data)
-        setHuts(data);
-        if (data.length > 0) {
-          setCenter({
-            lat: data[0].position.lat,
-            lng: data[0].position.lng
-          });
-        }
+        const HutsData = await getHutsDetail();
+        dispatch({ type: "hutsDetail", payload: HutsData });
+
       } catch (error) {
         console.error("Error fetching huts:", error);
       }
     };
-    fetchHuts();
+    
+    getHuts();
+
   }, []);
 
   return (
@@ -43,6 +45,7 @@ export const Map = () => {
       googleMapsApiKey={key_api_maps}
       libraries={['places']}
     >
+
       <GoogleMap
         mapContainerStyle={mapStyles}
         zoom={10}
@@ -51,7 +54,7 @@ export const Map = () => {
         {huts.map(hut => (
           <Marker
             key={hut.id}
-            position={hut.position}
+            position={hut.location_to.position}
             onClick={() => setSelectedHut(hut)}
             icon={{
               url: "https://maps.google.com/mapfiles/ms/icons/lodging.png",
@@ -59,10 +62,11 @@ export const Map = () => {
             }}
           />
         ))}
+      
 
         {selectedHut && (
           <InfoWindow className="w-64 bg-white rounded-lg overflow-hidden shadow-xl"
-            position={selectedHut.position}
+            position={selectedHut.location_to.position}
             onCloseClick={() => setSelectedHut(null)}
           >
             <div className="p-2">

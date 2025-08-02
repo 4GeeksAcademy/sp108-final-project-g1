@@ -112,9 +112,9 @@ const Bookings = () => {
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row justify-between">
                     <div className="mb-6 md:mb-0 md:w-2/3">
-                      <h2 className="text-2xl font-bold text-brown-550 mb-2">FALTA FETCH HUTS?{booking.hut_name}</h2>
-                      <p className="text-green-450 font-medium mb-4">FALTA FETCH LOCATIONS?{booking.location_name}</p>
-
+                      <h2 className="text-2xl font-bold text-brown-550 mb-2">{booking.hut_to.name}</h2>
+                      <p className="text-green-450 font-medium mb-4">{booking.hut_to.location_to.city}</p>
+                
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-brown-450">Check-in</p>
