@@ -48,7 +48,8 @@ class Bookings(db.Model):
     status_payment = db.Column(db.Boolean, unique=False, nullable=True)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):
@@ -77,10 +78,12 @@ class Huts(db.Model):
     bedrooms = db.Column(db.Integer, unique=False, nullable=False)
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
-    location_id = db.Column(db.Integer, db.ForeignKey('locations.id', ondelete="CASCADE"))
+    location_id = db.Column(db.Integer, db.ForeignKey(
+        'locations.id', ondelete="CASCADE"))
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
-    image_url = db.Column(db.String, unique=False, nullable=False, default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
+    image_url = db.Column(db.String, unique=False, nullable=False,
+                          default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
 
     def __repr__(self):
         return f'<Huts {self.name}>'
@@ -103,7 +106,8 @@ class HutFavorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):
@@ -153,8 +157,8 @@ class Locations(db.Model):
         return {'id': self.id,
                 'complex': self.complex,
                 'position': {
-                'lat': self.latitude,
-                'lng': self.longitude
+                    'lat': self.latitude,
+                    'lng': self.longitude
                 },
                 'address': self.address,
                 'city': self.city,
@@ -169,7 +173,8 @@ class Reviews(db.Model):
     created_at = db.Column(db.Date, default=datetime.utcnow)
     hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"))
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete="CASCADE"))
     user_to = db.relationship('Users', foreign_keys=[user_id])
 
     def __repr__(self):

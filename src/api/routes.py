@@ -32,50 +32,51 @@ def handle_hello():
 def upload_image():
     response_body = {}
     claims = get_jwt()
-    
+
     if not claims:
         response_body['message'] = 'Usuario no autenticado'
         return response_body, 401
-        
+
     if 'file' not in request.files:
         response_body['message'] = 'No se encontró ningún archivo'
         return response_body, 400
-    
+
     file = request.files['file']
     if file.filename == '':
         response_body['message'] = 'Nombre de archivo vacío'
         return response_body, 400
-    
+
     try:
-        
+
         upload_result = cloudinary.uploader.upload(
             file,
             folder="huts_app",
             quality="auto",
             fetch_format="auto"
         )
-        
-  
+
         thumbnail_url, _ = cloudinary_url(
             upload_result['public_id'],
             width=300,
             height=300,
             crop="fill"
         )
-        
+
         response_body.update({
             'message': 'Imagen subida correctamente',
             'original_url': upload_result['secure_url'],
             'public_id': upload_result['public_id'],
             'thumbnail_url': thumbnail_url,  # URL transformada
-            'optimized_url': upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')  # Truco para URL optimizada
+            # Truco para URL optimizada
+            'optimized_url': upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')
         })
-        
+
         return response_body, 200
-    
+
     except Exception as e:
         response_body['message'] = f'Error al subir la imagen: {str(e)}'
         return response_body, 500
+
 
 @api.route("/login", methods=["POST"])
 def login():
@@ -87,7 +88,7 @@ def login():
     if not email or not password:
         return {"message": "Email and password are required"}, 400
     email = email.lower()
-    
+
     user = db.session.execute(db.select(Users).where(Users.email == email,
                                                      Users.is_active == True)).scalar()
     if not user:
@@ -112,7 +113,7 @@ def login():
 def register():
     response_body = {}
     data = request.json
-    user=Users()
+    user = Users()
     user.email = data.get('email', None).lower()
     user.password = data.get('password', None)
     user.first_name = data.get('first_name', None)
@@ -124,7 +125,8 @@ def register():
         response_body['message'] = 'Falta Email'
         response_body['result'] = {}
         return response_body, 403
-    user.password = bcrypt.generate_password_hash(user.password).decode("utf-8")
+    user.password = bcrypt.generate_password_hash(
+        user.password).decode("utf-8")
     user.is_active = True
     user.is_admin = data.get('is_admin', False)
     db.session.add(user)
@@ -138,7 +140,7 @@ def register():
     response_body['results'] = user.serialize()
     response_body['message'] = 'Usuario registrado'
     return response_body, 201
-    
+
 
 @api.route('/users', methods=['GET'])
 def users():
@@ -148,10 +150,10 @@ def users():
         rows = db.session.execute(
             db.select(Users).where(Users.is_active)).scalars()
         response_body['results'] = [row.serialize()
-                                   for row in rows]
+                                    for row in rows]
         return response_body, 200
 
-    
+
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def user(id):
@@ -188,7 +190,7 @@ def user(id):
         response_body['message'] = f'Usuario {id} eliminado'
         response_body['results'] = None
         return response_body, 200
-    
+
 
 @api.route('/bookings/<int:user_id>', methods=['GET'])
 @jwt_required()
@@ -197,7 +199,7 @@ def get_user_bookings(user_id):
 
     # Verificar que el usuario autenticado coincide con el user_id solicitado
     current_user_id = get_jwt_identity()
-    
+
     if current_user_id != user_id:
         response_body['success'] = False
         response_body['message'] = "No autorizado para ver estas reservas"
@@ -205,30 +207,29 @@ def get_user_bookings(user_id):
 
     # Obtener las reservas del usuario
     bookings = db.session.query(
-            Bookings,
-            Huts.name.label('hut_name'),
-            Locations.name.label('location_name')
-        ).join(
-            Huts, Bookings.hut_id == Huts.id
-        ).join(
-            Locations, Huts.location_id == Locations.id
-        ).filter(
-            Bookings.user_id == user_id
-        ).order_by(
-            Bookings.start_date.desc()
-        ).all()
-    
+        Bookings,
+        Huts.name.label('hut_name'),
+        Locations.name.label('location_name')
+    ).join(
+        Huts, Bookings.hut_id == Huts.id
+    ).join(
+        Locations, Huts.location_id == Locations.id
+    ).filter(
+        Bookings.user_id == user_id
+    ).order_by(
+        Bookings.start_date.desc()
+    ).all()
+
     if not bookings:
-            response_body['success'] = True
-            response_body['message'] = "No se encontraron reservas"
-            response_body['results'] = []
-            return response_body, 200
-    
+        response_body['success'] = True
+        response_body['message'] = "No se encontraron reservas"
+        response_body['results'] = []
+        return response_body, 200
+
     response_body['success'] = True
     response_body['message'] = "Lista de reservas obtenida exitosamente"
     response_body['results'] = [booking.serialize() for booking in bookings]
     return response_body, 200
-
 
 
 @api.route('/bookings', methods=['GET'])
@@ -241,7 +242,8 @@ def get_bookings():
     if is_admin:
         bookings = Bookings.query.all()
     else:
-        bookings = Bookings.query.filter_by(user_id=user_id, status_reserved='active').all() 
+        bookings = Bookings.query.filter_by(
+            user_id=user_id, status_reserved='active').all()
 
     response_body['message'] = 'Lista de reservas'
     response_body['results'] = [booking.serialize() for booking in bookings]
@@ -266,7 +268,7 @@ def post_bookings():
         Bookings.end_date >= booking.start_date
     ).first()
     if overlapping_booking:
-        return "La cabaña ya esta ocupada", 409
+        return "La hut ya esta ocupada", 409
     if data['start_date'] >= data['end_date']:
         response_body['message'] = 'La fecha de fin debe ser posterior a la de inicio'
         return response_body, 400
@@ -313,16 +315,17 @@ def delete_bookings(id):
     response_body['results'] = booking.serialize()
     return response_body, 200
 
-    
+
 @api.route('/hut-favorites', methods=['GET'])
 @jwt_required()
 def get_hut_favorites():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
-    hut_favorites = HutFavorites.query.filter_by(user_id = user_id).all()
+    hut_favorites = HutFavorites.query.filter_by(user_id=user_id).all()
     response_body['message'] = 'Lista de favoritos'
-    response_body['results'] = [hut_favorite.serialize() for hut_favorite in hut_favorites]
+    response_body['results'] = [hut_favorite.serialize()
+                                for hut_favorite in hut_favorites]
     return response_body, 200
 
 
@@ -359,14 +362,15 @@ def get_huts_favorites():
 def delete_hut_favorite(id):
     response_body = {}
     claims = get_jwt()
-    hut_favorite = db.session.execute(db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
+    hut_favorite = db.session.execute(
+        db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
     if not hut_favorite:
         response_body['message'] = f'El favorito con id {id} no existe'
         return response_body, 404
     if hut_favorite.user_id != claims['user_id']:
         response_body['message'] = 'No tienes permiso para eliminar este favorito'
         return response_body, 403
-    
+
     db.session.delete(hut_favorite)
     db.session.commit()
     response_body['message'] = f'El usuario {claims['user_id']} ha eliminado Cabaña {id} de favoritos'
@@ -377,7 +381,7 @@ def delete_hut_favorite(id):
 def get_huts_map_data():
     try:
         huts = Huts.query.join(Locations).filter(Huts.is_active == True).all()
-        
+        print(huts)
         map_data = [{
             'id': hut.id,
             'name': hut.name,
@@ -437,22 +441,23 @@ def post_location():
     return response_body, 200
 
 
-@api.route('locations/<int:id>',methods=['PUT'])
+@api.route('locations/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_location(id):
     response_body = {}
     claims = get_jwt()
-    location = db.session.execute(db.select(Locations).where(Locations.id == id)).scalar()
+    location = db.session.execute(
+        db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
         response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para modificar la localizacion'
         return response_body, 409
     data = request.json
-    location.complex = data.get('complex',location.complex)
-    location.latitude = data.get('latitude',location.latitude)
-    location.longitude = data.get('longitude',location.longitude)
-    location.address = data.get('address',location.address)
-    location.city = data.get('city',location.city)
-    location.region = data.get('region',location.region)
+    location.complex = data.get('complex', location.complex)
+    location.latitude = data.get('latitude', location.latitude)
+    location.longitude = data.get('longitude', location.longitude)
+    location.address = data.get('address', location.address)
+    location.city = data.get('city', location.city)
+    location.region = data.get('region', location.region)
     db.session.commit()
     response_body['message'] = f'Localizacion {id} modificado'
     response_body['results'] = location.serialize()
@@ -464,7 +469,8 @@ def put_location(id):
 def delete_location(id):
     response_body = {}
     claims = get_jwt()
-    location = db.session.execute(db.select(Locations).where(Locations.id == id)).scalar()
+    location = db.session.execute(
+        db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
         response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
         return response_body, 409
@@ -476,11 +482,11 @@ def delete_location(id):
 
 @api.route('/reviews', methods=['GET'])
 def get_reviews():
-    response_body={}
-    response_body['message']="Las reviews se han cargado correctamente"
+    response_body = {}
+    response_body['message'] = "Las reviews se han cargado correctamente"
     rows = db.session.execute(db.select(Reviews)).scalars()
-    response_body['results']=[row.serialize() for row in rows]
-    return response_body,200 
+    response_body['results'] = [row.serialize() for row in rows]
+    return response_body, 200
 
 
 @api.route('/reviews/<int:id>', methods=['GET'])
@@ -534,17 +540,18 @@ def delete_review(id):
     return response_body, 200
 
 
-@api.route('reviews/<int:id>',methods=['PUT'])
+@api.route('reviews/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_review(id):
     response_body = {}
     claims = get_jwt()
-    review = db.session.execute(db.select(Reviews).where(Reviews.id == id)).scalar()
-    if not claims['is_admin'] :
+    review = db.session.execute(
+        db.select(Reviews).where(Reviews.id == id)).scalar()
+    if not claims['is_admin']:
         response_body['message'] = f'El usuario {claims['user_id']} no tiene permiso para modificar la reseña'
     data = request.json
-    review.rating = data.get('rating',review.rating)
-    review.comment = data.get('comment',review.comment)
+    review.rating = data.get('rating', review.rating)
+    review.comment = data.get('comment', review.comment)
     db.session.commit()
     response_body['message'] = f'Reseña {id} modificado'
     response_body['results'] = review.serialize()
@@ -661,14 +668,13 @@ def get_current_hut_album(id):
     return response_body, 200
 
 
-
 # PRUEBA MEJORA HUTS ALBUM
 @api.route('/huts-album', methods=['POST'])
 @jwt_required()
 def post_huts_album():
     response_body = {}
     claims = get_jwt()
-    
+
     # Verificar permisos de administrador
     if not claims.get('is_admin', False):
         response_body['message'] = "Se necesita permiso de administrador."
@@ -680,13 +686,14 @@ def post_huts_album():
         hut_id = data.get('hut_id')
         photo_type = data.get('type')
         urls = data.get('urls', [])
-        
+
         # Validaciones
         if not hut_id or not photo_type:
             response_body['message'] = "Faltan hut_id o type"
             return response_body, 400
-            
-        valid_types = ["bedroom", "bathroom", "living_room", "kitchen", "other_picture"]
+
+        valid_types = ["bedroom", "bathroom",
+                       "living_room", "kitchen", "other_picture"]
         if photo_type not in valid_types:
             response_body['message'] = "Tipo de foto no válido"
             return response_body, 400
@@ -700,12 +707,12 @@ def post_huts_album():
             )
             db.session.add(new_photo)
             saved_photos.append(new_photo.serialize())
-        
+
         db.session.commit()
         response_body['message'] = f"{len(urls)} imágenes guardadas desde URLs"
         response_body['results'] = saved_photos
         return response_body, 201
-        
+
     else:
         # Aquí iría tu lógica original para subida de archivos (form-data)
         response_body['message'] = "Usa JSON con {hut_id, type, urls: []} para URLs existentes"
@@ -717,7 +724,8 @@ def post_huts_album():
 def put_huts_album(id):
     response_body = {}
     data = request.json
-    valid_types = ['bedroom', 'bathroom', 'living_room', 'kitchen', 'other_picture']
+    valid_types = ['bedroom', 'bathroom',
+                   'living_room', 'kitchen', 'other_picture']
     claims = get_jwt()
     if not claims.get('is_admin', False):
         response_body['message'] = 'Se necesita permiso de administrador.'
@@ -749,7 +757,7 @@ def delete_hut_album(id):
         return response_body, 403
     hut_album = db.session.get(HutsAlbum, id)
     if not hut_album:
-        response_body['message'] = f'El album de la cabaña con ID {id} no existe.'
+        response_body['message'] = f'El album de la hut con ID {id} no existe.'
         return response_body, 404
     try:
         if hut_album.public_id:
@@ -758,7 +766,7 @@ def delete_hut_album(id):
         db.session.commit()
         response_body['message'] = f'El album con el ID {id} ha sido eliminado.'
         return response_body, 200
-    
+
     except Exception as e:
         db.session.rollback()
         response_body['message'] = f'Error al eliminar: {str(e)}'

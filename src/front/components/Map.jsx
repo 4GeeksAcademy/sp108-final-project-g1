@@ -23,6 +23,7 @@ export const Map = () => {
       try {
         const response = await fetch(uri);
         const data = await response.json();
+        console.log(data)
         setHuts(data);
         if (data.length > 0) {
           setCenter({
