@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f1331bcb31c3
+Revision ID: f52b8dd28a22
 Revises: 
-Create Date: 2025-07-24 17:48:35.628596
+Create Date: 2025-08-02 08:14:01.163323
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f1331bcb31c3'
+revision = 'f52b8dd28a22'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -34,6 +34,8 @@ def upgrade():
     sa.Column('last_name', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('phone_number', sa.String(), nullable=True),
+    sa.Column('address', sa.String(), nullable=True),
+    sa.Column('profile_image', sa.String(), nullable=True),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
@@ -53,7 +55,7 @@ def upgrade():
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('image_url', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
+    sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('bookings',
@@ -70,16 +72,16 @@ def upgrade():
     sa.Column('status_payment', sa.Boolean(), nullable=False),
     sa.Column('hut_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('hut_favorites',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('hut_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('huts_album',
@@ -87,7 +89,7 @@ def upgrade():
     sa.Column('type', sa.Enum('bedroom', 'bathroom', 'living_room', 'kitchen', 'other_picture', name='type'), nullable=True),
     sa.Column('image_url', sa.String(), nullable=False),
     sa.Column('hut_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ),
+    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reviews',
@@ -97,8 +99,8 @@ def upgrade():
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.Column('hut_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
