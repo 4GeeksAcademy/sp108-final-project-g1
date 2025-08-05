@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getBookingsDetail } from '../services/book';
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import { calculateNights,calculateTotalStayCost } from '../tools/utilFunctions';
+import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions';
 
 
 
@@ -107,7 +107,7 @@ const Bookings = () => {
                     <div className="mb-6 md:mb-0 md:w-2/3">
                       <h2 className="text-2xl font-bold text-brown-550 mb-2">{booking.hut_to.name}</h2>
                       <p className="text-green-450 font-medium mb-4">{booking.hut_to.location_to.city}</p>
-                
+
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <p className="text-sm text-brown-450">Check-in</p>
@@ -137,17 +137,24 @@ const Bookings = () => {
                       <div className="bg-green-150 p-4 rounded-lg border border-green-250">
                         <p className="text-sm text-brown-450 mb-1">Total</p>
                         <p className="text-2xl font-bold text-brown-550 mb-4">
-                       $ {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))}
-                    </p>
+                          $ {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))}
+                        </p>
 
                       </div>
-
-                      <button
-                        onClick={() => navigate(`/booking-details/${booking.id}`)}
-                        className="w-full mt-4 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                      >
-                        Ver Detalles
-                      </button>
+                      <div className="flex gap-2 mt-4">
+                        <button
+                          onClick={() => navigate(`/booking/${booking.hut_to.id}`)}
+                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                        >
+                          Ver Reserva
+                        </button>
+                        <button
+                          onClick={() => navigate(`/huts/${booking.hut_to.id}`)}
+                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                        >
+                          Ver Cabaña
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

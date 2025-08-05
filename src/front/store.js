@@ -8,7 +8,8 @@ export const initialStore = () => {
         users: [],
         isLogged: !!token,
         bookingsDetail: [],
-        hutsDetail:[]
+        hutsDetail: [],
+        favorites: []
     };
 };
 
@@ -31,10 +32,28 @@ export default function storeReducer(store, action = {}) {
 
 
         case 'bookingsDetail':
-         return { ...store, bookingsDetail: action.payload };;
-       
+            return { ...store, bookingsDetail: action.payload };
+
         case 'hutsDetail':
-         return { ...store, hutsDetail: action.payload };;
+            return { ...store, hutsDetail: action.payload };
+
+        case 'add_favorite':
+            return {
+                ...store,
+                favorites: [...store.favorites, action.payload],
+                hutsDetail: store.hutsDetail.map(hut =>
+                    hut.id === action.payload.hut_id ? { ...hut, is_favorite: true } : hut
+                )
+            };
+
+        case 'remove_favorite':
+            return {
+                ...store,
+                favorites: store.favorites.filter(fav => fav.hut_id !== action.payload),
+                hutsDetail: store.hutsDetail.map(hut =>
+                    hut.id === action.payload ? { ...hut, is_favorite: false } : hut
+                )
+            };
 
         case 'logout':
             localStorage.removeItem('token');

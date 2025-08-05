@@ -34,7 +34,7 @@ export const Navbar = () => {
         </li>
         <div className="hidden md:flex md:items-center md:gap-8 md:ml-auto">
           <li>
-            <Link to="/" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Cabañas</Link>
+            <Link to="/huts" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Cabañas</Link>
           </li>
           <li>
             <Link to="/bookings" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Reservas</Link>

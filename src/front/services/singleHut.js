@@ -1,11 +1,9 @@
 let host = import.meta.env.VITE_BACKEND_URL;
 const uri = `${host}api/huts`;
 
-
-export const getHutsDetail= async() =>{
-
-    try {
-        const response = await fetch(uri);
+export const getSigleHuts= async(id) =>{
+try {
+        const response = await fetch(`${uri}/${id}`)
         const data = await response.json();
         console.log(data)
 
@@ -15,7 +13,3 @@ export const getHutsDetail= async() =>{
         console.error("Error fetching huts:", error);
       }
     };
- 
-
-
-

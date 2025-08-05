@@ -197,9 +197,13 @@ def user(id):
 def get_user_bookings(user_id):
     response_body = {}
 
+
     # Verificar que el usuario autenticado coincide con el user_id solicitado
     current_user_id = get_jwt_identity()
-
+    is_admin = get_jwt_identity()
+    if is_admin:
+        bookings = Bookings.query.all()
+        
     if current_user_id != user_id:
         response_body['success'] = False
         response_body['message'] = "No autorizado para ver estas reservas"
@@ -567,7 +571,11 @@ def post_huts():
         response_body['message'] = 'Necesita permiso de administrador.'
         return response_body, 403
     data = request.json
-    response_body = {}
+
+    required_fields = ['name', 'description', 'capacity', 'bedrooms', 'bathroom', 'price_per_night', 'location_id']
+    if not all(field in data for field in required_fields):
+            return jsonify({"success": False, "message": "Faltan campos requeridos"}), 400
+
     hut = Huts()
     hut.name = data.get('name', hut.name)
     hut.description = data.get('description', hut.description)
@@ -576,6 +584,7 @@ def post_huts():
     hut.bathroom = data.get('bathroom', hut.bathroom)
     hut.price_per_night = data.get('price_per_night', hut.price_per_night)
     hut.location_id = data.get('location_id', hut.location_id)
+    hut.image_url = data.get('image_url', hut.image_url),
     hut.is_active = data.get('is_active', hut.is_active)
     db.session.add(hut)
     db.session.commit()
@@ -590,8 +599,16 @@ def get_huts():
     response_body['message'] = "Las cabañas se han cargado correctamente."
     rows = db.session.execute(db.select(Huts)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
-    print(response_body)
     return jsonify(response_body), 200
+
+@api.route('/huts/<int:id>', methods=['GET'])
+def get_single_huts(id):
+    response_body ={}
+    response_body['message'] = "La cabaña se ha cargado correctamente"
+    row = db.session.execute(
+        db.select(Huts).where(Huts.id == id)).scalar()
+    response_body['results'] = row.serialize()
+    return response_body, 200
 
 
 @api.route('/huts/<int:id>', methods=['PUT'])
@@ -618,6 +635,7 @@ def put_huts(id):
     hut.capacity = data.get('capacity', hut.capacity)
     hut.bedrooms = data.get('bedrooms', hut.bedrooms)
     hut.bathroom = data.get('bathroom', hut.bathroom)
+    hut.image_url = data.get('image_url', hut.image_url)
     hut.price_per_night = data.get('price_per_night', hut.price_per_night)
     hut.location_id = data.get('location_id', hut.location_id)
     hut.is_active = data.get('is_active', hut.is_active)

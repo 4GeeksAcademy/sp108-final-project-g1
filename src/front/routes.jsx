@@ -5,10 +5,11 @@ import { Single } from "./pages/Single.jsx";
 import { Error404 } from "./pages/Error404.jsx";
 import Login from "./pages/Login.jsx"
 import Register from "./pages/Register.jsx";
-import { Huts } from "./pages/Huts.jsx"
+import  Huts  from "./pages/Huts.jsx"
 import Bookings from "./pages/Bookings.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { MapPage } from "./pages/MapPage.jsx";
+import { SingleHut } from './pages/SingleHut';
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -27,6 +28,7 @@ export const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/maps" element={<MapPage />} />
+      <Route path="/huts/:id" element={<SingleHut />} />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
 
     </Route>

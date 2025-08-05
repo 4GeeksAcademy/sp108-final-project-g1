@@ -83,8 +83,7 @@ class Huts(db.Model):
         'locations.id', ondelete="CASCADE"))
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
-    image_url = db.Column(db.String, unique=False, nullable=False,
-                          default="https://hips.hearstapps.com/hmg-prod/images/caban-a-disen-o-actual-1535369712.jpg")
+    image_url = db.Column(db.String, unique=False, nullable=False)
 
     def __repr__(self):
         return f'<Huts {self.name}>'
