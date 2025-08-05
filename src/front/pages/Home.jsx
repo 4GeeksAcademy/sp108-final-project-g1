@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import forestBirds from "../assets/audio/forest-birds.mp3"
 import { Form } from "react-router-dom";

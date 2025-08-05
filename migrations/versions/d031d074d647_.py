@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f52b8dd28a22
+Revision ID: d031d074d647
 Revises: 
-Create Date: 2025-08-02 08:14:01.163323
+Create Date: 2025-08-05 17:42:06.642167
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f52b8dd28a22'
+revision = 'd031d074d647'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -62,14 +62,14 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('start_date', sa.Date(), nullable=False),
     sa.Column('end_date', sa.Date(), nullable=False),
-    sa.Column('total_price', sa.Float(), nullable=False),
+    sa.Column('total_price', sa.Float(), nullable=True),
     sa.Column('status_reserved', sa.Enum('active', 'ocupated', 'cancelled', name='status_reserved'), nullable=False),
     sa.Column('guests', sa.Integer(), nullable=False),
-    sa.Column('special_requests', sa.String(length=500), nullable=False),
+    sa.Column('special_requests', sa.String(length=500), nullable=True),
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.Column('payment_date', sa.Date(), nullable=True),
-    sa.Column('transaction_payment', sa.String(), nullable=False),
-    sa.Column('status_payment', sa.Boolean(), nullable=False),
+    sa.Column('transaction_payment', sa.String(), nullable=True),
+    sa.Column('status_payment', sa.Boolean(), nullable=True),
     sa.Column('hut_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),

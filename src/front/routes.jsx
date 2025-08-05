@@ -6,10 +6,14 @@ import { Error404 } from "./pages/Error404.jsx";
 import Huts from "./pages/Huts.jsx"
 import Login from "./pages/Login.jsx"
 import Register from "./pages/Register.jsx";
+import  Huts  from "./pages/Huts.jsx"
+import Bookings from "./pages/Bookings.jsx";
+import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
+import { MapPage } from "./pages/MapPage.jsx";
+import { SingleHut } from './pages/SingleHut';
 import { Contact } from "./pages/Contact.jsx"
 import { Profile } from "./pages/Profile.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
-
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -18,18 +22,22 @@ Root, on the contrary, create a sister Route, if you have doubts, try it!
 Note: keep in mind that errorElement will be the default page when you don't get a route, customize that page to make your project more attractive.
 Note: The child paths of the Layout element replace the Outlet component with the elements contained in the "element" attribute of these child paths.
 */
-export const router = createBrowserRouter (
-    createRoutesFromElements (
-      // Root Route: All navigation will start from here.
-      <Route path="/" element={<Layout />} errorElement={<Error404/>} >
-        <Route path= "/" element={<Home />} />
-        <Route path="/single/:theId" element={ <Single />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    // Root Route: All navigation will start from here.
+    <Route path="/" element={<Layout />} errorElement={<Error404 />} >
+      <Route path="/" element={<Home />} />
+      <Route path="/single/:theId" element={<Single />} />
+      <Route path="/huts" element={<Huts />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/maps" element={<MapPage />} />
+      <Route path="/huts/:id" element={<SingleHut />} />
+      <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
 
-      </Route>
-    )
+    </Route>
+  )
 );
