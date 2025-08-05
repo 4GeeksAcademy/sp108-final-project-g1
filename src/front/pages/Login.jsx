@@ -94,14 +94,14 @@ const Login = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
 
-      <div className='relative z-10 px-4 py-12 bg-white bg-opacity-90 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
+      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-green-150 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-350">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
           Iniciar sesión
         </h2>
         <p className="mt-2 text-center text-sm text-brown-150">
           O{' '}
-          <Link to="/register" className="font-medium text-green-150 hover:text-green-350">
+          <Link to="/register" className="font-medium text-green-150 hover:text-green-250">
             crea una cuenta nueva
           </Link>
         </p>

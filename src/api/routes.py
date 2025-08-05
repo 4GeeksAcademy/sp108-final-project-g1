@@ -174,10 +174,13 @@ def user(id):
         data = request.json
         user.password = data.get('password', user.password)
         user.email = data.get('email', user.email)
+        user.is_active = data.get('is_active', user.is_active)
         user.is_admin = data.get('is_admin', user.is_admin)
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
         user.phone_number = data.get('phone_number', None)
+        user.address = data.get('address', user.address)
+        user.profile_image = data.get('profile_image', user.profile_image)
         db.session.commit()
         response_body['message'] = f'Usuario {id} modificado'
         response_body['results'] = user.serialize()

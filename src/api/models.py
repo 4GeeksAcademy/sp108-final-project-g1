@@ -14,6 +14,8 @@ class Users(db.Model):
     last_name = db.Column(db.String, unique=False, nullable=True)
     email = db.Column(db.String, unique=True, nullable=False)
     phone_number = db.Column(db.String, unique=True, nullable=True)
+    address = db.Column(db.String, unique=False, nullable=True)
+    profile_image = db.Column(db.String, unique=False, nullable=True)
     password = db.Column(db.String, unique=False, nullable=False)
     created_at = db.Column(db.Date, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
@@ -27,6 +29,9 @@ class Users(db.Model):
                 "email": self.email,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
+                "phone_number": self.phone_number,
+                "address": self.address,
+                "profile_image": self.profile_image or None,
                 "is_active": self.is_active,
                 "is_admin": self.is_admin}
 
@@ -106,7 +111,8 @@ class Huts(db.Model):
 class HutFavorites(db.Model):
     __tablename__ = 'hut_favorites'
     id = db.Column(db.Integer, primary_key=True)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_id = db.Column(db.Integer, db.ForeignKey(
+        'huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete="CASCADE"))
@@ -129,7 +135,8 @@ class HutsAlbum(db.Model):
     type = db.Column(db.Enum("bedroom", "bathroom", "living_room",
                      "kitchen", "other_picture", name="type"))
     image_url = db.Column(db.String, unique=False, nullable=False)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_id = db.Column(db.Integer, db.ForeignKey(
+        'huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
 
     def __repr__(self):
@@ -173,7 +180,8 @@ class Reviews(db.Model):
     rating = db.Column(db.Integer)
     comment = db.Column(db.String)
     created_at = db.Column(db.Date, default=datetime.utcnow)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_id = db.Column(db.Integer, db.ForeignKey(
+        'huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete="CASCADE"))

@@ -8,8 +8,28 @@
 }
 
 .body {
-    background: radial-gradient(circle, rgba(0,0,0,0.4), rgba(0,0,0,0.9)), url(../front/assets/img/casa-en-arbol.jpg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(../front/assets/img/casa-en-arbol.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
+    background-attachment: fixed;
+}
+
+.contact {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(../front/assets/img/madera-fondo-contacto.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Esto se tendrá que quitar una vez hayamos implementado los fetch de los usuarios */
+.bg-profile {
+    background: url("https://cdn.pixabay.com/photo/2016/03/15/02/42/floor-1256804_1280.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wood-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(../front/assets/img/wood-bg.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
 }

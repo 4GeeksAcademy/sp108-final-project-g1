@@ -10,6 +10,9 @@ import Bookings from "./pages/Bookings.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { MapPage } from "./pages/MapPage.jsx";
 import { SingleHut } from './pages/SingleHut';
+import { Contact } from "./pages/Contact.jsx"
+import { Profile } from "./pages/Profile.jsx";
+import { EditProfile } from "./pages/EditProfile.jsx";
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -30,6 +33,9 @@ export const router = createBrowserRouter(
       <Route path="/maps" element={<MapPage />} />
       <Route path="/huts/:id" element={<SingleHut />} />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
 
     </Route>
   )

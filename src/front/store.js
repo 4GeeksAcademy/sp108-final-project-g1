@@ -9,7 +9,8 @@ export const initialStore = () => {
         isLogged: !!token,
         bookingsDetail: [],
         hutsDetail: [],
-        favorites: []
+        favorites: [],
+        userProfile: {}
     };
 };
 
@@ -55,6 +56,10 @@ export default function storeReducer(store, action = {}) {
                 )
             };
 
+        
+        case "userProfile":
+            return { ...store, userProfile: action.payload};
+            
         case 'logout':
             localStorage.removeItem('token');
             sessionStorage.removeItem('token');
