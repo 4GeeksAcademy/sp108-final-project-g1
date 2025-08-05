@@ -20,7 +20,7 @@ export const getUsers = async () => {
 }
 
 export const getCurrentUser = async (id) => {
-    if (!userId) {
+    if (!id) {
         throw new Error('Se requiere un ID de usuario');
     }
     try {
