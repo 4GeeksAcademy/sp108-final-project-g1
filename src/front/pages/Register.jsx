@@ -30,12 +30,6 @@ const Register = () => {
     setLoading(true);
     setError(null);
 
-    // Validación básica de contraseñas
-    if (formData.password !== formData.password_confirmation) {
-      setError('Las contraseñas no coinciden');
-      setLoading(false);
-      return;
-    }
 
     if (!formData.agreeTerms) {
       setError('Debes aceptar los términos y condiciones');
@@ -107,7 +101,7 @@ const Register = () => {
         
       </video>
       {/* Capa semitransparente para mejorar legibilidad */}
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div className="absolute inset-0 bg-black bg-opacity-70"></div>
     </div>
 
     {/* Contenido del login (encima del video) */}
@@ -117,7 +111,7 @@ const Register = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
           Crear una cuenta
         </h2>
-        <p className="mt-2 text-center text-sm text-brown-150">
+        <p className="mt-2 text-center text-sm text-brown-350">
           ¿Ya tienes una cuenta?{' '}
           <Link to="/login" className="font-medium text-green-150 hover:text-green-250">
             Inicia sesión
@@ -126,7 +120,7 @@ const Register = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-opacity-50 bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
               {error}
@@ -134,24 +128,7 @@ const Register = () => {
           )}
           
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Nombre completo
-              </label>
-              <div className="mt-1">
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-
+        
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Correo electrónico
@@ -182,27 +159,6 @@ const Register = () => {
                   autoComplete="new-password"
                   required
                   value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Mínimo 8 caracteres con letras y números
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
-                Confirmar contraseña
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password_confirmation"
-                  name="password_confirmation"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={formData.password_confirmation}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
