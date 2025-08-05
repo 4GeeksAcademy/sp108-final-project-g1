@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'; // Añadido useRef
 import { Link } from "react-router-dom";
 
+
 export const EditProfile = () => {
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
