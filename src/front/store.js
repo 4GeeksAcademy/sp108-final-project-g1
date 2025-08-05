@@ -6,7 +6,8 @@ export const initialStore = () => {
         currentUser: {},
         token: token,
         users: [],
-        isLogged: !!token
+        isLogged: !!token,
+        hutsDetail: []
     };
 };
 
@@ -36,7 +37,8 @@ export default function storeReducer(store, action = {}) {
                 isLogged: false,
                 currentUser: {} 
             };
-            
+        case 'hutsDetail':
+            return { ...store, hutsDetail: action.payload };  
         default:
             console.warn(`Unknown action type: ${action.type}`);
             return store;

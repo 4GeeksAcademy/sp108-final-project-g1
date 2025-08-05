@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Register from './Register';
+import { getHutsDetail } from '../services/hut';
 
 const Huts = () => {
   const [huts, setHuts] = useState([]);
@@ -8,60 +9,35 @@ const Huts = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedHut, setSelectedHut] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('token') !== null
-  );
+ // const [isAuthenticated, setIsAuthenticated] = useState(
+  //  localStorage.getItem('token') !== null
+  // );
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL ?? 'https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev/';
-
-  useEffect(() => {
-    const fetchHuts = async () => {
+useEffect(() => {
+    const hutsList = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const apiUrl = new URL('/api/huts', backendUrl).toString();
-        console.log('Conectando a:', apiUrl);
-
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': localStorage.getItem('token') ? `Bearer ${localStorage.getItem('token')}` : ''
-          },
-          credentials: 'include'
+           setLoading (true)
+           setError (null)
+        const getHuts = await getHutsDetail();
+        if (!getHuts) {
+          throw new Error('No se recibieron datos de la cabaña');
+        }
+        dispatch({ type: "hutsDetail", payload: getHuts })
+      setHuts(getHuts);
+    }
+      catch (err) {
+        console.error("Error fetching hut:", err);
+        setError({
+          message: 'No se pudo cargar la información de las cabañas',
+          details: err.message
         });
-
-        console.log('Respuesta recibida, status:', response.status);
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message ??
-            `Error ${response.status}: ${response.statusText}`
-          );
-        }
-
-        const data = await response.json();
-        console.log('Datos recibidos:', data);
-
-        if (!Array.isArray(data)) {
-          throw new Error('La respuesta del servidor no es un array válido');
-        }
-
-        setHuts(data);
-      } catch (err) {
-        console.error('Error completo:', err);
-        setError(err.message ?? 'Error al cargar las cabañas');
-        setHuts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHuts();
-  }, [backendUrl]);
+      }finally {
+                setLoading(false);
+            }
+    }
+    hutsList();
+  },[]
+);
 
   const handleReserveClick = (hut) => {
     setSelectedHut(hut);
@@ -74,29 +50,29 @@ const Huts = () => {
   };
 
   if (loading) return (
-  <div className="text-center mt-8 text-lg text-brown-550">
-    <div 
-      className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-550 mx-auto mb-4"
-      aria-label="Cargando"
-    ></div>
-    Cargando cabañas...
-  </div>
-);
+    <div className="text-center mt-8 text-lg text-brown-550">
+      <div
+        className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-550 mx-auto mb-4"
+        aria-label="Cargando"
+      ></div>
+      Cargando cabañas...
+    </div>
+  );
 
-if (error) return (
-  <div className="text-center mt-8 p-4 max-w-md mx-auto bg-red-50 rounded-lg">
-    <h3 className="text-lg font-medium text-red-600 mb-2">Error al cargar las cabañas</h3>
-    <p className="text-red-500">
-      {typeof error === 'string' ? error : 'Ocurrió un error inesperado'}
-    </p>
-    <button
-      onClick={() => window.location.reload()}
-      className="mt-4 px-4 py-2 bg-green-250 text-white rounded hover:bg-green-350 transition-colors"
-    >
-      Reintentar
-    </button>
-  </div>
-);
+  if (error) return (
+    <div className="text-center mt-8 p-4 max-w-md mx-auto bg-red-50 rounded-lg">
+      <h3 className="text-lg font-medium text-red-600 mb-2">Error al cargar las cabañas</h3>
+      <p className="text-red-500">
+        {typeof error === 'string' ? error : 'Ocurrió un error inesperado'}
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-4 px-4 py-2 bg-green-250 text-white rounded hover:bg-green-350 transition-colors"
+      >
+        Reintentar
+      </button>
+    </div>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -141,14 +117,7 @@ if (error) return (
                   >
                     Ver detalles
                   </Link>
-                  <button
-                    onClick={() => handleReserveClick(hut)}
-                    className="px-4 py-2 bg-green-250 text-white rounded hover:bg-green-350 transition-colors"
-                    disabled={!isAuthenticated}
-                    title={!isAuthenticated ? "Debes iniciar sesión para reservar" : ""}
-                  >
-                    Reservar
-                  </button>
+    
                 </div>
               </div>
             </div>
