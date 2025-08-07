@@ -6,7 +6,6 @@ import { Error404 } from "./pages/Error404.jsx";
 import Huts from "./pages/Huts.jsx"
 import Login from "./pages/Login.jsx"
 import Register from "./pages/Register.jsx";
-import  Huts  from "./pages/Huts.jsx"
 import Bookings from "./pages/Bookings.jsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.jsx";
 import { MapPage } from "./pages/MapPage.jsx";
