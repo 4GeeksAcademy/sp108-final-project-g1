@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
 import { getHutsDetail } from '../services/hut';
@@ -19,12 +19,12 @@ const Huts = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const hutsData = await getHutsDetail();
         if (!hutsData) {
           throw new Error('No se recibieron datos de las cabañas');
         }
-        
+
         dispatch({ type: "hutsDetail", payload: hutsData });
       } catch (err) {
         console.error("Error fetching huts:", err);
@@ -36,7 +36,7 @@ const Huts = () => {
         setLoading(false);
       }
     };
-    
+
     fetchHuts();
   }, [dispatch]);
 
@@ -49,6 +49,8 @@ const Huts = () => {
     setShowModal(false);
     setSelectedHut(null);
   };
+
+
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
@@ -73,7 +75,7 @@ const Huts = () => {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-12 text-green-550">Nuestras Cabañas</h1>
-      
+
       {store.hutsDetail.length === 0 ? (
         <div className="max-w-lg mx-auto bg-brown-50 rounded-xl p-8 text-center">
           <p className="text-xl text-brown-550 mb-6">No hay cabañas disponibles</p>
@@ -85,12 +87,27 @@ const Huts = () => {
           </button>
         </div>
       ) : (
+
+
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {store.hutsDetail.map((hut) => (
-            <div 
-              key={hut.id} 
+            <div
+              key={hut.id}
               className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-brown-150"
             >
+              <div className="fixed bottom-6 right-6 z-50">
+                <button
+                  onClick={() => window.location.href = '/maps'} 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Abrir Mapa
+                </button>
+              </div>
               <div className="relative">
                 <img
                   src={hut.image_url || 'https://via.placeholder.com/400x300'}
@@ -101,7 +118,7 @@ const Huts = () => {
                     e.target.alt = 'Imagen no disponible';
                   }}
                 />
-                <button 
+                <button
                   className="absolute top-3 right-3 p-2 bg-white/80 rounded-full backdrop-blur-sm shadow-sm hover:bg-brown-150 transition-colors"
                   onClick={(e) => {
                     e.preventDefault();
@@ -116,7 +133,7 @@ const Huts = () => {
                   )}
                 </button>
               </div>
-              
+
               <div className="p-5">
                 <div className="flex justify-between items-start mb-3">
                   <h2 className="text-xl font-bold text-green-550 truncate">{hut.name || 'Cabaña'}</h2>
@@ -124,9 +141,9 @@ const Huts = () => {
                     ${hut.price_per_night || '0'}<span className="text-sm font-normal text-brown-350">/noche</span>
                   </span>
                 </div>
-                
+
                 <p className="text-brown-450 mb-4 line-clamp-2">{hut.description || 'Descripción no disponible'}</p>
-                
+
                 <div className="grid grid-cols-3 gap-2 mb-5">
                   <div className="bg-green-100 rounded-lg p-2 text-center">
                     <p className="text-xs text-green-550">Huéspedes</p>
@@ -141,7 +158,7 @@ const Huts = () => {
                     <p className="font-semibold text-brown-550">{hut.bathroom || '-'}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between gap-3">
                   <Link
                     to={`/huts/${hut.id}`}

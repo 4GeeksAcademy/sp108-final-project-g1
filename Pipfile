@@ -22,6 +22,7 @@ sqlalchemy = "*"
 flask-migrate = "*"
 flask-bcrypt = "*"
 bcrypt = "*"
+font-font-awesome = "*"
 
 [requires]
 python_version = "3.13"
