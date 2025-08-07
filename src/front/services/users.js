@@ -20,26 +20,26 @@ export const getUsers = async () => {
 }
 
 export const getCurrentUser = async (id) => {
-    if (!id) {
-        throw new Error('Se requiere un ID de usuario');
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  
+  if (!token) {
+    throw new Error("No hay token de autenticación");
+  }
+
+  const response = await fetch(`${apiHost}api/users/${id}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     }
-    try {
-        const response = await fetch(`${host}api/users/${id}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: Los datos del usuario ${id} no se han cargado correctamente`)
-        }
-        const data = await response.json()
-        return data
-    } catch (error) {
-        console.error(`Error al obtener usuario ${id}:`, error.message)
-        throw Error
-    }
-}
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || `Error ${response.status}`);
+  }
+
+  return await response.json();
+};
 
 export const putCurrentUser = async (id, userData) => {
     if (!id) throw new Error('Se requiere ID de usuario');
@@ -52,7 +52,7 @@ export const putCurrentUser = async (id, userData) => {
             },
             body: JSON.stringify({
                 first_name: userData.first_name,
-                last_name: userData.last_name,
+                // last_name: userData.last_name,
                 phone_number: userData.phone_number,
                 address: userData.address,
                 profile_image: userData.profile_image

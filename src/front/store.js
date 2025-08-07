@@ -1,16 +1,17 @@
 export const initialStore = () => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+    const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || '';
+    const currentUserFormatted = currentUser? JSON.parse(currentUser): {};
 
     return {
         message: null,
-        currentUser: {},
+        currentUser: currentUserFormatted,
         token: token,
         users: [],
         isLogged: !!token,
         bookingsDetail: [],
         hutsDetail: [],
         favorites: [],
-        userProfile: {}
     };
 };
 
@@ -56,13 +57,11 @@ export default function storeReducer(store, action = {}) {
                 )
             };
 
-        
-        case "userProfile":
-            return { ...store, userProfile: action.payload};
-            
         case 'logout':
             localStorage.removeItem('token');
             sessionStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
             return {
                 ...store,
                 token: '',

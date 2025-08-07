@@ -200,13 +200,12 @@ def user(id):
 def get_user_bookings(user_id):
     response_body = {}
 
-
     # Verificar que el usuario autenticado coincide con el user_id solicitado
     current_user_id = get_jwt_identity()
     is_admin = get_jwt_identity()
     if is_admin:
         bookings = Bookings.query.all()
-        
+
     if current_user_id != user_id:
         response_body['success'] = False
         response_body['message'] = "No autorizado para ver estas reservas"
@@ -349,8 +348,8 @@ def get_huts_favorites():
         response_body['message'] = f'La cabaña con ID {hut_id} no existe'
         return response_body, 404
     existing_favorite = db.session.execute(db.select(HutFavorites).where(
-            (HutFavorites.user_id == user_id) & 
-            (HutFavorites.hut_id == hut_id))).scalar()
+        (HutFavorites.user_id == user_id) &
+        (HutFavorites.hut_id == hut_id))).scalar()
     if existing_favorite:
         response_body['message'] = 'Esta cabaña ya está en tus favoritos'
         return response_body, 409
@@ -398,7 +397,7 @@ def get_huts_map_data():
             },
             'image_url': hut.image_url
         } for hut in huts]
-        
+
         return jsonify(map_data), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -447,7 +446,7 @@ def post_location():
     return response_body, 200
 
 
-@api.route('locations/<int:id>', methods=['PUT'])
+@api.route('/locations/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_location(id):
     response_body = {}
@@ -575,9 +574,10 @@ def post_huts():
         return response_body, 403
     data = request.json
 
-    required_fields = ['name', 'description', 'capacity', 'bedrooms', 'bathroom', 'price_per_night', 'location_id']
+    required_fields = ['name', 'description', 'capacity',
+                       'bedrooms', 'bathroom', 'price_per_night', 'location_id']
     if not all(field in data for field in required_fields):
-            return jsonify({"success": False, "message": "Faltan campos requeridos"}), 400
+        return jsonify({"success": False, "message": "Faltan campos requeridos"}), 400
 
     hut = Huts()
     hut.name = data.get('name', hut.name)
@@ -604,9 +604,10 @@ def get_huts():
     response_body['results'] = [row.serialize() for row in rows]
     return jsonify(response_body), 200
 
+
 @api.route('/huts/<int:id>', methods=['GET'])
 def get_single_huts(id):
-    response_body ={}
+    response_body = {}
     response_body['message'] = "La cabaña se ha cargado correctamente"
     row = db.session.execute(
         db.select(Huts).where(Huts.id == id)).scalar()
@@ -792,3 +793,42 @@ def delete_hut_album(id):
         db.session.rollback()
         response_body['message'] = f'Error al eliminar: {str(e)}'
         return response_body, 500
+
+
+@api.route('/users/upload-avatar', methods=['POST'])
+@jwt_required()
+def upload_avatar():
+    claims = get_jwt()
+    user = db.session.get(Users, claims['user_id'])
+    if not user:
+        return jsonify({"message": "Usuario no encontrado"}), 404
+
+    if 'avatar' not in request.files:
+        return jsonify({"message": "No se envió ninguna imagen"}), 400
+
+    file = request.files['avatar']
+    
+    try:
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder="huts_app/avatars",
+            width=300,
+            height=300,
+            crop="fill",
+            quality="auto",
+            fetch_format="auto"
+        )
+        optimized_url = upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')
+        
+        user.profile_image = optimized_url
+        db.session.commit()
+
+        # ✅ Devuelve el usuario completo
+        return jsonify({
+            "url": optimized_url,
+            "user": user.serialize()  # Asegúrate de que serialize() incluye todos los campos
+        }), 200
+
+    except Exception as e:
+        return jsonify({"message": f"Error: {str(e)}"}), 500
+    
