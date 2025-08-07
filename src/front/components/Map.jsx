@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow} from '@react-google-maps/api';
 import { getHutsDetail } from '../services/hut';
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { Link } from 'react-router-dom';
 
 
 const key_api_maps = import.meta.env.VITE_CLAVE_API_GOOGLE_MAPS
@@ -12,6 +13,8 @@ export const Map = () => {
 
   const [selectedHut, setSelectedHut] = useState(null);
   const [center, setCenter] = useState({ lat: 41.3851, lng: 2.1734 }); // Barcelona por defecto
+  const [mounted, setMounted] = useState (false)
+
 
 const { store, dispatch } = useGlobalReducer();
 
@@ -35,17 +38,24 @@ useEffect(() => {
         console.error("Error fetching huts:", error);
       }
     };
-    
+
     getHuts();
+    setMounted(true)
 
   }, []);
 
+  const handleOnClickHut = (item) => {
+    setSelectedHut(item)
+  }
+  if (!mounted) {
+    return (<div> Cargando ... </div>)
+  }
   return (
-    <LoadScript className="relative w-full h-full rounded-xl overflow-hidden shadow-lg"
-      googleMapsApiKey={key_api_maps}
-      libraries={['places']}
-    >
-
+      <LoadScript
+            googleMapsApiKey={key_api_maps}
+            libraries={['places']}
+            >
+              
       <GoogleMap
         mapContainerStyle={mapStyles}
         zoom={10}
@@ -55,7 +65,7 @@ useEffect(() => {
           <Marker
             key={hut.id}
             position={hut.location_to.position}
-            onClick={() => setSelectedHut(hut)}
+            onClick={() => handleOnClickHut(hut)}
             icon={{
               url: "https://maps.google.com/mapfiles/ms/icons/lodging.png",
               scaledSize: new window.google.maps.Size(32, 32)
@@ -77,17 +87,18 @@ useEffect(() => {
                 alt={selectedHut.name}
                 className="w-20 h-20 object-cover mt-2"
               />
-              <a
-                href={`/huts/${selectedHut.id}`}
+              <Link
+                to={`/huts/${selectedHut.id}`}
                 className="text-blue-500 hover:underline block mt-2"
               >
                 Ver detalles
-              </a>
+              </Link>
             </div>
           </InfoWindow>
         )}
       </GoogleMap>
-    </LoadScript>
+</LoadScript>  
+  
   );
 };
 

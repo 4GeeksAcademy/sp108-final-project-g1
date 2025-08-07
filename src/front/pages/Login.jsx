@@ -36,12 +36,12 @@ const Login = () => {
 
        const storage = formData.rememberMe ? localStorage : sessionStorage;
       storage.setItem('token', result.access_token);
-
+      storage.setItem('currentUser', JSON.stringify(result.results))
       // Actualizar estado global
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
-      console.log('Login result:', result);
+
 
       navigate('/');
     } catch (err) {

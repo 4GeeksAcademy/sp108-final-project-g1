@@ -111,9 +111,10 @@ export const EditProfile = () => {
       console.log("Respuesta actualizada del backend:", updatedUser)
 
       dispatch({ type: "currentUser", payload: updatedUser.results })
+      console.log(updatedUser)
 
       const storage = localStorage.getItem("token") ? localStorage : sessionStorage
-      storage.setItem('user', JSON.stringify(updatedUser))
+      storage.setItem('currentUser', JSON.stringify(updatedUser.results))
 
       alert("¡Perfil actualizado correctamente!")
       navigate('/profile')

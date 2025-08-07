@@ -8,7 +8,7 @@
 }
 
 .body {
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(../front/assets/img/casa-en-arbol.jpg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588800/casa-en-arbol_pyjoxw.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -16,20 +16,20 @@
 }
 
 .contact {
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(../front/assets/img/madera-fondo-contacto.jpg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588799/madera-fondo-contacto_nwadym.jpg);
     background-repeat: no-repeat;
     background-position: center;
 }
 
 /* Esto se tendrá que quitar una vez hayamos implementado los fetch de los usuarios */
 .bg-profile {
-    background: url("https://cdn.pixabay.com/photo/2016/03/15/02/42/floor-1256804_1280.jpg");
+    background: url("https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588996/profile-wood_vwwvvn.jpg");
     background-repeat: no-repeat;
     background-position: center;
 }
 
 .wood-bg {
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(../front/assets/img/wood-bg.jpg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588798/wood-bg_bvhh0a.jpg);
     background-repeat: no-repeat;
     background-position: center;
 }

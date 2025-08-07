@@ -9,25 +9,25 @@ export const Profile = () => {
 
   const { store, dispatch } = useGlobalReducer()
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        if (!store.currentUser) {
-          const userId = localStorage.getItem('userId')
-          if (!userId) return
+  // useEffect(() => {
+  //   const fetchUserProfile = async () => {
+  //     try {
+  //       if (!store.currentUser) {
+  //         const userId = localStorage.getItem('userId')
+  //         if (!userId) return
 
-          const user = await getCurrentUser(userId)
-          dispatch({ type: "currentUser", payload: user })
-          setEmail(user.email)
-        } else {
-          setEmail(store.currentUser.email)
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error)
-      }
-    }
-    fetchUserProfile()
-  }, [])
+  //         const user = await getCurrentUser(userId)
+  //         dispatch({ type: "currentUser", payload: user })
+  //         setEmail(user.email)
+  //       } else {
+  //         setEmail(store.currentUser.email)
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user profile:", error)
+  //     }
+  //   }
+  //   fetchUserProfile()
+  // }, [])
 
   return (
     <div>

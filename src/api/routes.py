@@ -603,6 +603,8 @@ def get_huts():
     rows = db.session.execute(db.select(Huts)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
     return jsonify(response_body), 200
+    # if not row 
+
 
 
 @api.route('/huts/<int:id>', methods=['GET'])

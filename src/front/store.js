@@ -3,6 +3,7 @@ export const initialStore = () => {
     const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || '';
     const currentUserFormatted = currentUser? JSON.parse(currentUser): {};
 
+console.log(currentUser)
     return {
         message: null,
         currentUser: currentUserFormatted,

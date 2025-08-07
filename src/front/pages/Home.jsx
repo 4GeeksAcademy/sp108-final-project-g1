@@ -4,18 +4,20 @@ import forestBirds from "../assets/audio/forest-birds.mp3"
 import { Form } from "react-router-dom";
 
 
+
 export const Home = () => {
 	return (
 		<div className="flex flex-col min-h-[100svh] text-white">
 			<div className="flex flex-col flex-1 px-5">
 				<section className="ml-5 mt-5 md:ml-10 md:mt-10">
+
 					<h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight">
 						<span className="bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent">MI</span><br />
 						<span className="bg-gradient-to-br from-brown-350 to-green-250 bg-clip-text text-transparent">RINCÓN</span><br />
 						<span className="font-bold bg-gradient-to-br from-green-450 to-green-150 bg-clip-text text-transparent">ESCONDIDO</span>
 					</h1>
-				</section>
 
+				</section>
 				<section className="flex flex-col sm:flex-row justify-end mt-auto sm:justify-between items-center sm:items-end gap-4 pb-4">
 					<article className="hidden sm:flex">
 						<audio src={forestBirds} controls className="[&::-webkit-media-controls-panel]:bg-gradient-to-br from-green-550 via-green-250 to-brown-550/80 [&::-webkit-media-controls-current-time-display]:text-white [&::-webkit-media-controls-time-remaining-display]:text-white accent-green-350"></audio>
