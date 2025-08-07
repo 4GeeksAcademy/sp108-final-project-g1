@@ -8,29 +8,34 @@ import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions'
 
 
 
+
+
 const Bookings = () => {
   // const [bookings, setBookings] = useState([]); //ALVARO COMO NO VISTE ESTO
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  
   const { store, dispatch } = useGlobalReducer();
-
+  
   const bookings = store.bookingsDetail
+  
+  const currentUser = store.currentUser
+  console.log(currentUser)
 
   useEffect(() => {
     const getBookings = async () => {
       try {
         const bookingsData = await getBookingsDetail();
         dispatch({ type: "bookingsDetail", payload: bookingsData });
-
+        
       } catch (err) {
         setError(err.message);
         if (err.message.includes('Sesión expirada')) {
-
+          
           localStorage.removeItem('token');
           sessionStorage.removeItem('token');
-          navigate('/login');
+          
         }
       }
       finally {
@@ -39,7 +44,7 @@ const Bookings = () => {
     };
     getBookings();
   }, []);
-
+  
 
 
 
@@ -141,6 +146,14 @@ const Bookings = () => {
                         </p>
 
                       </div>
+                     {currentUser.is_admin && ( <div>
+                        <p className="text-sm text-brown-450 mb-1">
+                           </p>
+                          <button
+                          onClick={() => navigate(`/profile`)}
+                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                        >Huesped</button>  
+                      </div>)}
                       <div className="flex gap-2 mt-4">
                         <button
                           onClick={() => navigate(`/booking/${booking.hut_to.id}`)}

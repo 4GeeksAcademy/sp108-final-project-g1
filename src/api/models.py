@@ -85,7 +85,7 @@ class Huts(db.Model):
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey(
-        'locations.id', ondelete="CASCADE"))
+        'locations.id', ondelete="CASCADE"), nullable = False)
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     image_url = db.Column(db.String, unique=False, nullable=False)
