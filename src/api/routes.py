@@ -447,7 +447,7 @@ def post_location():
     return response_body, 200
 
 
-@api.route('locations/<int:id>', methods=['PUT'])
+@api.route('/locations/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_location(id):
     response_body = {}

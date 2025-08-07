@@ -10,22 +10,22 @@ export const Profile = () => {
   const { store, dispatch } = useGlobalReducer();
   const userFromStore = store.userProfile; // 👈 CAMBIADO de userProfile a currentUser
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-       // Si no hay info en el store, intenta obtenerla del backend
-        const userId = userFromStore?.id;
-        if (!userId) return;
+  // useEffect(() => {
+  //   const fetchUserProfile = async () => {
+  //     try {
+  //      // Si no hay info en el store, intenta obtenerla del backend
+  //       const userId = userFromStore?.id;
+  //       if (!userId) return;
 
-        const user = await getCurrentUser(userId);
-        dispatch({ type: "userProfile", payload: user });
-        setEmail(user.email);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-    fetchUserProfile();
-  }, []);
+  //       const user = await getCurrentUser(userId);
+  //       dispatch({ type: "userProfile", payload: user });
+  //       setEmail(user.email);
+  //     } catch (error) {
+  //       console.error("Error fetching user profile:", error);
+  //     }
+  //   };
+  //   fetchUserProfile();
+  // }, []);
 
   return (
     <div>

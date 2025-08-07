@@ -21,7 +21,6 @@ const Bookings = () => {
   const bookings = store.bookingsDetail
   
   const currentUser = store.currentUser
-  console.log(currentUser)
 
   useEffect(() => {
     const getBookings = async () => {
