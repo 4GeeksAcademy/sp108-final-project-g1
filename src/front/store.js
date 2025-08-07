@@ -63,12 +63,15 @@ export default function storeReducer(store, action = {}) {
         case 'logout':
             localStorage.removeItem('token');
             sessionStorage.removeItem('token');
+            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
             return {
                 ...store,
                 token: '',
                 isLogged: false,
                 currentUser: {}
             };
+            
         default:
             console.warn(`Unknown action type: ${action.type}`);
             return store;
