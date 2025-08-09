@@ -297,6 +297,7 @@ def post_bookings():
     db.session.add(booking)
     db.session.commit()
     response_body['message'] = 'Respuesta del post de Bookings'
+    response_body['success'] = True
     response_body['results'] = booking.serialize()
     return response_body, 201
 

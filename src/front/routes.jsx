@@ -13,6 +13,7 @@ import { SingleHut } from './pages/SingleHut';
 import { Contact } from "./pages/Contact.jsx"
 import { Profile } from "./pages/Profile.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
+import HutForm from "./components/HutForm.jsx";
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -33,6 +34,7 @@ export const router = createBrowserRouter(
       <Route path="/maps" element={<MapPage />} />
       <Route path="/huts/:id" element={<SingleHut />} />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+      <Route path="/huts/new" element={<ProtectedRoute><HutForm /></ProtectedRoute>} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
