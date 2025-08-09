@@ -175,7 +175,7 @@ export const SingleHut = () => {
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute top-4 right-4 z-10">
-                        <FavoriteButton hutId={hut.id} />
+
                     </div>
                 </div>
 
