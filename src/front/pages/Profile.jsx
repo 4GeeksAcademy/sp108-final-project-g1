@@ -1,53 +1,57 @@
-import { useEffect, useState } from 'react';
-import { Link } from "react-router-dom";
-import { getCurrentUser } from '../services/users';
-import useGlobalReducer from "../hooks/useGlobalReducer";
+import { useEffect, useState } from 'react'
+import { Link } from "react-router-dom"
+import { getCurrentUser } from '../services/users'
+import useGlobalReducer from "../hooks/useGlobalReducer"
 
 export const Profile = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [email, setEmail] = useState("");
+  const [isOpen, setIsOpen] = useState(false)
+  const [email, setEmail] = useState("")
 
-  const { store, dispatch } = useGlobalReducer();
-  const userFromStore = store.userProfile; // 👈 CAMBIADO de userProfile a currentUser
+  const { store, dispatch } = useGlobalReducer()
 
   // useEffect(() => {
   //   const fetchUserProfile = async () => {
   //     try {
-  //      // Si no hay info en el store, intenta obtenerla del backend
-  //       const userId = userFromStore?.id;
-  //       if (!userId) return;
+  //       if (!store.currentUser) {
+  //         const userId = localStorage.getItem('userId')
+  //         if (!userId) return
 
-  //       const user = await getCurrentUser(userId);
-  //       dispatch({ type: "userProfile", payload: user });
-  //       setEmail(user.email);
+  //         const user = await getCurrentUser(userId)
+  //         dispatch({ type: "currentUser", payload: user })
+  //         setEmail(user.email)
+  //       } else {
+  //         setEmail(store.currentUser.email)
+  //       }
   //     } catch (error) {
-  //       console.error("Error fetching user profile:", error);
+  //       console.error("Error fetching user profile:", error)
   //     }
-  //   };
-  //   fetchUserProfile();
-  // }, []);
+  //   }
+  //   fetchUserProfile()
+  // }, [])
 
   return (
     <div>
+      {
+        store.currentUser && (
           <div className="flex justify-center items-center min-h-screen p-4">
             <div className="rounded-3xl border-8 border-brown-250 w-full max-w-2xl bg-green-150 space-y-6 md:space-y-8 p-4 md:p-6">
               <div className="flex flex-col sm:flex-row items-center gap-4 bg-profile rounded-3xl md:rounded-full border border-brown-550 p-4 md:p-0">
                 <img
                   className="h-20 md:h-40 lg:h-40 w-20 md:w-40 lg:w-40 rounded-full border-4 border-white"
-                  src="https://flowbite.com/docs/images/people/profile-picture-3.jpg"
+                  src={store.currentUser.profile_image || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"}
                   alt="Foto de perfil"
                 />
                 <div className="text-center sm:text-left">
-                  <h2 className="font-bold text-xl md:text-2xl text-white">Nombre completo</h2>
-                  <span className="text-sm text-gray-200">{email}</span>
+                  <h2 className="font-bold text-xl md:text-2xl text-white">{store.currentUser.first_name || "No especificado"}</h2>
+                  <span className="text-sm text-gray-200">{store.currentUser.email}</span>
                 </div>
               </div>
               <div className="text-center bg-white/20 rounded-lg p-3">
-                <p className="break-words"><span className="font-bold">Teléfono: </span></p>
-                <p className="break-words"><span className="font-bold">Dirección: </span></p>
+                <p className="break-words"><span className="font-bold">Teléfono:</span> {store.currentUser.phone_number || "No especificado"}</p>
+                <p className="break-words"><span className="font-bold">Dirección: </span> {store.currentUser.address || "No especificado"}</p>
               </div>
               <div className="flex flex-wrap justify-center gap-3 text-xs md:text-sm">
-                <Link to="/" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
+                <Link to="/bookings" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
                   Ver mis reservas
                 </Link>
                 <Link to="/" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
@@ -117,6 +121,8 @@ export const Profile = () => {
               </div>
             </div>
           </div>
+        )
+      }
     </div>
   );
 };

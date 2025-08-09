@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
-import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
 import { getHutsDetail } from '../services/hut';
+import { createBooking } from '../services/book';
 import useGlobalReducer from '../hooks/useGlobalReducer';
-import Register from './Register';
+import {format} from 'date-fns'
 
 const Huts = () => {
   const { store, dispatch } = useGlobalReducer();
@@ -13,6 +12,14 @@ const Huts = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedHut, setSelectedHut] = useState(null);
   const isAuthenticated = !!store.token;
+  const [bookingData, setBookingData] = useState({
+    start_date: '',
+    end_date: '',
+    guests: 1,
+    special_requests: ''
+  });
+  const [bookingError, setBookingError] = useState(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   useEffect(() => {
     const fetchHuts = async () => {
@@ -43,11 +50,63 @@ const Huts = () => {
   const handleReserveClick = (hut) => {
     setSelectedHut(hut);
     setShowModal(true);
+    setBookingData({
+      start_date: '',
+      end_date: '',
+      guests: 1,
+      special_requests: ''
+    });
+    setBookingError(null);
+    
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedHut(null);
+    setBookingSuccess(false);
+  };
+
+  const handleBookingChange = (e) => {
+    const { name, value } = e.target;
+    setBookingData(prev => ({
+      ...prev,
+      [name]: name === 'guests' ? parseInt(value) : value
+    }));
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setBookingError(null);
+    
+    if (!bookingData.start_date || !bookingData.end_date) {
+      setBookingError('Debes seleccionar fechas de inicio y fin');
+      return;
+    }
+
+    try {
+      const bookingPayload = {
+        hut_id: selectedHut.id,
+        start_date: bookingData.start_date,
+        end_date: bookingData.end_date,
+        guests: bookingData.guests,
+        special_requests: bookingData.special_requests
+      };
+
+      const response = await createBooking(bookingPayload);
+      
+      if (response.success) {
+        setBookingSuccess(true);
+        dispatch({ type: "bookingsDetail", payload: bookingPayload })
+        setBookingError(null);
+
+        
+      } else {
+        throw new Error(response.message || 'Error al realizar la reserva');
+      }
+    } catch (err) {
+      console.error("Booking error:", err);
+      setBookingError(err.message || 'Error al procesar la reserva');
+    }
   };
 
 
@@ -118,20 +177,7 @@ const Huts = () => {
                     e.target.alt = 'Imagen no disponible';
                   }}
                 />
-                <button
-                  className="absolute top-3 right-3 p-2 bg-white/80 rounded-full backdrop-blur-sm shadow-sm hover:bg-brown-150 transition-colors"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Lógica para favoritos
-                  }}
-                >
-                  {hut.is_favorite ? (
-                    <HeartIconSolid className="h-5 w-5 text-brown-550" />
-                  ) : (
-                    <HeartIconOutline className="h-5 w-5 text-brown-350" />
-                  )}
-                </button>
+         
               </div>
 
               <div className="p-5">
@@ -195,24 +241,105 @@ const Huts = () => {
               </button>
             </div>
             <div className="p-6">
-              {isAuthenticated ? (
-                <div>
-                  <p className="mb-6 text-brown-450">
-                    Completa el formulario para reservar <span className="font-bold text-green-550">{selectedHut.name}</span>
+              {bookingSuccess ? (
+                <div className="text-center">
+                   <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg> 
+                  <h3 className="text-lg font-medium text-green-550 mt-4">¡Reserva confirmada!</h3>
+                  <p className="mt-2 text-brown-450">
+                    Tu reserva en {selectedHut.name} ha sido confirmada.
                   </p>
-                  {/* Aquí iría el formulario de reserva */}
-                  <button className="w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors">
-                    Confirmar Reserva
+                  <button
+                    onClick={window.location.href = "/bookings"}
+                    className="mt-6 w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+                  >
+                    Cerrar
                   </button>
                 </div>
+              ) : isAuthenticated ? (
+                <form onSubmit={handleBookingSubmit}>
+                  <div className="space-y-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-brown-550 mb-1">
+                          Fecha de llegada
+                        </label>
+                        <input
+                          type="date"
+                          name="start_date"
+                          value={bookingData.start_date}
+                          onChange={handleBookingChange}
+                          min={format(new Date(), 'yyyy-MM-dd')}
+                          className="w-full p-2 border border-brown-200 rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-brown-550 mb-1">
+                          Fecha de salida
+                        </label>
+                        <input
+                          type="date"
+                          name="end_date"
+                          value={bookingData.end_date}
+                          onChange={handleBookingChange}
+                          min={bookingData.start_date || format(new Date(), 'yyyy-MM-dd')}
+                          className="w-full p-2 border border-brown-200 rounded-lg"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-brown-550 mb-1">
+                        Huéspedes (máx. {selectedHut.capacity})
+                      </label>
+                      <input
+                        type="number"
+                        name="guests"
+                        min="1"
+                        max={selectedHut.capacity}
+                        value={bookingData.guests}
+                        onChange={handleBookingChange}
+                        className="w-full p-2 border border-brown-200 rounded-lg"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-brown-550 mb-1">
+                        Solicitudes especiales
+                      </label>
+                      <textarea
+                        name="special_requests"
+                        value={bookingData.special_requests}
+                        onChange={handleBookingChange}
+                        rows="3"
+                        className="w-full p-2 border border-brown-200 rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  
+                  {bookingError && (
+                    <div className="mb-4 p-3 bg-red-100 text-red-600 rounded text-sm">
+                      {bookingError}
+                    </div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+                  >
+                    Confirmar Reserva
+                  </button>
+                </form>
               ) : (
-                <Register
-                  onSuccess={() => {
-                    // Lógica cuando el registro es exitoso
-                  }}
-                  hutName={selectedHut.name}
-                />
-              )}
+                <button className='btn px-4 py-2 bg-white text-sm md:text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outbtn px-5 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200line-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 '
+                onClick={() => window.location.href = '/login'}>
+                  Login
+              </button>
+            )}
             </div>
           </div>
         </div>

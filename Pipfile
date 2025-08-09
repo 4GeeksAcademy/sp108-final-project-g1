@@ -23,6 +23,7 @@ flask-migrate = "*"
 flask-bcrypt = "*"
 bcrypt = "*"
 font-font-awesome = "*"
+fns = "*"
 
 [requires]
 python_version = "3.13"
