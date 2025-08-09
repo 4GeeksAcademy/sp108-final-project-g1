@@ -74,7 +74,8 @@ const Login = () => {
         background: 'danger',
         visible: true
       }
-    });
+    })
+    navigate('/');
   };
 
   return (

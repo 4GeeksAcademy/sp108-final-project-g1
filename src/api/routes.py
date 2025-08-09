@@ -113,32 +113,45 @@ def login():
 def register():
     response_body = {}
     data = request.json
-    user = Users()
-    user.email = data.get('email', None).lower()
-    user.password = data.get('password', None)
-    user.first_name = data.get('first_name', None)
-    if user.password == None:
-        response_body['message'] = 'Falta Password'
-        response_body['result'] = {}
-        return response_body, 403
-    if user.email == None:
+    
+    if not data.get('email'):
         response_body['message'] = 'Falta Email'
-        response_body['result'] = {}
-        return response_body, 403
-    user.password = bcrypt.generate_password_hash(
-        user.password).decode("utf-8")
+        return response_body, 400
+    if not data.get('password'):
+        response_body['message'] = 'Falta Password'
+        return response_body, 400
+
+    email = data.get('email').lower()
+    
+    existing_user = db.session.execute(
+        db.select(Users).where(Users.email == email)
+    ).scalar()
+    
+    if existing_user:
+        response_body['message'] = 'El correo electrónico ya está registrado'
+        return response_body, 409  
+
+    user = Users()
+    user.email = email
+    user.password = bcrypt.generate_password_hash(data.get('password')).decode("utf-8")
+    user.first_name = data.get('first_name')
     user.is_active = True
     user.is_admin = data.get('is_admin', False)
+    
     db.session.add(user)
     db.session.commit()
-    claims = {'user_id': user.serialize()['id'],
-              'is_admin': user.serialize()['is_admin']}
-    access_token = create_access_token(
-        identity=user.email, additional_claims=claims)
-    response_body['access_token'] = access_token
 
+    claims = {
+        'user_id': user.id,
+        'is_admin': user.is_admin,
+        'email': user.email
+    }
+    access_token = create_access_token(identity=user.email, additional_claims=claims)
+    
+    response_body['message'] = 'Usuario registrado exitosamente'
+    response_body['access_token'] = access_token
     response_body['results'] = user.serialize()
-    response_body['message'] = 'Usuario registrado'
+    
     return response_body, 201
 
 
@@ -459,7 +472,7 @@ def put_location(id):
     location = db.session.execute(
         db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
-        user_id=claims['user_id']
+        user_id = claims['user_id']
         response_body['message'] = f' El usuario {user_id} no tiene permiso para modificar la localizacion'
         return response_body, 409
     data = request.json
@@ -560,7 +573,7 @@ def put_review(id):
     review = db.session.execute(
         db.select(Reviews).where(Reviews.id == id)).scalar()
     if not claims['is_admin']:
-        user_id=claims['user_id']
+        user_id = claims['user_id']
         response_body['message'] = f'El usuario {user_id} no tiene permiso para modificar la reseña'
     data = request.json
     review.rating = data.get('rating', review.rating)
@@ -611,8 +624,7 @@ def get_huts():
     rows = db.session.execute(db.select(Huts)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
     return jsonify(response_body), 200
-    # if not row 
-
+    # if not row
 
 
 @api.route('/huts/<int:id>', methods=['GET'])
@@ -817,7 +829,7 @@ def upload_avatar():
         return jsonify({"message": "No se envió ninguna imagen"}), 400
 
     file = request.files['avatar']
-    
+
     try:
         upload_result = cloudinary.uploader.upload(
             file,
@@ -828,8 +840,9 @@ def upload_avatar():
             quality="auto",
             fetch_format="auto"
         )
-        optimized_url = upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')
-        
+        optimized_url = upload_result['secure_url'].replace(
+            '/upload/', '/upload/f_auto,q_auto/')
+
         user.profile_image = optimized_url
         db.session.commit()
 
@@ -841,4 +854,3 @@ def upload_avatar():
 
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
-    

@@ -9,7 +9,6 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    password_confirmation: '',
     agreeTerms: false
   });
   const [loading, setLoading] = useState(false);
@@ -48,10 +47,14 @@ const Register = () => {
       const result = await register(dataToSend);
 
       // Guardar token y redirigir
-      localStorage.setItem('token', result.access_token);
+      const storage = formData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('token', result.access_token);
+      storage.setItem('currentUser', JSON.stringify(result.results))
+      // Actualizar estado global
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
-      dispatch({ type: 'currentUser', payload: result.user });
+      dispatch({ type: 'currentUser', payload: result.results });
+
 
       navigate('/');
     } catch (err) {
@@ -74,7 +77,6 @@ const Register = () => {
       name: '',
       email: '',
       password: '',
-      password_confirmation: '',
       agreeTerms: false
     });
     dispatch({

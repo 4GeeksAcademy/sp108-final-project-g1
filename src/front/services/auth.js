@@ -26,10 +26,9 @@ export const login = async (dataToSend) => {
 };
 
 export const register = async (dataToSend) => {
-    const uri = `${host}api/register`;
     
     try {
-        const response = await fetch(uri, {
+        const response = await fetch(`${host}api/register`, {
             method: 'POST',
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(dataToSend)
@@ -40,7 +39,8 @@ export const register = async (dataToSend) => {
             throw new Error(errorData.message || 'Error al registrar');
         }
         
-        return await response.json();
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error('Error en register:', error);
         throw error;
