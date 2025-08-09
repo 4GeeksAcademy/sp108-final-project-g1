@@ -2,7 +2,7 @@ import { createBrowserRouter, createRoutesFromElements, Route } from "react-rout
 import { Layout } from "./pages/Layout.jsx";
 import { Home } from "./pages/Home.jsx";
 import { Single } from "./pages/Single.jsx";
-import { Error404 } from "./pages/Error404.jsx";c
+import { Error404 } from "./pages/Error404.jsx"
 import Login from "./pages/Login.jsx"
 import Register from "./pages/Register.jsx";
 import Huts from "./pages/Huts.jsx"
