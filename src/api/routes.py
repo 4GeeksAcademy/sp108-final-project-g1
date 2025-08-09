@@ -170,7 +170,8 @@ def user(id):
         return response_body, 200
     if request.method == 'PUT':
         if claims['user_id'] != id:
-            response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para modificar los datos de {id}'
+            user_id = claims['user_id']
+            response_body['message'] = f' El usuario {user_id} no tiene permiso para modificar los datos de {id}'
         data = request.json
         user.password = data.get('password', user.password)
         user.email = data.get('email', user.email)
