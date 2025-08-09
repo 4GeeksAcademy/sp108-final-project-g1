@@ -1,18 +1,25 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRightFromBracket, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 
 export const Navbar = () => {
   const [menuIsActive, setMenuIsActive] = useState(false)
-  const [isConnected, setIsConnected] = useState(false)
-
+  const { store, dispatch } = useGlobalReducer()
+  const navigate = useNavigate();
+  
+  const isLogged= store.isLogged
   const handleMenu = () => {
     setMenuIsActive(!menuIsActive)
   }
 
-  const handleConnected = () => {
-    setIsConnected(!isConnected)
-  }
+  const handleLogout = () => {
+    dispatch({ type: 'logout' });
+    navigate('/login');
+  };
 
 
   return (
@@ -47,18 +54,15 @@ export const Navbar = () => {
           <li>
             <Link to="/profile" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Mi Perfil</Link>
           </li>
-          <li>
-            <Link to="/maps" className="hidden md:block hover:scale-105 hover:text-brown-250 transition">Mapa</Link>
-          </li>
+
         </div>
         <li className="md:ml-14 md:hover:scale-105">
-          <Link to="/login" onClick={handleConnected}>
+          <Link to="/login" onClick={handleLogout}>
             {
-              !isConnected ?
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-user-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
+              isLogged ?
+                <FontAwesomeIcon icon={faRightFromBracket} size="2x" />
                 :
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-logout-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M10 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2" /><path d="M15 12h-12l3 -3" /><path d="M6 15l-3 -3" /></svg>
-            }
+                <FontAwesomeIcon icon={faUserCircle} size="2x" />}
           </Link>
         </li>
       </ul>
@@ -96,12 +100,7 @@ export const Navbar = () => {
                   <span>Mi perfil</span>
                 </Link>
               </li>
-              <li className="group">
-                <Link to="/maps" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
-                  <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
-                  <span>Mapa</span>
-                </Link>
-              </li>
+
             </ul>
           </div>
         )

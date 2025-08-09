@@ -2,18 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { getHutsDetail } from '../services/hut';
 import useGlobalReducer from "../hooks/useGlobalReducer";
-import { useJsApiLoader } from '@react-google-maps/api';
+import { Link } from 'react-router-dom';
 
 const key_api_maps = import.meta.env.VITE_CLAVE_API_GOOGLE_MAPS;
 
 export const Map = () => {
   const [selectedHut, setSelectedHut] = useState(null);
-  const [center, setCenter] = useState({ lat: 41.3851, lng: 2.1734 });
-  const [loadingHuts, setLoadingHuts] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const { store, dispatch } = useGlobalReducer();
-  const huts = store.hutsDetail || [];
+  const [center, setCenter] = useState({ lat: 41.3851, lng: 2.1734 }); // Barcelona por defecto
+  const [mounted, setMounted] = useState(false);
+
 
   // Usar useJsApiLoader en lugar de LoadScript
   const { isLoaded } = useJsApiLoader({
@@ -45,9 +42,10 @@ export const Map = () => {
         setLoadingHuts(false);
       }
     };
-    
+
     getHuts();
-  }, [dispatch]);
+    setMounted(true);
+  }, []);
 
   if (!isLoaded || loadingHuts) {
     return (
@@ -76,50 +74,61 @@ export const Map = () => {
     );
   }
 
+  const handleOnClickHut = (item) => {
+    setSelectedHut(item);
+  };
+
+  if (!mounted) {
+    return (<div> Cargando ... </div>);
+  }
+
   return (
-    <GoogleMap
-      mapContainerStyle={mapStyles}
-      zoom={10}
-      center={center}
+    <LoadScript
+      googleMapsApiKey={key_api_maps}
+      libraries={['places']}
     >
-      {huts.map(hut => (
-        hut.location_to?.position && (
+      <GoogleMap
+        mapContainerStyle={mapStyles}
+        zoom={10}
+        center={center}
+      >
+        {huts.map(hut => (
           <Marker
             key={hut.id}
             position={hut.location_to.position}
-            onClick={() => setSelectedHut(hut)}
+            onClick={() => handleOnClickHut(hut)}
             icon={{
               url: "https://maps.google.com/mapfiles/ms/icons/lodging.png",
               scaledSize: new window.google.maps.Size(32, 32)
             }}
           />
-        )
-      ))}
+        ))}
 
-      {selectedHut && selectedHut.location_to?.position && (
-        <InfoWindow
-          position={selectedHut.location_to.position}
-          onCloseClick={() => setSelectedHut(null)}
-        >
-          <div className="p-2 w-64">
-            <h3 className="font-bold text-lg">{selectedHut.name}</h3>
-            <p className="text-gray-700">${selectedHut.price} por noche</p>
-            {selectedHut.image_url && (
-              <img
-                src={selectedHut.image_url}
-                alt={selectedHut.name}
-                className="w-full h-32 object-cover mt-2 rounded"
-              />
-            )}
-            <a
-              href={`/huts/${selectedHut.id}`}
-              className="inline-block mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
-              Ver detalles
-            </a>
-          </div>
-        </InfoWindow>
-      )}
-    </GoogleMap>
+        {selectedHut && selectedHut.location_to?.position && (
+          <InfoWindow
+            position={selectedHut.location_to.position}
+            onCloseClick={() => setSelectedHut(null)}
+          >
+            <div className="p-2 w-64">
+              <h3 className="font-bold text-lg">{selectedHut.name}</h3>
+              <p className="text-gray-700">${selectedHut.price} por noche</p>
+              {selectedHut.image_url && (
+                <img
+                  src={selectedHut.image_url}
+                  alt={selectedHut.name}
+                  className="w-full h-32 object-cover mt-2 rounded"
+                />
+              )}
+              <Link
+                to={`/huts/${selectedHut.id}`}
+                className="text-blue-500 hover:underline block mt-2"
+              >
+                Ver detalles
+              </Link>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
+    </LoadScript>
   );
-};
+}; 
