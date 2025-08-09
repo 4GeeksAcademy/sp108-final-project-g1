@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.body {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588800/casa-en-arbol_pyjoxw.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.contact {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588799/madera-fondo-contacto_nwadym.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Esto se tendrá que quitar una vez hayamos implementado los fetch de los usuarios */
+.bg-profile {
+    background: url("https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588996/profile-wood_vwwvvn.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wood-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588798/wood-bg_bvhh0a.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.current-booking {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://forbes.es/wp-content/uploads/2022/08/960x0-5.jpeg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.booking-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://previews.123rf.com/images/grafner/grafner1502/grafner150200114/36864489-rustical-wood-texture.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
