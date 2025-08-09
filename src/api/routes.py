@@ -188,7 +188,8 @@ def user(id):
         return response_body, 200
     if request.method == 'DELETE':
         if claims['user_id'] != id:
-            response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
+            user_id = claims['user_id']
+            response_body['message'] = f'El usuario{user_id} no tiene permiso a cancelar el {id}'
         user.is_active = False
         db.session.commit()
         response_body['message'] = f'Usuario {id} eliminado'
@@ -479,7 +480,8 @@ def delete_location(id):
     location = db.session.execute(
         db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
-        response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
+        user_id = claims['user_id']
+        response_body['message'] = f'El usuario{user_id} no tiene permiso a cancelar el {id}'
         return response_body, 409
     db.session.delete(location)
     db.session.commit()
