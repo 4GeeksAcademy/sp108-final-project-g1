@@ -172,8 +172,11 @@ export const SingleHut = () => {
                     <img
                         src={hut.image_url}
                         alt={hut.name}
-                        className="w-full h-full md:h-auto md:w-full object-cover md:object-contain"
+                        className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-4 right-4 z-10">
+                        <FavoriteButton hutId={hut.id} />
+                    </div>
                 </div>
 
                 {/* Contenido */}
@@ -184,10 +187,11 @@ export const SingleHut = () => {
                             <p className="text-green-450 text-sm md:text-base">
                                 {hut.location_to?.city}, {hut.location_to?.region}
                             </p>
-
                         </div>
                         <div className="text-right">
-                            <span className="text-lg md:text-xl font-semibold text-brown-550">${hut.price_per_night}</span>
+                            <span className="text-lg md:text-xl font-semibold text-brown-550">
+                                ${hut.price_per_night}
+                            </span>
                             <span className="text-brown-350 text-sm md:text-base"> / noche</span>
                         </div>
                     </div>
@@ -337,7 +341,9 @@ export const SingleHut = () => {
 
        
                     <div className="mt-4 md:mt-6">
-                        <h2 className="text-lg md:text-xl font-semibold text-green-550 border-b border-green-250 pb-1">Descripción</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-green-550 border-b border-green-250 pb-1">
+                            Descripción
+                        </h2>
                         <p className="mt-2 text-brown-450 text-sm md:text-base whitespace-pre-line">
                             {hut.description}
                         </p>
@@ -346,4 +352,5 @@ export const SingleHut = () => {
             </div>
         </div>
     );
-};
+
+}

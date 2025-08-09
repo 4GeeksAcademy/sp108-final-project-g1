@@ -19,23 +19,28 @@ export const getUsers = async () => {
     }
 }
 
-export const getCurrentUser = async (id) => {
-  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-  
+export const getProfile = async () => {
+  const token =
+    localStorage.getItem("token") || sessionStorage.getItem("token");
+
   if (!token) {
     throw new Error("No hay token de autenticación");
   }
 
-  const response = await fetch(`${apiHost}api/users/${id}`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/users/profile`, {
+    method: "GET",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    }
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
 
+  if (response.status === 401) {
+    throw new Error("Sesión expirada");
+  }
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `Error ${response.status}`);
+    throw new Error("Error al obtener el perfil del usuario");
   }
 
   return await response.json();

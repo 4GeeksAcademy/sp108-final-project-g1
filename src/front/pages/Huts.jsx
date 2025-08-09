@@ -133,7 +133,7 @@ const Huts = () => {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-center mb-12 text-green-550">Nuestras Cabañas</h1>
+      <h1 className="text-4xl font-bold text-center bg-green-150 mb-12 text-green-550">Nuestras Cabañas</h1>
 
       {store.currentUser?.is_admin && (
         <div
@@ -175,7 +175,7 @@ const Huts = () => {
           {store.hutsDetail.map((hut) => (
             <div
               key={hut.id}
-              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-brown-150"
+              className="bg-white border-4 border-green-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-brown-150"
             >
               <div className="fixed bottom-6 right-6 z-50">
                 <button
@@ -230,13 +230,13 @@ const Huts = () => {
                 <div className="flex justify-between gap-3">
                   <Link
                     to={`/huts/${hut.id}`}
-                    className="flex-1 py-2.5 text-center bg-brown-150 text-brown-550 font-medium rounded-lg hover:bg-brown-200 transition-colors"
+                    className="flex-1 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                   >
                     Ver detalles
                   </Link>
                   <button
                     onClick={() => handleReserveClick(hut)}
-                    className="flex-1 py-2.5 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+                    className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                   >
                     Reservar
                   </button>
