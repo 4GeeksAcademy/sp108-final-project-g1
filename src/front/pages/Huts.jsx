@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { getHutsDetail } from '../services/hut';
 import { createBooking } from '../services/book';
 import useGlobalReducer from '../hooks/useGlobalReducer';
-import {format} from 'date-fns'
+import { format } from 'date-fns'
 
 const Huts = () => {
   const { store, dispatch } = useGlobalReducer();
@@ -57,7 +57,7 @@ const Huts = () => {
       special_requests: ''
     });
     setBookingError(null);
-    
+
   };
 
   const handleCloseModal = () => {
@@ -77,7 +77,7 @@ const Huts = () => {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setBookingError(null);
-    
+
     if (!bookingData.start_date || !bookingData.end_date) {
       setBookingError('Debes seleccionar fechas de inicio y fin');
       return;
@@ -93,13 +93,13 @@ const Huts = () => {
       };
 
       const response = await createBooking(bookingPayload);
-      
+
       if (response.success) {
         setBookingSuccess(true);
         dispatch({ type: "bookingsDetail", payload: bookingPayload })
         setBookingError(null);
 
-        
+
       } else {
         throw new Error(response.message || 'Error al realizar la reserva');
       }
@@ -135,6 +135,28 @@ const Huts = () => {
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-12 text-green-550">Nuestras Cabañas</h1>
 
+      {store.currentUser?.is_admin && (
+        <div
+          className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 mb-10 border-2 border-dashed border-green-350 flex flex-col items-center justify-center cursor-pointer h-full min-h-[320px] sm:min-h-[350px] md:min-h-[380px]"
+          onClick={() => window.location.href = '/huts/new'} // Usa navigate en lugar de window.location
+        >
+          <div className="text-center p-5 w-full">
+            <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-3">
+              <svg
+                className="h-8 w-8 text-green-550"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-green-550 mb-1">Añadir cabaña</h3>
+            <p className="text-sm text-brown-450 px-2">Crear nueva cabaña</p>
+          </div>
+        </div>
+      )}
+
       {store.hutsDetail.length === 0 ? (
         <div className="max-w-lg mx-auto bg-brown-50 rounded-xl p-8 text-center">
           <p className="text-xl text-brown-550 mb-6">No hay cabañas disponibles</p>
@@ -157,7 +179,7 @@ const Huts = () => {
             >
               <div className="fixed bottom-6 right-6 z-50">
                 <button
-                  onClick={() => window.location.href = '/maps'} 
+                  onClick={() => window.location.href = '/maps'}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,7 +199,7 @@ const Huts = () => {
                     e.target.alt = 'Imagen no disponible';
                   }}
                 />
-         
+
               </div>
 
               <div className="p-5">
@@ -243,9 +265,9 @@ const Huts = () => {
             <div className="p-6">
               {bookingSuccess ? (
                 <div className="text-center">
-                   <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg> 
+                  </svg>
                   <h3 className="text-lg font-medium text-green-550 mt-4">¡Reserva confirmada!</h3>
                   <p className="mt-2 text-brown-450">
                     Tu reserva en {selectedHut.name} ha sido confirmada.
@@ -290,7 +312,7 @@ const Huts = () => {
                         />
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-brown-550 mb-1">
                         Huéspedes (máx. {selectedHut.capacity})
@@ -306,7 +328,7 @@ const Huts = () => {
                         required
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-brown-550 mb-1">
                         Solicitudes especiales
@@ -320,13 +342,13 @@ const Huts = () => {
                       />
                     </div>
                   </div>
-                  
+
                   {bookingError && (
                     <div className="mb-4 p-3 bg-red-100 text-red-600 rounded text-sm">
                       {bookingError}
                     </div>
                   )}
-                  
+
                   <button
                     type="submit"
                     className="w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
@@ -336,10 +358,10 @@ const Huts = () => {
                 </form>
               ) : (
                 <button className='btn px-4 py-2 bg-white text-sm md:text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outbtn px-5 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200line-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 '
-                onClick={() => window.location.href = '/login'}>
+                  onClick={() => window.location.href = '/login'}>
                   Login
-              </button>
-            )}
+                </button>
+              )}
             </div>
           </div>
         </div>
