@@ -10,11 +10,11 @@ const Bookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   const { store, dispatch } = useGlobalReducer();
-  
+
   const bookings = store.bookingsDetail
-  
+
   const currentUser = store.currentUser
 
   useEffect(() => {
@@ -22,14 +22,14 @@ const Bookings = () => {
       try {
         const bookingsData = await getBookingsDetail();
         dispatch({ type: "bookingsDetail", payload: bookingsData });
-        
+
       } catch (err) {
         setError(err.message);
         if (err.message.includes('Sesión expirada')) {
-          
+
           localStorage.removeItem('token');
           sessionStorage.removeItem('token');
-          
+
         }
       }
       finally {
@@ -38,7 +38,7 @@ const Bookings = () => {
     };
     getBookings();
   }, []);
-  
+
 
   // Formatear fecha
   const formatDate = (dateString) => {
@@ -132,24 +132,27 @@ const Bookings = () => {
                         </p>
 
                       </div>
-                     {currentUser.is_admin && ( <div>
-                        <p className="text-sm text-brown-450 mb-1">
-                           </p>
-                          <button
+                        <div className='flex gap-2 mt-4'>
+                      {currentUser.is_admin && (
+                        <button
                           onClick={() => navigate(`/profile`)}
-                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                        >Huesped</button>  
-                      </div>)}
+                          className="flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors"
+                        >Huesped</button>
+                        )}
+                        <button className='flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors'>
+                          Deja tu reseña
+                        </button>
+                      </div>
                       <div className="flex gap-2 mt-4">
                         <button
                           onClick={() => navigate(`/current-booking/${booking.hut_to.id}`)}
-                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                          className="flex-1 bg-brown-350 hover:bg-brown-450 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Reserva
                         </button>
                         <button
                           onClick={() => navigate(`/huts/${booking.hut_to.id}`)}
-                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Cabaña
                         </button>
