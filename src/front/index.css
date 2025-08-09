@@ -33,3 +33,17 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+
+.current-booking {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://forbes.es/wp-content/uploads/2022/08/960x0-5.jpeg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.booking-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://previews.123rf.com/images/grafner/grafner1502/grafner150200114/36864489-rustical-wood-texture.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
