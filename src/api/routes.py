@@ -170,7 +170,8 @@ def user(id):
         return response_body, 200
     if request.method == 'PUT':
         if claims['user_id'] != id:
-            response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para modificar los datos de {id}'
+            user_id = claims['user_id']
+            response_body['message'] = f' El usuario {user_id} no tiene permiso para modificar los datos de {id}'
         data = request.json
         user.password = data.get('password', user.password)
         user.email = data.get('email', user.email)
@@ -187,7 +188,8 @@ def user(id):
         return response_body, 200
     if request.method == 'DELETE':
         if claims['user_id'] != id:
-            response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
+            user_id = claims['user_id']
+            response_body['message'] = f'El usuario{user_id} no tiene permiso a cancelar el {id}'
         user.is_active = False
         db.session.commit()
         response_body['message'] = f'Usuario {id} eliminado'
@@ -380,7 +382,8 @@ def delete_hut_favorite(id):
 
     db.session.delete(hut_favorite)
     db.session.commit()
-    response_body['message'] = f'El usuario {claims['user_id']} ha eliminado Cabaña {id} de favoritos'
+    user_id = claims['user_id']
+    response_body['message'] = f'El usuario {user_id} ha eliminado Cabaña {id} de favoritos'
     return response_body, 200
 
 
@@ -430,7 +433,8 @@ def post_location():
     response_body = {}
     claims = get_jwt()
     if not claims['is_admin']:
-        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para agregar la localizacion'
+        user_id = claims['user_id']
+        response_body['message'] = f'El usuario {user_id} no tiene permiso para agregar la localizacion'
         return response_body, 409
     data = request.get_json()
     new_location = Locations(
@@ -455,7 +459,8 @@ def put_location(id):
     location = db.session.execute(
         db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
-        response_body['message'] = f' El usuario {claims['user_id']} no tiene permiso para modificar la localizacion'
+        user_id=claims['user_id']
+        response_body['message'] = f' El usuario {user_id} no tiene permiso para modificar la localizacion'
         return response_body, 409
     data = request.json
     location.complex = data.get('complex', location.complex)
@@ -478,7 +483,8 @@ def delete_location(id):
     location = db.session.execute(
         db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
-        response_body['message'] = f'El usuario{claims['user_id']} no tiene permiso a cancelar el {id}'
+        user_id = claims['user_id']
+        response_body['message'] = f'El usuario{user_id} no tiene permiso a cancelar el {id}'
         return response_body, 409
     db.session.delete(location)
     db.session.commit()
@@ -554,7 +560,8 @@ def put_review(id):
     review = db.session.execute(
         db.select(Reviews).where(Reviews.id == id)).scalar()
     if not claims['is_admin']:
-        response_body['message'] = f'El usuario {claims['user_id']} no tiene permiso para modificar la reseña'
+        user_id=claims['user_id']
+        response_body['message'] = f'El usuario {user_id} no tiene permiso para modificar la reseña'
     data = request.json
     review.rating = data.get('rating', review.rating)
     review.comment = data.get('comment', review.comment)
