@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getSigleHuts } from '../services/singleHut';
 import useGlobalReducer from '../hooks/useGlobalReducer';
-
-
 import { createBooking } from '../services/book';
 
 
@@ -23,6 +21,8 @@ export const SingleHut = () => {
     });
     const [bookingError, setBookingError] = useState(null);
     const [bookingSuccess, setBookingSuccess] = useState(false);
+
+    const navigate = useNavigate()
 
 
     useEffect(() => {
@@ -128,8 +128,6 @@ export const SingleHut = () => {
         }
     };
 
-
-
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -167,6 +165,10 @@ export const SingleHut = () => {
             </div>
         );
     }
+
+    const handleVolver = () => {
+        navigate(-1);
+    };
 
     return (
         <div className="container mx-auto p-4 md:p-6">
@@ -353,10 +355,15 @@ export const SingleHut = () => {
                         <h2 className="text-lg md:text-xl font-semibold text-green-550 border-b border-green-250 pb-1">
                             Descripción
                         </h2>
-                        <p className="mt-2 text-brown-450 text-sm md:text-base whitespace-pre-line">
+                        <p className="mt-2 text-brown-450 text-sm border-b border-green-250 md:text-base whitespace-pre-line">
                             {hut.description}
                         </p>
                     </div>
+                </div>
+                <div className='flex justify-center py-2 m-1'>
+                    <button onClick={handleVolver} className="w-1/2 md:w-1/6 py-2 bg-brown-350 hover:bg-brown-450 text-white text-center font-medium rounded-md transition-colors">
+                        Volver
+                    </button>
                 </div>
             </div>
         </div>

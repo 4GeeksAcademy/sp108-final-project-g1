@@ -10,6 +10,7 @@ export const Profile = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
     if (!token) {
       dispatch({ type: "currentUser", payload: null });
       navigate("/login");

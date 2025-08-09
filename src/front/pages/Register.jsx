@@ -55,7 +55,6 @@ const Register = () => {
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
 
-
       navigate('/');
     } catch (err) {
       setError(err.message || 'Error al registrar la cuenta');
