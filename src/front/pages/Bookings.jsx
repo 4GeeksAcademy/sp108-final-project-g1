@@ -139,9 +139,11 @@ const Bookings = () => {
                           className="flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors"
                         >Huesped</button>
                         )}
+                        {!currentUser.is_admin && (
                         <button className='flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors'>
                           Deja tu reseña
                         </button>
+                        )}
                       </div>
                       <div className="flex gap-2 mt-4">
                         <button
