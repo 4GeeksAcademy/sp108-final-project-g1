@@ -93,15 +93,20 @@ export const SingleHut = () => {
     }
 
     return (
-        <div className="container mx-auto p-4 md:p-6">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-brown-150">
-                {/* Imagen principal - Responsiva */}
-                <div className="h-48 w-full md:w-auto md:max-w-full md:h-auto md:aspect-video overflow-hidden relative">
+        <div className="container mx-auto p-4 md:p-6 flex justify-center">
+            <div className="bg-white rounded-xl shadow-lg border-8 border-green-150 overflow-hidden border border-brown-150 
+                    w-full md:max-w-5xl md:h-[90vh] lg:h-[80vh] md:overflow-y-auto">
+
+                {/* Imagen principal */}
+                <div className="h-48 w-full md:h-[40vh] lg:h-[35vh] overflow-hidden relative">
                     <img
                         src={hut.image_url}
                         alt={hut.name}
-                        className="w-full h-full md:h-auto md:w-full object-cover md:object-contain"
+                        className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-4 right-4 z-10">
+                        <FavoriteButton hutId={hut.id} />
+                    </div>
                 </div>
 
                 {/* Contenido */}
@@ -112,15 +117,16 @@ export const SingleHut = () => {
                             <p className="text-green-450 text-sm md:text-base">
                                 {hut.location_to?.city}, {hut.location_to?.region}
                             </p>
-
                         </div>
                         <div className="text-right">
-                            <span className="text-lg md:text-xl font-semibold text-brown-550">${hut.price_per_night}</span>
+                            <span className="text-lg md:text-xl font-semibold text-brown-550">
+                                ${hut.price_per_night}
+                            </span>
                             <span className="text-brown-350 text-sm md:text-base"> / noche</span>
                         </div>
                     </div>
 
-                    {/* Características - Grid responsivo */}
+                    {/* Características */}
                     <div className="mt-4 md:mt-6 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                         <div className="bg-green-150 p-2 md:p-3 rounded-lg text-center border border-green-250">
                             <p className="text-green-550 text-xs md:text-sm font-medium">HUÉSPEDES</p>
@@ -134,14 +140,13 @@ export const SingleHut = () => {
                             <p className="text-green-550 text-xs md:text-sm font-medium">BAÑOS</p>
                             <p className="text-brown-550 font-bold md:font-medium">{hut.bathroom}</p>
                         </div>
-                        <div className="absolute top-4 right-4 z-10">
-                            <FavoriteButton hutId={hut.id} />
-                        </div>
                     </div>
 
                     {/* Descripción */}
                     <div className="mt-4 md:mt-6">
-                        <h2 className="text-lg md:text-xl font-semibold text-green-550 border-b border-green-250 pb-1">Descripción</h2>
+                        <h2 className="text-lg md:text-xl font-semibold text-green-550 border-b border-green-250 pb-1">
+                            Descripción
+                        </h2>
                         <p className="mt-2 text-brown-450 text-sm md:text-base whitespace-pre-line">
                             {hut.description}
                         </p>
@@ -150,4 +155,5 @@ export const SingleHut = () => {
             </div>
         </div>
     );
-};
+
+}

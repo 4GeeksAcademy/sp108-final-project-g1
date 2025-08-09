@@ -1,9 +1,9 @@
 export const initialStore = () => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
     const currentUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || '';
-    const currentUserFormatted = currentUser? JSON.parse(currentUser): {};
+    const currentUserFormatted = currentUser ? JSON.parse(currentUser) : {};
 
-console.log(currentUser)
+    console.log(currentUser)
     return {
         message: null,
         currentUser: currentUserFormatted,
@@ -13,6 +13,8 @@ console.log(currentUser)
         bookingsDetail: [],
         hutsDetail: [],
         favorites: [],
+        currentBooking: {},
+        reviews: []
     };
 };
 
@@ -33,9 +35,11 @@ export default function storeReducer(store, action = {}) {
         case 'users':
             return { ...store, users: action.payload };
 
-
         case 'bookingsDetail':
             return { ...store, bookingsDetail: action.payload };
+
+        case 'currentBooking':
+            return { ...store, currentBooking: action.payload };
 
         case 'hutsDetail':
             return { ...store, hutsDetail: action.payload };
@@ -57,6 +61,9 @@ export default function storeReducer(store, action = {}) {
                     hut.id === action.payload ? { ...hut, is_favorite: false } : hut
                 )
             };
+
+        case 'reviews':
+            return { ...store, reviews: action.payload}
 
         case 'logout':
             localStorage.removeItem('token');

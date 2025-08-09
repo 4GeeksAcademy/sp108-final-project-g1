@@ -5,11 +5,6 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions';
 
 
-
-
-
-
-
 const Bookings = () => {
   // const [bookings, setBookings] = useState([]); //ALVARO COMO NO VISTE ESTO
   const [loading, setLoading] = useState(true);
@@ -46,19 +41,11 @@ const Bookings = () => {
   }, []);
   
 
-
-
-
-
   // Formatear fecha
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('es-ES', options);
   };
-
-
-
-
 
 
   if (loading) {
@@ -142,7 +129,7 @@ const Bookings = () => {
                       <div className="bg-green-150 p-4 rounded-lg border border-green-250">
                         <p className="text-sm text-brown-450 mb-1">Total</p>
                         <p className="text-2xl font-bold text-brown-550 mb-4">
-                          $ {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))}
+                          {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))} €
                         </p>
 
                       </div>
@@ -156,7 +143,7 @@ const Bookings = () => {
                       </div>)}
                       <div className="flex gap-2 mt-4">
                         <button
-                          onClick={() => navigate(`/booking/${booking.hut_to.id}`)}
+                          onClick={() => navigate(`/current-booking/${booking.hut_to.id}`)}
                           className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Reserva

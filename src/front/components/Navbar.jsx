@@ -34,35 +34,35 @@ export const Navbar = () => {
           }
         </li>
         <li className="md:hover:scale-105">
-          <Link to="/">
+          <Link to="/" onClick={() => setMenuIsActive(false)}>
             <svg fill="#ffffff" height="40px" width="40px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 479 479" xmlSpace="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M394.902,95.52L242.667,0.904c-1.939-1.205-4.395-1.205-6.334,0L84.097,95.52c-1.762,1.095-2.833,3.021-2.833,5.096v26.004 c0,2.179,1.181,4.186,3.085,5.244c1.903,1.06,4.232,1.002,6.082-0.148l7.703-4.788v196.231c0,3.313,2.687,6,6,6h4.642v24.653 c0,3.313,2.687,6,6,6h19.082V473c0,3.313,2.687,6,6,6h22.754c3.313,0,6-2.687,6-6v-50.77l62.407-62.418h16.959l62.407,62.418V473 c0,3.313,2.687,6,6,6h22.754c3.313,0,6-2.687,6-6V359.812h19.082c3.313,0,6-2.687,6-6v-24.653h4.642c3.313,0,6-2.687,6-6V126.927 l7.704,4.788c0.968,0.602,2.066,0.904,3.167,0.904c1.003,0,2.008-0.251,2.915-0.756c1.904-1.059,3.085-3.065,3.085-5.244v-26.004 C397.735,98.542,396.664,96.615,394.902,95.52z M145.858,467V359.812h10.754V467H145.858z M168.612,359.812h13.274l-13.274,13.27 V359.812z M168.612,405.258V390.05l30.248-30.238h15.191L168.612,405.258z M264.948,359.812h15.191l30.248,30.238v15.208 L264.948,359.812z M310.386,373.082l-13.274-13.27h13.274V373.082z M333.14,467h-10.754V359.812h10.754V467z M358.222,347.812 H120.776v-18.653h237.446V347.812z M368.864,317.159H110.135V119.47L239.5,39.069l129.364,80.4V317.159z M385.735,115.827 L242.667,26.909c-0.97-0.603-2.068-0.904-3.167-0.904s-2.197,0.302-3.167,0.904L93.264,115.827v-11.876L239.5,13.064 l146.235,90.887V115.827z"></path> <path d="M212.461,132.19h-72.104c-3.313,0-6,2.687-6,6v107.681c0,3.313,2.687,6,6,6h72.104c3.313,0,6-2.687,6-6V138.19 C218.461,134.876,215.774,132.19,212.461,132.19z M206.461,144.19v9.876h-60.104v-9.876H206.461z M146.357,196.685v-9.31h60.104 v9.31H146.357z M206.461,208.685v9.31h-60.104v-9.31H206.461z M146.357,175.375v-9.31h60.104v9.31H146.357z M146.357,239.871 v-9.876h60.104v9.876H146.357z"></path> <path d="M260.037,251.871h72.104c3.313,0,6-2.687,6-6V138.19c0-3.313-2.687-6-6-6h-72.104c-3.313,0-6,2.687-6,6v107.681 C254.037,249.184,256.723,251.871,260.037,251.871z M266.037,239.871v-9.876h60.104v9.876H266.037z M326.141,187.375v9.31h-60.104 v-9.31H326.141z M266.037,175.375v-9.31h60.104v9.31H266.037z M326.141,208.685v9.31h-60.104v-9.31H326.141z M326.141,144.19v9.876 h-60.104v-9.876H326.141z"></path> </g> </g></svg>
           </Link>
         </li>
         <div className="hidden md:flex md:items-center md:gap-8 md:ml-auto">
           <li>
-            <Link to="/huts" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Cabañas</Link>
+            <Link to="/huts" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Cabañas</Link>
           </li>
           <li>
-            <Link to="/bookings" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Reservas</Link>
+            <Link to="/bookings" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Reservas</Link>
           </li>
           <li>
-            <Link to="/" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Favoritos</Link>
+            <Link to="/" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Favoritos</Link>
           </li>
           <li>
-            <Link to="/contact" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Contacto</Link>
+            <Link to="/contact" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Contacto</Link>
           </li>
           <li>
-            <Link to="/profile" className="hidden md:block hover:scale-105 hover:text-green-150 transition">Mi Perfil</Link>
+            <Link to="/profile" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Mi Perfil</Link>
           </li>
 
         </div>
-        <li className="md:ml-14 md:hover:scale-105">
+        <li className="md:ml-14 md:hover:scale-105" onClick={() => setMenuIsActive(false)}>
           <Link to="/login" onClick={handleLogout}>
             {
               isLogged ?
-                <FontAwesomeIcon icon={faRightFromBracket} size="2x" />
+                <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
                 :
-                <FontAwesomeIcon icon={faUserCircle} size="2x" />}
+                <FontAwesomeIcon icon={faUserCircle} size="xl" />}
           </Link>
         </li>
       </ul>
@@ -100,7 +100,6 @@ export const Navbar = () => {
                   <span>Mi perfil</span>
                 </Link>
               </li>
-
             </ul>
           </div>
         )

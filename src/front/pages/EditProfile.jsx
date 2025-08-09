@@ -8,7 +8,6 @@ export const EditProfile = () => {
   const host = import.meta.env.VITE_BACKEND_URL
   const navigate = useNavigate()
 
-  // Estado para la vista previa de la imagen
   const [imagePreview, setImagePreview] = useState("")
   const [isUploading, setIsUploading] = useState(false)
 
@@ -73,12 +72,9 @@ export const EditProfile = () => {
       }
 
       const data = await response.json()
-      dispatch({
-        type: 'currentUser',
-        payload: data.user
-      });
+      dispatch({ type: 'currentUser', payload: data.user })
 
-      setFormData(prev => ({ ...prev, profile_image: data.url }));
+      setFormData(prev => ({ ...prev, profile_image: data.url }))
 
     } catch (error) {
       console.error('Error al subir imagen:', error)
@@ -168,9 +164,9 @@ export const EditProfile = () => {
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full p-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-350"
+            className="w-full p-3 rounded-lg border bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-350 disabled:opacity-50"
             required
+            disabled
           />
         </div>
         <div className="mb-4">

@@ -1,33 +1,20 @@
 import { useEffect, useState } from 'react'
-import { Link } from "react-router-dom"
-import { getCurrentUser } from '../services/users'
+import { Link, useNavigate } from "react-router-dom"
 import useGlobalReducer from "../hooks/useGlobalReducer"
 
 export const Profile = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [email, setEmail] = useState("")
+  const navigate = useNavigate()
 
   const { store, dispatch } = useGlobalReducer()
 
-  // useEffect(() => {
-  //   const fetchUserProfile = async () => {
-  //     try {
-  //       if (!store.currentUser) {
-  //         const userId = localStorage.getItem('userId')
-  //         if (!userId) return
-
-  //         const user = await getCurrentUser(userId)
-  //         dispatch({ type: "currentUser", payload: user })
-  //         setEmail(user.email)
-  //       } else {
-  //         setEmail(store.currentUser.email)
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user profile:", error)
-  //     }
-  //   }
-  //   fetchUserProfile()
-  // }, [])
+  useEffect(() => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (!token) {
+      dispatch({ type: "currentUser", payload: null });
+      navigate("/login");
+    }
+  }, []);
 
   return (
     <div>
