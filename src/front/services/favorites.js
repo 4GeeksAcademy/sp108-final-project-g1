@@ -1,8 +1,8 @@
 // services/favorites.js
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+const host = import.meta.env.VITE_BACKEND_URL;
 
 export const getFavorites = async () => {
-  const response = await fetch(`${API_URL}/hut-favorites`, {
+  const response = await fetch(`${host}/hut-favorites`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -13,7 +13,7 @@ export const getFavorites = async () => {
 };
 
 export const addFavorite = async (hutId) => {
-  const response = await fetch(`${API_URL}/hut-favorites`, {
+  const response = await fetch(`${host}/hut-favorites`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const addFavorite = async (hutId) => {
 };
 
 export const removeFavorite = async (favoriteId) => {
-  const response = await fetch(`${API_URL}/hut-favorites/${favoriteId}`, {
+  const response = await fetch(`${host}/hut-favorites/${favoriteId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${localStorage.getItem('token')}`

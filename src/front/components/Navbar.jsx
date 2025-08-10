@@ -66,7 +66,7 @@ export const Navbar = () => {
         <li className="md:ml-14 md:hover:scale-105" onClick={() => setMenuIsActive(false)}>
           <Link to="/login" onClick={handleLogout}>
             {
-              isLogged ?
+              isLogged || token ?
                 <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
                 :
                 <FontAwesomeIcon icon={faUserCircle} size="xl" />}

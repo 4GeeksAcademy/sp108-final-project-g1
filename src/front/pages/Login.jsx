@@ -75,6 +75,7 @@ const Login = () => {
         visible: true
       }
     });
+    navigate('/');
   };
 
   return (

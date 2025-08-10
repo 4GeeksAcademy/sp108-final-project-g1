@@ -37,12 +37,20 @@ export const EditProfile = () => {
     if (!file) return
 
     if (!file.type.match('image.*')) {
-      alert('Por favor, selecciona un archivo de imagen')
+      toast.warning('Por favor, selecciona un archivo de imagen', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
       return
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB
-      alert('La imagen es demasiado grande (máximo 5MB)')
+      toast.warning('La imagen es demasiado grande (máximo 5MB)', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
       return
     }
 
@@ -112,7 +120,11 @@ export const EditProfile = () => {
       const storage = localStorage.getItem("token") ? localStorage : sessionStorage
       storage.setItem('currentUser', JSON.stringify(updatedUser.results))
 
-      alert("¡Perfil actualizado correctamente!")
+      toast.success('¡Perfil actualizado correctamente!', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
       navigate('/profile')
     } catch (error) {
       console.error("Error al guardar:", error)

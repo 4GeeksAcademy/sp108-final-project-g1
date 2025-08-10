@@ -1,35 +1,56 @@
 const host = import.meta.env.VITE_BACKEND_URL
 
-
 export const getReviews = async (hutId) => {
-  const response = await fetch(`${host}api/reviews/hut/${hutId}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
+  try {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token")
+    if (!token) throw new Error("No hay sesión activa")
+
+    const response = await fetch(`${host}api/reviews/hut/${hutId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error("No se pudieron cargar las reseñas")
     }
-  })
 
-  if (!response.ok) {
-    throw new Error("No se pudieron cargar las reseñas");
+    return await response.json()
+  } catch (error) {
+    throw error
   }
-
-  return await response.json()
 }
 
-export const postReview = async (hut_id, reviewData) => {
-  const token = localStorage.getItem("token")
-  if (!token) throw new Error("No hay sesión")
-
-  const response = await fetch(`${host}api/reviews/${hut_id}`, {
-    method: "POST",
+export const postReview = async (hutId, formData) => {
+  return fetch(`${host}api/reviews`, {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
     },
-    body: JSON.stringify(reviewData)
+    body: JSON.stringify({
+      hut_id: hutId,
+      ...formData
+    })
   })
+}
 
-  if (!response.ok) {
-    throw new Error("Error al enviar la reseña")
+
+export const getRandomReview = async () => {
+  try {
+    const response = await fetch(`${host}/api/reviews`)
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || "Error al obtener reseñas")
+    }
+
+    if (Array.isArray(data.results) && data.results.length > 0) {
+      return data.results[Math.floor(Math.random() * data.results.length)]
+    }
+    return null
+  } catch (err) {
+    console.error('Error fetching reviews', err)
+    throw err
   }
-  return await response.json()
-};
+}

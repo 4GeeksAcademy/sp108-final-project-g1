@@ -1,49 +1,37 @@
 import { useState } from "react"
+import { postContact } from "../services/contact"
+import { toast } from 'react-toastify'
 
 export const Contact = () => {
-
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [comment, setComment] = useState("")
-
-  const handleName = (event) => {
-    setName(event.target.value)
-  }
-
-  const handleEmail = (event) => {
-    setEmail(event.target.value)
-  }
-
-  const handleComment = (event) => {
-    setComment(event.target.value)
-  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
 
     try {
-      const response = await fetch("https://formspree.io/f/movllynz", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name,
-          email: email,
-          message: comment,
-        }),
+      await postContact({
+        name,
+        email,
+        message: comment
       })
-      if (response.ok) {
-        alert("¡Mensaje enviado con éxito!")
-        setName("")
-        setEmail("")
-        setComment("")
-      } else {
-        alert("Error al enviar el mensaje.")
-      }
+
+      toast.success('¡Mensaje enviado con éxito!', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
+      setName("")
+      setEmail("")
+      setComment("")
     } catch (error) {
       console.error("Error:", error)
-      alert("Hubo un error al enviar el formulario.")
+      toast.error('Hubo un error al enviar el formulario', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
     }
   }
 
@@ -55,13 +43,13 @@ export const Contact = () => {
             Contáctanos
           </h1>
           <label htmlFor="name">Nombre</label>
-          <input onChange={handleName} type="text" id="name" name="name" className="border w-full bg-stone-300/10 px-3 py-2 rounded" value={name} />
+          <input onChange={(e) => setName(e.target.value)} type="text" id="name" name="name" className="border w-full bg-stone-300/10 px-3 py-2 rounded" value={name} />
           <label htmlFor="email">Correo Electrónico</label>
-          <input onChange={handleEmail} type="email" id="email" name="email" className="border w-full bg-stone-300/10 px-3 py-2 rounded" value={email} />
+          <input onChange={(e) => setEmail(e.target.value)} type="email" id="email" name="email" className="border w-full bg-stone-300/10 px-3 py-2 rounded" value={email} />
           <label htmlFor="comment">Tu consulta:</label>
-          <textarea onChange={handleComment} id="comment" name="message" className="min-h-[150px] border bg-stone-300/10 p-3 rounded" placeholder="Escribe tu mensaje aquí" value={comment} />
+          <textarea onChange={(e) => setComment(e.target.value)} id="comment" name="message" className="min-h-[150px] border bg-stone-300/10 p-3 rounded" placeholder="Escribe tu mensaje aquí" value={comment} />
           <div className="flex justify-between gap-4 mt-4">
-            <button onClick={() => { setName(""); setEmail(""); setComment(""); }} type="button" className="w-1/2 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-450 text-xl p-2 hover:scale-[1.02]">
+            <button onClick={() => { setName(""); setEmail(""); setComment("") }} type="button" className="w-1/2 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-450 text-xl p-2 hover:scale-[1.02]">
               Borrar
             </button>
             <button type="submit" className="w-1/2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-xl p-2 hover:scale-[1.02]">

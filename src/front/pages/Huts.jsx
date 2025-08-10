@@ -132,8 +132,12 @@ const Huts = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-center bg-green-150 mb-12 text-green-550">Nuestras Cabañas</h1>
+    <div className="container mx-auto px-4 py-12 bg-black/50">
+      <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6">
+        <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>
+          Nuestras Cabañas
+        </span>
+      </h1>
 
       {store.currentUser?.is_admin && (
         <div

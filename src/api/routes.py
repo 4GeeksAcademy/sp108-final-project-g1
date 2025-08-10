@@ -459,7 +459,7 @@ def put_location(id):
     location = db.session.execute(
         db.select(Locations).where(Locations.id == id)).scalar()
     if not claims['is_admin']:
-        user_id=claims['user_id']
+        user_id = claims['user_id']
         response_body['message'] = f' El usuario {user_id} no tiene permiso para modificar la localizacion'
         return response_body, 409
     data = request.json
@@ -560,7 +560,7 @@ def put_review(id):
     review = db.session.execute(
         db.select(Reviews).where(Reviews.id == id)).scalar()
     if not claims['is_admin']:
-        user_id=claims['user_id']
+        user_id = claims['user_id']
         response_body['message'] = f'El usuario {user_id} no tiene permiso para modificar la reseña'
     data = request.json
     review.rating = data.get('rating', review.rating)
@@ -611,8 +611,7 @@ def get_huts():
     rows = db.session.execute(db.select(Huts)).scalars()
     response_body['results'] = [row.serialize() for row in rows]
     return jsonify(response_body), 200
-    # if not row 
-
+    # if not row
 
 
 @api.route('/huts/<int:id>', methods=['GET'])
@@ -817,7 +816,7 @@ def upload_avatar():
         return jsonify({"message": "No se envió ninguna imagen"}), 400
 
     file = request.files['avatar']
-    
+
     try:
         upload_result = cloudinary.uploader.upload(
             file,
@@ -828,8 +827,9 @@ def upload_avatar():
             quality="auto",
             fetch_format="auto"
         )
-        optimized_url = upload_result['secure_url'].replace('/upload/', '/upload/f_auto,q_auto/')
-        
+        optimized_url = upload_result['secure_url'].replace(
+            '/upload/', '/upload/f_auto,q_auto/')
+
         user.profile_image = optimized_url
         db.session.commit()
 
@@ -841,4 +841,3 @@ def upload_avatar():
 
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
-    

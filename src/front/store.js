@@ -63,7 +63,7 @@ export default function storeReducer(store, action = {}) {
             };
 
         case 'reviews':
-            return { ...store, reviews: action.payload}
+            return { ...store, reviews: [ ...store.reviews, action.payload]}
 
         case 'logout':
             localStorage.removeItem('token');
