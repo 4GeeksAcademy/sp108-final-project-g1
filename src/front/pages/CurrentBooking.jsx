@@ -55,18 +55,6 @@ export const CurrentBooking = () => {
   const hutName = currentBooking.hut_to?.name || 'Cabaña sin nombre'
   const hutLocation = currentBooking.hut_to?.location || 'Sin ubicación'
 
-  // const calcularNights = () => {
-  //   const start = new Date(currentBooking.start_date)
-  //   const end = new Date(currentBooking.end_date)
-
-  //   const diffTime = end - start
-  //   const nights = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-
-  //   return nights
-  // }
-
-  // const noches = calcularNights()
-
   return (
     <div className="current-booking bg-gray-900 min-h-screen p-4 md:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto">

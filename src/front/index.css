@@ -35,7 +35,7 @@
 }
 
 .current-booking {
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://forbes.es/wp-content/uploads/2022/08/960x0-5.jpeg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754766606/960x0-5_ud8ct2.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -43,7 +43,7 @@
 }
 
 .booking-bg {
-    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://previews.123rf.com/images/grafner/grafner1502/grafner150200114/36864489-rustical-wood-texture.jpg);
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754766646/36864489-rustical-wood-texture_sg3pos.jpg);
     background-repeat: no-repeat;
     background-position: center;
 }
