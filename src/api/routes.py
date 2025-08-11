@@ -325,22 +325,22 @@ def delete_bookings(id):
     return response_body, 200
 
 
-@api.route('/hut-favorites', methods=['GET'])
+@api.route('/favorites', methods=['GET'])
 @jwt_required()
-def get_hut_favorites():
+def get_favorites():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
     hut_favorites = HutFavorites.query.filter_by(user_id=user_id).all()
     response_body['message'] = 'Lista de favoritos'
-    response_body['results'] = [hut_favorite.serialize()
-                                for hut_favorite in hut_favorites]
+    response_body['results'] = [favorite.serialize()
+                                for favorite in hut_favorites]
     return response_body, 200
 
 
-@api.route('/hut-favorites', methods=['POST'])
+@api.route('/favorites', methods=['POST'])
 @jwt_required()
-def get_huts_favorites():
+def add_favorite():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
@@ -352,38 +352,38 @@ def get_huts_favorites():
         return response_body, 404
     existing_favorite = db.session.execute(db.select(HutFavorites).where(
         (HutFavorites.user_id == user_id) &
-        (HutFavorites.hut_id == hut_id))).scalar()
+        (HutFavorites.hut_id == hut_id)
+    )).scalar()
     if existing_favorite:
         response_body['message'] = 'Esta cabaña ya está en tus favoritos'
         return response_body, 409
-    hut_favorites = HutFavorites()
-    hut_favorites.hut_id = data.get('hut_id', None)
-    hut_favorites.user_id = user_id
-    db.session.add(hut_favorites)
+    new_favorite = HutFavorites()
+    new_favorite.hut_id = hut_id
+    new_favorite.user_id = user_id
+    db.session.add(new_favorite)
     db.session.commit()
     response_body['message'] = 'Añadido en favoritos'
-    response_body['results'] = hut_favorites.serialize()
-    return response_body, 200
+    response_body['results'] = new_favorite.serialize()
+    return response_body, 201
 
 
-@api.route('/hut-favorites/<int:id>', methods=['DELETE'])
+@api.route('/favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_hut_favorite(id):
+def delete_favorite(id):
     response_body = {}
     claims = get_jwt()
-    hut_favorite = db.session.execute(
-        db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
-    if not hut_favorite:
+    favorite = db.session.execute(
+        db.select(HutFavorites).where(HutFavorites.id == id)
+    ).scalar()
+    if not favorite:
         response_body['message'] = f'El favorito con id {id} no existe'
         return response_body, 404
-    if hut_favorite.user_id != claims['user_id']:
+    if favorite.user_id != claims['user_id']:
         response_body['message'] = 'No tienes permiso para eliminar este favorito'
         return response_body, 403
-
-    db.session.delete(hut_favorite)
+    db.session.delete(favorite)
     db.session.commit()
-    user_id = claims['user_id']
-    response_body['message'] = f'El usuario {user_id} ha eliminado Cabaña {id} de favoritos'
+    response_body['message'] = f'El usuario {claims["user_id"]} ha eliminado el favorito {id}'
     return response_body, 200
 
 

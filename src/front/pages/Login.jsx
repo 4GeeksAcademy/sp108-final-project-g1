@@ -60,7 +60,6 @@ const Login = () => {
   };
 
 
-
   const handleReset = () => {
     setFormData({
       email: '',
@@ -95,7 +94,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
 
-      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-green-150 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
+      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
           Iniciar sesión

@@ -32,6 +32,7 @@
     background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588798/wood-bg_bvhh0a.jpg);
     background-repeat: no-repeat;
     background-position: center;
+    background-size: cover;
 }
 
 .current-booking {
@@ -46,4 +47,14 @@
     background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754766646/36864489-rustical-wood-texture_sg3pos.jpg);
     background-repeat: no-repeat;
     background-position: center;
+}
+
+.bookings-target {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)), url(./assets/img/madera-amarilla.png); /* Aquí pondrías la imagen de madera */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombra para resaltar */
 }

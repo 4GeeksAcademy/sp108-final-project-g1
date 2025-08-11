@@ -10,10 +10,8 @@ export const Navbar = () => {
   const { store, dispatch } = useGlobalReducer()
   const navigate = useNavigate();
   const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-
-  const currentUser = store.currentUser
-
   const isLogged = store.isLogged
+  
   const handleMenu = () => {
     setMenuIsActive(!menuIsActive)
   }
@@ -21,8 +19,7 @@ export const Navbar = () => {
   const handleLogout = () => {
     dispatch({ type: 'logout' });
     navigate('/login');
-  };
-
+  }
 
   return (
     <nav className="relative text-xl text-white">
@@ -51,7 +48,7 @@ export const Navbar = () => {
           )}
           {token && (
             <li>
-              <Link to="/" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Favoritos</Link>
+              <Link to="/favorites" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Favoritos</Link>
             </li>)}
           <li>
             <Link to="/contact" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Contacto</Link>
@@ -66,7 +63,7 @@ export const Navbar = () => {
         <li className="md:ml-14 md:hover:scale-105" onClick={() => setMenuIsActive(false)}>
           <Link to="/login" onClick={handleLogout}>
             {
-              isLogged || token ?
+              isLogged ?
                 <FontAwesomeIcon icon={faRightFromBracket} size="xl" />
                 :
                 <FontAwesomeIcon icon={faUserCircle} size="xl" />}
@@ -93,7 +90,7 @@ export const Navbar = () => {
               )}
               {token && (
                 <li className="group">
-                  <Link to="/" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                  <Link to="/favorites" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                     <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M21 12l-9 -9l-9 9h2v7a2 2 0 0 0 2 2h6" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2c.39 0 .754 .112 1.061 .304" /><path d="M19 21.5l2.518 -2.58a1.74 1.74 0 0 0 0 -2.413a1.627 1.627 0 0 0 -2.346 0l-.168 .172l-.168 -.172a1.627 1.627 0 0 0 -2.346 0a1.74 1.74 0 0 0 0 2.412l2.51 2.59z" /></svg>
                     <span>Favoritos</span>
                   </Link>

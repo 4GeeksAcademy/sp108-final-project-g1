@@ -44,7 +44,6 @@ const Bookings = () => {
   const { store, dispatch } = useGlobalReducer()
   const bookings = store.bookingsDetail
   const currentUser = store.currentUser
-
   const [formData, setFormData] = useState({
     title: "",
     comment: "",
@@ -103,7 +102,7 @@ const Bookings = () => {
         position: "top-center",
         autoClose: 3000,
         theme: "colored"
-    })
+      })
 
     } catch (error) {
       console.error("Error al enviar reseña:", error)
@@ -136,12 +135,12 @@ const Bookings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-brown-150 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-brown-550 mb-2">Mis Reservas</h1>
-          <div className="w-24 h-1 bg-green-350 mx-auto"></div>
-        </div>
+    <div className="py-12 px-4 sm:px-6 lg:px-8 bg-black/50 min-h-screen">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6">
+          <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis reservas</span>
+        </h1>
+        <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
 
         {bookings.length === 0 ? (
           <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
@@ -154,35 +153,32 @@ const Bookings = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-5xl mx-auto">
             {bookings.map((booking) => (
-              <div key={booking.id} className="bg-brown-150 border-2 border-brown-250 rounded-lg shadow-md overflow-hidden">
+              <div key={booking.id} className="bookings-target border-4 border-brown-250 rounded-lg shadow-md overflow-hidden">
                 <div className="p-6">
                   <div className="flex flex-col md:flex-row justify-between">
                     <div className="mb-6 md:mb-0 md:w-2/3">
                       <h2 className="text-2xl font-bold text-brown-550 mb-2">{booking.hut_to.name}</h2>
                       <p className="text-green-450 font-medium mb-4">{booking.hut_to.location_to.city}</p>
 
-                      <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                         <div>
-                          <p className="text-sm text-brown-450">Check-in</p>
+                          <p className="text-sm">Check-in</p>
                           <p className="font-medium text-brown-550">{formatDate(booking.start_date)}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-brown-450">Check-out</p>
+                          <p className="text-sm">Check-out</p>
                           <p className="font-medium text-brown-550">{formatDate(booking.end_date)}</p>
                         </div>
-                      </div>
-
-                      <div className="flex space-x-4">
                         <div>
-                          <p className="text-sm text-brown-450">Noches</p>
+                          <p className="text-sm">Noches</p>
                           <p className="font-medium text-brown-550">
                             {calculateNights(booking.start_date, booking.end_date)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-brown-450">Huéspedes</p>
+                          <p className="text-sm">Huéspedes</p>
                           <p className="font-medium text-brown-550">{booking.guests}</p>
                         </div>
                       </div>
@@ -195,11 +191,11 @@ const Bookings = () => {
                           {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))} €
                         </p>
                       </div>
-                      <div className='flex gap-2 mt-4'>
+                      <div className='flex gap-2 mt-4 text-center'>
                         {currentUser.is_admin && (
                           <button
                             onClick={() => navigate(`/profile`)}
-                            className="flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors"
+                            className="flex-1 bg-brown-450 hover:bg-brown-550 text-white rounded-md mt-4 p-2 transition-colors"
                           >Huesped</button>
                         )}
                         {!currentUser.is_admin && (
@@ -207,7 +203,7 @@ const Bookings = () => {
                             setActiveBooking(booking)
                             setIsOpen(true)
                           }}
-                            className='flex-1 text-center bg-brown-350 hover:bg-brown-450 text-white rounded-md text-center mt-4 p-2 transition-colors'>
+                            className='flex-1 bg-brown-450 hover:bg-brown-550 text-white rounded-md mt-4 p-2 transition-colors'>
                             Deja tu reseña
                           </button>
                         )}
@@ -215,13 +211,13 @@ const Bookings = () => {
                       <div className="flex gap-2 mt-4">
                         <button
                           onClick={() => navigate(`/current-booking/${booking.hut_to.id}`)}
-                          className="flex-1 bg-brown-350 hover:bg-brown-450 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                          className="flex-1 bg-brown-450 hover:bg-brown-550 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Reserva
                         </button>
                         <button
                           onClick={() => navigate(`/huts/${booking.hut_to.id}`)}
-                          className="flex-1 bg-brown-350 hover:bg-brown-450 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                          className="flex-1 bg-brown-450 hover:bg-brown-550 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Cabaña
                         </button>

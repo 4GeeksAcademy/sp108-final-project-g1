@@ -27,7 +27,7 @@ export const getProfile = async () => {
     throw new Error("No hay token de autenticación");
   }
 
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/users/profile`, {
+  const response = await fetch(`${host}users/profile`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
