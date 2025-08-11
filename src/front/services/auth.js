@@ -1,48 +1,50 @@
-let host = import.meta.env.VITE_BACKEND_URL;
+// src/api/auth.js
 
-export const login = async (dataToSend) => {
-    const uri = `${host}api/login`;
- 
-    const options = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend)
-    };
-    
-    try {
-        const response = await fetch(uri, options);
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al iniciar sesión');
-        }
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error en login:', error);
-        throw error;
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '');
+
+/**
+ * Función para manejar todas las peticiones API
+ */
+const apiRequest = async (endpoint, method, body = null) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      credentials: 'include',
+      mode: 'cors',
+      body: body ? JSON.stringify(body) : null
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: `Error HTTP: ${response.status}`
+      }));
+      throw new Error(errorData.message || 'Error en la solicitud');
     }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error en ${method} ${endpoint}:`, error);
+    throw error;
+  }
 };
 
-export const register = async (dataToSend) => {
-    const uri = `${host}api/register`;
-    
-    try {
-        const response = await fetch(uri, {
-            method: 'POST',
-            headers: { "Content-Type": 'application/json' },
-            body: JSON.stringify(dataToSend)
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Error al registrar');
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Error en register:', error);
-        throw error;
-    }
+// Servicios específicos
+export const authService = {
+  register: (userData) => apiRequest('/api/register', 'POST', userData),
+  login: (credentials) => apiRequest('/api/login', 'POST', credentials)
+};
+
+// Función para manejar alertas (opcional)
+export const showAlert = (dispatch, message, type = 'error') => {
+  dispatch({
+    type: 'SET_ALERT',
+    payload: { message, type }
+  });
+  
+  setTimeout(() => dispatch({ type: 'CLEAR_ALERT' }), 5000);
 };

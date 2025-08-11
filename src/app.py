@@ -2,52 +2,65 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify
 from flask_migrate import Migrate
-from flask_swagger import swagger
-from api.utils import APIException, generate_sitemap
+from api.utils import APIException
 from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 import cloudinary
-from dotenv import load_dotenv
 from flask_cors import CORS
 
-load_dotenv()
-
-ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../dist/')
+# Configuración inicial
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-# Configuración CORS mejorada
-CORS(app, resources={
+# Configuración CORS exhaustiva - Versión mejorada
+cors = CORS(app, resources={
     r"/api/*": {
         "origins": [
             "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev",
-            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev",
-            "http://localhost:3000"
+            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev"
         ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
         "supports_credentials": True,
-        "expose_headers": ["Authorization"]
+        "expose_headers": ["Authorization", "Content-Type"],
+        "max_age": 86400  # Aumentado a 24 horas
     }
 })
 
-# Manejador para peticiones OPTIONS
 @app.before_request
-def handle_options():
+def handle_preflight():
     if request.method == "OPTIONS":
         response = jsonify({"status": "ok"})
-        response.headers.add("Access-Control-Allow-Origin", 
-                           "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
-        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
-        return response, 200
+        # Headers adicionales para CORS
+        origin = request.headers.get('Origin')
+        if origin in [
+            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev",
+            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev"
+        ]:
+            response.headers.add("Access-Control-Allow-Origin", origin)
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+        response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        response.headers.add("Access-Control-Max-Age", "86400")
+        return response
+
+@app.after_request
+def add_cors_headers(response):
+    # Asegurar que los headers CORS estén en todas las respuestas
+    origin = request.headers.get('Origin')
+    if origin in [
+        "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev",
+        "https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev"
+    ]:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Expose-Headers', 'Authorization, Content-Type')
+    return response
 
 # Database configuration
 db_url = os.getenv("DATABASE_URL")
@@ -77,20 +90,8 @@ cloudinary.config(
 
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
-    return jsonify(error.to_dict()), error.status_code
-
-@app.route('/')
-def sitemap():
-    if ENV == "development":
-        return generate_sitemap(app)
-    return send_from_directory(static_file_dir, 'index.html')
-
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
     return response
 
 if __name__ == '__main__':
