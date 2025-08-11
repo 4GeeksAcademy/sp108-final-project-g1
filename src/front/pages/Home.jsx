@@ -1,4 +1,3 @@
-
 import forestBirds from "../assets/audio/forest-birds.mp3"
 import { useState, useEffect } from "react"
 
@@ -9,7 +8,7 @@ export const Home = () => {
 	useEffect(() => {
 		const fetchRandomReview = async () => {
 			try {
-				const response = await fetch(process.env.BACKEND_URL + "/api/reviews")
+				const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reviews`);
 				const data = await response.json()
 				if (Array.isArray(data) && data.length > 0) {
 					const random = data[Math.floor(Math.random() * data.length)]

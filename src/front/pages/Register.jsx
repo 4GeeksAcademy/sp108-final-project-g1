@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { register } from "../services/auth";
+import { useNavigate } from 'react-router-dom';
 
 const Register = ({ onSuccess, hutName }) => {
   const { dispatch } = useGlobalReducer();

@@ -23,27 +23,32 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-# AÑADIMOS CONFIGURACIÓN CORS 
-if ENV == "development":
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": "*",  # Permite todos los orígenes en desarrollo
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": "*",
-            "supports_credentials": True
-        }
-    })
-else:
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": ["https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev/api/"],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
-        }
-    })
+# Configuración CORS mejorada
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev",
+            "https://crispy-parakeet-wrxrxxg9jp9gc995x-3001.app.github.dev",
+            "http://localhost:3000"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True,
+        "expose_headers": ["Authorization"]
+    }
+})
 
-# El resto del archivo se mantiene EXACTAMENTE IGUAL desde aquí...
+# Manejador para peticiones OPTIONS
+@app.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        response = jsonify({"status": "ok"})
+        response.headers.add("Access-Control-Allow-Origin", 
+                           "https://crispy-parakeet-wrxrxxg9jp9gc995x-3000.app.github.dev")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+        response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+        return response, 200
+
 # Database configuration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -70,31 +75,24 @@ cloudinary.config(
     secure=True
 )
 
-# Handle/serialize errors like a JSON object
-
-
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# Generate sitemap with all your endpoints
 @app.route('/')
 def sitemap():
     if ENV == "development":
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
-# Any other endpoint will try to serve it like a static file
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):
         path = 'index.html'
     response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # Avoid cache memory
+    response.cache_control.max_age = 0
     return response
 
-
-# This only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
