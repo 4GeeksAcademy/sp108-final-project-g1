@@ -18,7 +18,10 @@ const HutForm = () => {
     price_per_night: 100,
     location_id: 1,
     image_url: '',
-    is_active: true
+    is_active: true,
+    location_coords: { lat: null, lng: null }, // Nuevo campo para coordenadas
+    image_file: null, // Para imágenes locales
+    image_preview: '' // Para previsualización
   });
 
   const handleChange = (e) => {

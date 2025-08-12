@@ -4,12 +4,11 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { register } from "../services/auth";
 
 const Register = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    password_confirmation: '',
     agreeTerms: false
   });
   const [loading, setLoading] = useState(false);
@@ -48,10 +47,18 @@ const Register = () => {
       const result = await register(dataToSend);
 
       // Guardar token y redirigir
-      localStorage.setItem('token', result.access_token);
+      const storage = formData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem('token', result.access_token);
+      storage.setItem('currentUser', JSON.stringify(result.results))
+      storage.setItem('users', JSON.stringify(result.results))
+      // Actualizar estado global
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
-      dispatch({ type: 'currentUser', payload: result.user });
+      dispatch({ type: 'currentUser', payload: result.results });
+
+      
+      // dispatch({ type: 'users', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results] })
 
       navigate('/');
     } catch (err) {
@@ -74,7 +81,6 @@ const Register = () => {
       name: '',
       email: '',
       password: '',
-      password_confirmation: '',
       agreeTerms: false
     });
     dispatch({
@@ -105,7 +111,7 @@ const Register = () => {
       </div>
 
       {/* Contenido del login (encima del video) */}
-      <div className="relative z-10 px-4 py-12 wood-bg border-8 border-green-150 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl">
+      <div className="relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl">
 
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
@@ -177,7 +183,7 @@ const Register = () => {
                 />
                 <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-900">
                   Acepto los{' '}
-                  <Link to="/terms" className="text-indigo-600 hover:text-indigo-500">
+                  <Link to="/termsandconditions" className="text-indigo-900 hover:text-indigo-700">
                     términos y condiciones
                   </Link>
                 </label>

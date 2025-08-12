@@ -1,7 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean, Integer, Enum, Float
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
+
 
 
 db = SQLAlchemy()
@@ -20,20 +22,32 @@ class Users(db.Model):
     created_at = db.Column(db.Date, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False)
+    
+    # Campos nuevos para recuperación de contraseña
+    reset_token = db.Column(db.String, unique=True, nullable=True)
+    reset_token_expires = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f'<Users:{self.id} - email: {self.email} >'
+    
+    def generate_reset_token(self, expires_in=3600):
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expires = datetime.utcnow() + timedelta(seconds=expires_in)
+        return self.reset_token
 
     def serialize(self):
-        return {"id": self.id,
-                "email": self.email,
-                "first_name": self.first_name,
-                "last_name": self.last_name,
-                "phone_number": self.phone_number,
-                "address": self.address,
-                "profile_image": self.profile_image or None,
-                "is_active": self.is_active,
-                "is_admin": self.is_admin}
+        return {
+            "id": self.id,
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "phone_number": self.phone_number,
+            "address": self.address,
+            "profile_image": self.profile_image or None,
+            "is_active": self.is_active,
+            "is_admin": self.is_admin
+        }
+    
 
 
 class Bookings(db.Model):
@@ -51,7 +65,8 @@ class Bookings(db.Model):
     payment_date = db.Column(db.Date, default=datetime.utcnow)
     transaction_payment = db.Column(db.String, unique=False, nullable=True)
     status_payment = db.Column(db.Boolean, unique=False, nullable=True)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_id = db.Column(db.Integer, db.ForeignKey(
+        'huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete="CASCADE"))
@@ -85,7 +100,7 @@ class Huts(db.Model):
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey(
-        'locations.id', ondelete="CASCADE"), nullable = False)
+        'locations.id', ondelete="CASCADE"), nullable=False)
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     image_url = db.Column(db.String, unique=False, nullable=False)
@@ -104,7 +119,7 @@ class Huts(db.Model):
                 'location_id': self.location_id,
                 'is_active': self.is_active,
                 'image_url': self.image_url,
-                'location_to' : self.location_to.serialize()
+                'location_to': self.location_to.serialize()
                 }
 
 
@@ -194,6 +209,7 @@ class Reviews(db.Model):
         return {'id': self.id,
                 'hut_id': self.hut_id,
                 'user_id': self.user_id,
+                'user_name': self.user_to.first_name,
                 'rating': self.rating,
                 'comment': self.comment,
                 'created_at': self.created_at.isoformat()}

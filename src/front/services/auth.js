@@ -26,10 +26,9 @@ export const login = async (dataToSend) => {
 };
 
 export const register = async (dataToSend) => {
-    const uri = `${host}api/register`;
     
     try {
-        const response = await fetch(uri, {
+        const response = await fetch(`${host}api/register`, {
             method: 'POST',
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(dataToSend)
@@ -40,9 +39,54 @@ export const register = async (dataToSend) => {
             throw new Error(errorData.message || 'Error al registrar');
         }
         
-        return await response.json();
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error('Error en register:', error);
         throw error;
     }
+};
+
+export const requestPasswordReset = async (email) => {
+  try {
+    const response = await fetch(`${host}api/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al solicitar recuperación');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al solicitar recuperación:", error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await fetch(`${host}api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ token, new_password: newPassword })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al restablecer contraseña');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error al restablecer contraseña:", error);
+    throw error;
+  }
 };

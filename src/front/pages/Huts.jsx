@@ -1,88 +1,94 @@
-import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { getHutsDetail } from '../services/hut';
-import { createBooking } from '../services/book';
-import useGlobalReducer from '../hooks/useGlobalReducer';
+import { useEffect, useState } from 'react'
+import { Link, Navigate } from 'react-router-dom'
+import { getHutsDetail } from '../services/hut'
+import { createBooking } from '../services/book'
+import { getFavorites, addFavorite, removeFavorite } from '../services/favorites'
+import useGlobalReducer from '../hooks/useGlobalReducer'
 import { format } from 'date-fns'
 
+
 const Huts = () => {
-  const { store, dispatch } = useGlobalReducer();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedHut, setSelectedHut] = useState(null);
-  const isAuthenticated = !!store.token;
+  const { store, dispatch } = useGlobalReducer()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [showModal, setShowModal] = useState(false)
+  const [selectedHut, setSelectedHut] = useState(null)
+  const isLogged = store.isLogged || !!store.token || !!localStorage.getItem('token') || !!sessionStorage.getItem('token')
   const [bookingData, setBookingData] = useState({
     start_date: '',
     end_date: '',
     guests: 1,
     special_requests: ''
-  });
-  const [bookingError, setBookingError] = useState(null);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
+  })
+  const [bookingError, setBookingError] = useState(null)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
 
   useEffect(() => {
     const fetchHuts = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        const hutsData = await getHutsDetail();
+        setLoading(true)
+        setError(null)
+        const hutsData = await getHutsDetail()
         if (!hutsData) {
-          throw new Error('No se recibieron datos de las cabañas');
+          throw new Error('No se recibieron datos de las cabañas')
         }
-
-        dispatch({ type: "hutsDetail", payload: hutsData });
+        dispatch({ type: 'hutsDetail', payload: hutsData })
       } catch (err) {
-        console.error("Error fetching huts:", err);
         setError({
           message: 'No se pudo cargar la información de las cabañas',
           details: err.message
-        });
+        })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
+    fetchHuts()
+  }, [dispatch])
 
-    fetchHuts();
-  }, [dispatch]);
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!isLogged) return
+      try {
+        const res = await getFavorites()
+        dispatch({ type: 'favorites', payload: res.results })
+      } catch (err) { }
+    }
+    fetchFavorites()
+  }, [isLogged, dispatch])
 
   const handleReserveClick = (hut) => {
-    setSelectedHut(hut);
-    setShowModal(true);
+    setSelectedHut(hut)
+    setShowModal(true)
     setBookingData({
       start_date: '',
       end_date: '',
       guests: 1,
       special_requests: ''
-    });
-    setBookingError(null);
-
-  };
+    })
+    setBookingError(null)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
-    setSelectedHut(null);
-    setBookingSuccess(false);
-  };
+    setShowModal(false)
+    setSelectedHut(null)
+    setBookingSuccess(false)
+  }
 
   const handleBookingChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setBookingData(prev => ({
       ...prev,
       [name]: name === 'guests' ? parseInt(value) : value
-    }));
-  };
+    }))
+  }
 
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    setBookingError(null);
-
+  const handleBookingSubmit = async (event) => {
+    event.preventDefault()
+    setBookingError(null)
     if (!bookingData.start_date || !bookingData.end_date) {
-      setBookingError('Debes seleccionar fechas de inicio y fin');
-      return;
+      setBookingError('Debes seleccionar fechas de inicio y fin')
+      return
     }
-
     try {
       const bookingPayload = {
         hut_id: selectedHut.id,
@@ -90,55 +96,69 @@ const Huts = () => {
         end_date: bookingData.end_date,
         guests: bookingData.guests,
         special_requests: bookingData.special_requests
-      };
-
-      const response = await createBooking(bookingPayload);
-
+      }
+      const response = await createBooking(bookingPayload)
       if (response.success) {
-        setBookingSuccess(true);
-        dispatch({ type: "bookingsDetail", payload: bookingPayload })
-        setBookingError(null);
-
-
+        setBookingSuccess(true)
+        dispatch({ type: 'bookingsDetail', payload: bookingPayload })
+        setBookingError(null)
       } else {
-        throw new Error(response.message || 'Error al realizar la reserva');
+        throw new Error(response.message || 'Error al realizar la reserva')
       }
     } catch (err) {
-      console.error("Booking error:", err);
-      setBookingError(err.message || 'Error al procesar la reserva');
+      setBookingError(err.message || 'Error al procesar la reserva')
     }
-  };
+  }
 
+  const handleFavorite = async (hut) => {
+    try {
+      const existing = store.favorites.find(fav => fav.hut_id === hut.id)
+      if (existing) {
+        await removeFavorite(existing.id)
+        dispatch({ type: 'remove_favorites', payload: existing.id })
+      } else {
+        const result = await addFavorite(hut.id)
+        dispatch({ type: 'add_favorites', payload: result.results })
+      }
+    } catch (err) { }
+  }
 
+  const isFavorite = (hutId) => {
+    return store.favorites.some(favorite => favorite.hut_id === hutId)
+  }
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-550 mb-4"></div>
       <p className="text-lg text-brown-550">Cargando cabañas...</p>
     </div>
-  );
+  )
 
   if (error) return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-red-50 rounded-xl border border-red-100 text-center">
-      <h3 className="text-xl font-semibold text-red-600 mb-3">Error al cargar las cabañas</h3>
-      <p className="text-red-500 mb-5">{error.message}</p>
+    <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
+      <p className="text-brown-550 text-xl mb-6">No tienes reservas actualmente</p>
       <button
-        onClick={() => window.location.reload()}
-        className="px-5 py-2.5 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+        onClick={() => navigate('/huts')}
+        className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
       >
-        Reintentar
+        Explorar Cabañas Disponibles
       </button>
     </div>
-  );
+  )
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-center bg-green-150 mb-12 text-green-550">Nuestras Cabañas</h1>
+    <div className="container mx-auto px-4 py-12 bg-black/50 min-h-screen">
+      <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6">
+        <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>
+          Nuestras Cabañas
+        </span>
+      </h1>
+      <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
 
       {store.currentUser?.is_admin && (
         <div
           className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 mb-10 border-2 border-dashed border-green-350 flex flex-col items-center justify-center cursor-pointer h-full min-h-[320px] sm:min-h-[350px] md:min-h-[380px]"
-          onClick={() => window.location.href = '/huts/new'} // Usa navigate en lugar de window.location
+          onClick={() => window.location.href = '/huts/new'}
         >
           <div className="text-center p-5 w-full">
             <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-3">
@@ -158,25 +178,33 @@ const Huts = () => {
       )}
 
       {store.hutsDetail.length === 0 ? (
-        <div className="max-w-lg mx-auto bg-brown-50 rounded-xl p-8 text-center">
-          <p className="text-xl text-brown-550 mb-6">No hay cabañas disponibles</p>
+        <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
+          <p className="text-brown-550 text-xl mb-6">No hay cabañas disponibles</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+            className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
           >
             Reintentar
           </button>
         </div>
       ) : (
 
-
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {store.hutsDetail.map((hut) => (
             <div
               key={hut.id}
-              className="bg-white border-4 border-green-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-brown-150"
+              className="relative bg-white border-4 border-brown-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
             >
+              {isLogged && !store.currentUser?.is_admin && (
+                <button onClick={() => handleFavorite(hut)}
+                  className='absolute z-40 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
+                  {isFavorite(hut.id) ?
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-red-400 icon icon-tabler icons-tabler-filled icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" /></svg>
+                    :
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-red icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                  }
+                </button>
+              )}
               <div className="fixed bottom-6 right-6 z-50">
                 <button
                   onClick={() => window.location.href = '/maps'}
@@ -195,8 +223,8 @@ const Huts = () => {
                   alt={hut.name || 'Cabaña'}
                   className="w-full h-60 object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/400x300';
-                    e.target.alt = 'Imagen no disponible';
+                    e.target.src = 'https://via.placeholder.com/400x300'
+                    e.target.alt = 'Imagen no disponible'
                   }}
                 />
 
@@ -210,7 +238,7 @@ const Huts = () => {
                   </span>
                 </div>
 
-                <p className="text-brown-450 mb-4 line-clamp-2">{hut.description || 'Descripción no disponible'}</p>
+                <p className="text-brown-450 mb-4 line-clamp-2 min-h-[80px] overflow-y-auto">{hut.description || 'Descripción no disponible'}</p>
 
                 <div className="grid grid-cols-3 gap-2 mb-5">
                   <div className="bg-green-100 rounded-lg p-2 text-center">
@@ -234,12 +262,16 @@ const Huts = () => {
                   >
                     Ver detalles
                   </Link>
-                  <button
-                    onClick={() => handleReserveClick(hut)}
-                    className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
-                  >
-                    Reservar
-                  </button>
+                  {
+                    !store.currentUser.is_admin && (
+                      <button
+                        onClick={() => handleReserveClick(hut)}
+                        className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                      >
+                        Reservar
+                      </button>
+                    )
+                  }
                 </div>
               </div>
             </div>
@@ -248,11 +280,11 @@ const Huts = () => {
       )}
 
       {showModal && selectedHut && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
             <div className="flex justify-between items-center p-5 bg-green-100 border-b">
               <h3 className="text-xl font-bold text-green-550">
-                {isAuthenticated ? `Reservar ${selectedHut.name}` : "Regístrate para reservar"}
+                {isLogged ? `Reservar ${selectedHut.name}` : 'Regístrate para reservar'}
               </h3>
               <button
                 onClick={handleCloseModal}
@@ -273,13 +305,13 @@ const Huts = () => {
                     Tu reserva en {selectedHut.name} ha sido confirmada.
                   </p>
                   <button
-                    onClick={window.location.href = "/bookings"}
+                    onClick={() => window.location.href = '/bookings'}
                     className="mt-6 w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
                   >
                     Cerrar
                   </button>
                 </div>
-              ) : isAuthenticated ? (
+              ) : isLogged ? (
                 <form onSubmit={handleBookingSubmit}>
                   <div className="space-y-4 mb-6">
                     <div className="grid grid-cols-2 gap-4">
@@ -357,8 +389,10 @@ const Huts = () => {
                   </button>
                 </form>
               ) : (
-                <button className='btn px-4 py-2 bg-white text-sm md:text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outbtn px-5 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200line-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 '
-                  onClick={() => window.location.href = '/login'}>
+                <button
+                  className='btn px-4 py-2 bg-white text-sm md:text-base border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 px-5 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duración-200'
+                  onClick={() => window.location.href = '/login'}
+                >
                   Login
                 </button>
               )}
@@ -367,7 +401,7 @@ const Huts = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Huts;
+export default Huts
