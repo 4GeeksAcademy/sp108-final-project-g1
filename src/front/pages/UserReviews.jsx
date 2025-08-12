@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import useGlobalReducer from '../hooks/useGlobalReducer'
-import { getAllReviews } from '../services/reviews'
+import { getUserReviews } from '../services/reviews'
 
-export const Reviews = () => {
+export const UserReviews = () => {
     const { store } = useGlobalReducer()
     const [reviews, setReviews] = useState([])
     const [loading, setLoading] = useState(true)
@@ -11,8 +11,8 @@ export const Reviews = () => {
     useEffect(() => {
         const loadReviews = async () => {
             try {
-                if (!store.currentUser?.is_admin) throw new Error('No tiene permisos')
-                const data = await getAllReviews()
+                if (!store.currentUser?.id) throw new Error('No hay usuario autenticado')
+                const data = await getUserReviews(store.currentUser.id)
                 setReviews(data)
             } catch (error) {
                 throw error('Error al cargar las reseñas')
@@ -22,6 +22,7 @@ export const Reviews = () => {
         }
         loadReviews()
     }, [store.currentUser?.id])
+
     if (loading) {
         return (
             <div className="container mx-auto px-4 py-12 bg-black/50 min-h-screen">

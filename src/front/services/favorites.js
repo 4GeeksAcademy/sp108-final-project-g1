@@ -1,11 +1,11 @@
 const host = import.meta.env.VITE_BACKEND_URL;
 
-const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-
 export const getFavorites = async () => {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
   const response = await fetch(`${host}api/favorites`, {
     method: 'GET',
     headers: {
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     }
   });
@@ -14,6 +14,7 @@ export const getFavorites = async () => {
 };
 
 export const addFavorite = async (hutId) => {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
   const response = await fetch(`${host}api/favorites`, {
     method: 'POST',
     headers: {
@@ -30,6 +31,7 @@ export const addFavorite = async (hutId) => {
 };
 
 export const removeFavorite = async (favoriteId) => {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token')
   const response = await fetch(`${host}api/favorites/${favoriteId}`, {
     method: 'DELETE',
     headers: {

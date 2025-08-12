@@ -1,11 +1,12 @@
 const host = import.meta.env.VITE_BACKEND_URL
 
 export const getUsers = async () => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     try {
         const response = await fetch(`${host}api/users/`, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         })
         if (!response.ok) {
@@ -20,29 +21,23 @@ export const getUsers = async () => {
 }
 
 export const getProfile = async () => {
-    const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
-        throw new Error("No hay token de autenticación");
+        throw new Error("No hay token de autenticación")
     }
-
     const response = await fetch(`${host}users/profile`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
         },
-    });
-
+    })
     if (response.status === 401) {
-        throw new Error("Sesión expirada");
+        throw new Error("Sesión expirada")
     }
-
     if (!response.ok) {
         throw new Error("Error al obtener el perfil del usuario");
     }
-
     return await response.json();
 }
 
@@ -64,17 +59,17 @@ export const getUserById = async ({ id, host, token }) => {
 };
 
 export const putCurrentUser = async (id, userData) => {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     if (!id) throw new Error('Se requiere ID de usuario');
     try {
         const response = await fetch(`${host}api/users/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 first_name: userData.first_name,
-                // last_name: userData.last_name,
                 phone_number: userData.phone_number,
                 address: userData.address,
                 profile_image: userData.profile_image

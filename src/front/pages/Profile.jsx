@@ -102,7 +102,7 @@ export const Profile = () => {
                     <Link to="/bookings" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
                       Ver mis reservas
                     </Link>
-                    <Link to="/reviews" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
+                    <Link to="/user-reviews" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
                       Ver mis reseñas
                     </Link>
                     <button
@@ -116,7 +116,7 @@ export const Profile = () => {
               }
 
               {isOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-30 p-4">
                   <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
                     <div className="flex flex-col sm:flex-row items-start gap-4 border-b p-4">
                       <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-alert-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 8v4" /><path d="M12 16h.01" /></svg>
@@ -139,11 +139,28 @@ export const Profile = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row justify-end gap-2 border-t p-4">
+                    <div className="md:hidden flex flex-col sm:flex-row justify-end gap-2 border-t p-4">
+                      <button
+                        type="button"
+                        onClick={handleDeactivate}
+                        disabled={processingDeactivate}
+                        className={`px-6 py-2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 hover:scale-[1.02] text-white ${processingDeactivate ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      >
+                        {processingDeactivate ? 'Procesando...' : 'Aceptar'}
+                      </button>
                       <button
                         type="button"
                         onClick={() => setIsOpen(false)}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                        className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                    <div className="hidden md:flex flex-col sm:flex-row justify-end gap-2 border-t p-4">
+                      <button
+                        type="button"
+                        onClick={() => setIsOpen(false)}
+                        className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                       >
                         Cancelar
                       </button>
@@ -151,7 +168,7 @@ export const Profile = () => {
                         type="button"
                         onClick={handleDeactivate}
                         disabled={processingDeactivate}
-                        className={`px-4 py-2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 hover:scale-[1.02] text-white ${processingDeactivate ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        className={`px-6 py-2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 hover:scale-[1.02] text-white ${processingDeactivate ? 'opacity-60 cursor-not-allowed' : ''}`}
                       >
                         {processingDeactivate ? 'Procesando...' : 'Aceptar'}
                       </button>

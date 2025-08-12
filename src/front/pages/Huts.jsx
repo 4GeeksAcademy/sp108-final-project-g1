@@ -6,6 +6,7 @@ import { getFavorites, addFavorite, removeFavorite } from '../services/favorites
 import useGlobalReducer from '../hooks/useGlobalReducer'
 import { format } from 'date-fns'
 
+
 const Huts = () => {
   const { store, dispatch } = useGlobalReducer()
   const [loading, setLoading] = useState(true)
@@ -197,7 +198,7 @@ const Huts = () => {
             >
               {isLogged && !store.currentUser?.is_admin && (
                 <button onClick={() => handleFavorite(hut)}
-                  className='absolute z-10 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
+                  className='absolute z-40 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
                   {isFavorite(hut.id) ?
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-red-400 icon icon-tabler icons-tabler-filled icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" /></svg>
                     :
@@ -280,7 +281,7 @@ const Huts = () => {
       )}
 
       {showModal && selectedHut && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
             <div className="flex justify-between items-center p-5 bg-green-100 border-b">
               <h3 className="text-xl font-bold text-green-550">

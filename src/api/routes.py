@@ -325,7 +325,9 @@ def get_favorites():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
+    print(user_id)
     hut_favorites = HutFavorites.query.filter_by(user_id=user_id).all()
+    print(hut_favorites)
     response_body['message'] = 'Lista de favoritos'
     response_body['results'] = [favorite.serialize()
                                 for favorite in hut_favorites]

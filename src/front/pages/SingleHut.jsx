@@ -150,7 +150,7 @@ export const SingleHut = () => {
       </div>
 
       {showReserveModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-30 p-4">
           <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
             <div className="flex justify-between items-center p-5 bg-green-100 border-b">
               <h3 className="text-xl font-bold text-green-550">Reservar {hut.name}</h3>

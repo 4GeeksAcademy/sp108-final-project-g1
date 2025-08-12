@@ -248,7 +248,7 @@ const Bookings = () => {
       </div>
 
       {isOpen && (
-        <Form onSubmit={handleReview} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+        <Form onSubmit={handleReview} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="flex flex-col sm:flex-row items-start gap-4 border-b p-4">
               <div className="flex-1">

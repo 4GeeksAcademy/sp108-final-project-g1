@@ -18,6 +18,7 @@ import HutForm from "./components/HutForm.jsx";
 import { Favorites } from "./pages/Favorites.jsx";
 import { TermsAndConditions } from "./pages/Termsandconditions.jsx";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy.jsx";
+import { UserReviews } from "./pages/UserReviews.jsx";
 import { Reviews } from "./pages/Reviews.jsx";
 
 /* 
@@ -47,6 +48,7 @@ export const router = createBrowserRouter(
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/termsandconditions" element={<TermsAndConditions />} />
       <Route path="/privacyandpolicy" element={<PrivacyPolicy />} />
+      <Route path="/user-reviews" element={<UserReviews />} />
       <Route path="/reviews" element={<Reviews />} />
     </Route>
   )
