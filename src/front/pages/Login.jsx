@@ -221,13 +221,7 @@ const Login = () => {
                     </label>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowResetForm(true)}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </button>
+                 
                 </div>
 
                 <div className="flex justify-between">

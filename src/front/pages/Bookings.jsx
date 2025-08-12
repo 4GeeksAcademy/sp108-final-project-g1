@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate,Form, useParams  } from 'react-router-dom';
+import { Link, useNavigate, Form, useParams } from 'react-router-dom';
 import { getBookingsDetail, deleteBooking } from '../services/book';
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions';
@@ -169,7 +169,7 @@ const Bookings = () => {
             store.currentUser.is_admin ?
               <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Reservas</span>
               :
-              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis reservas</span>
+              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis Reservas</span>
           }
         </h1>
         <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
@@ -234,13 +234,15 @@ const Bookings = () => {
                               Ver Huésped
                             </button>
                           )}
-                          <button className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
+                          <button 
+                          onClick={() => setIsOpen(true)}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
                             Deja tu reseña
                           </button>
                         </div>
 
                         {/* Fila de botones inferiores */}
-                        <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex flex-col lg:flex-row gap-2">
                           <button
                             onClick={() => navigate(`/current-booking/${booking.id}`)}
                             className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md"
@@ -256,8 +258,7 @@ const Bookings = () => {
                         </div>
 
                         {/* Botones especiales (Stripe y Cancelar) */}
-                        <div className="flex-column"
-                        >
+                        <div className="flex flex-col justify-center items-center overflow-hidden">
                           {!currentUser.is_admin && (
                             <stripe-buy-button
                               buy-button-id="buy_btn_1Rv7GQEtAORreSL7tnocAHYB"
