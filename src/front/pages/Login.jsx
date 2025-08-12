@@ -44,7 +44,7 @@ const Login = () => {
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
-      dispatch({ type: 'users', payload: [...store.users, result.results]})
+      dispatch({ type: 'users', payload: [...store.users, result.results] })
 
       navigate('/');
     } catch (err) {
@@ -95,17 +95,17 @@ const Login = () => {
       </div>
 
       <div className='relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
-          Iniciar sesión
-        </h2>
-        <p className="mt-2 text-center text-sm text-brown-150">
-          O{' '}
-          <Link to="/register" className="font-medium text-green-150 hover:text-green-250">
-            crea una cuenta nueva
-          </Link>
-        </p>
-      </div>
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
+            Iniciar sesión
+          </h2>
+          <p className="mt-2 text-center text-sm text-brown-150">
+            O{' '}
+            <Link to="/register" className="font-medium text-green-150 hover:text-green-250">
+              crea una cuenta nueva
+            </Link>
+          </p>
+        </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">

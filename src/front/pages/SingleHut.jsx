@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getSigleHuts } from '../services/singleHut'
 import useGlobalReducer from '../hooks/useGlobalReducer'
 import { createBooking } from '../services/book'
-
 export const SingleHut = () => {
   const { id } = useParams();
   const [hut, setHut] = useState(null);
@@ -21,7 +20,6 @@ export const SingleHut = () => {
   const [bookingError, setBookingError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const navigate = useNavigate()
-
   useEffect(() => {
     const fetchHutData = async () => {
       try {
@@ -43,7 +41,6 @@ export const SingleHut = () => {
     }
     fetchHutData()
   }, [id, store.hutsDetail])
-
   const handleReserveClick = () => {
     setShowReserveModal(true)
     setBookingData({
@@ -55,12 +52,10 @@ export const SingleHut = () => {
     setBookingError(null)
     setBookingSuccess(false)
   }
-
   const handleCloseReserveModal = () => {
     setShowReserveModal(false)
     setBookingSuccess(false)
   }
-
   const handleBookingChange = e => {
     const { name, value } = e.target
     setBookingData(prev => ({
@@ -98,11 +93,9 @@ export const SingleHut = () => {
       setBookingError(err.message || 'Error al procesar la reserva')
     }
   }
-
   if (loading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-550"></div></div>
   if (error) return <div className="p-6 text-center text-red-500">{error.message}</div>
   if (!hut) return <div className="p-6 text-center text-yellow-500">No se encontró la cabaña solicitada</div>
-
   return (
     <div className="body w-full min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
       <div className="bg-white rounded-2xl border-4 border-green-250 shadow-xl flex flex-col lg:flex-row overflow-hidden max-w-6xl w-full h-auto lg:h-[90vh]">
@@ -111,7 +104,6 @@ export const SingleHut = () => {
         <div className="lg:w-1/2 h-56 lg:h-full flex-shrink-0">
           <img src={hut.image_url} alt={hut.name} className="w-full h-full object-cover" />
         </div >
-
   <div className="lg:w-1/2 flex flex-col p-6 overflow-y-auto min-h-0 min-w-0">
     <div className="flex justify-between items-start mb-6">
       <div>
@@ -123,7 +115,6 @@ export const SingleHut = () => {
         <span className="text-sm">/noche</span>
       </div>
     </div>
-
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
       <div className="bg-green-100 p-3 rounded-lg text-center border border-green-200 min-w-0">
         <p className="text-green-350 font-medium text-sm">Huéspedes</p>
@@ -138,12 +129,10 @@ export const SingleHut = () => {
         <p className=" text-xl font-bold">{hut.bathroom}</p>
       </div>
     </div>
-
     <div className="mb-6 flex-1 overflow-y-auto">
       <h2 className="text-xl font-semibold border-b border-green-200 pb-2">Descripción</h2>
       <p className="mt-3 text-base leading-relaxed break-words">{hut.description}</p>
     </div>
-
     <div className='flex flex-col gap-4 items-center'>
       {
         !store.currentUser.is_admin && (
@@ -154,7 +143,6 @@ export const SingleHut = () => {
     </div>
   </div>
       </div >
-
   { showReserveModal && (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-30 p-4">
       <div className="bg-white rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
