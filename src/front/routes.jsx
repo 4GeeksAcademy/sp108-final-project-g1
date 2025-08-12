@@ -15,6 +15,7 @@ import { Profile } from "./pages/Profile.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
 import { CurrentBooking } from "./pages/CurrentBooking.jsx";
 import HutForm from "./components/HutForm.jsx";
+import {UserProfile} from "./pages/UserProfile.jsx"
 import { Favorites } from "./pages/Favorites.jsx";
 import { TermsAndConditions } from "./pages/Termsandconditions.jsx";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy.jsx";
@@ -45,6 +46,7 @@ export const router = createBrowserRouter(
       <Route path="/contact" element={<Contact />} />
       <Route path="/profile/:id" element={<Profile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/profile/:userId" element={<UserProfile />} />
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/termsandconditions" element={<TermsAndConditions />} />
       <Route path="/privacyandpolicy" element={<PrivacyPolicy />} />

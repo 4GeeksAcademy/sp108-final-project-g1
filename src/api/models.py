@@ -1,7 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Boolean, Integer, Enum, Float
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
+
 
 
 db = SQLAlchemy()
@@ -20,20 +22,32 @@ class Users(db.Model):
     created_at = db.Column(db.Date, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False)
+    
+    # Campos nuevos para recuperación de contraseña
+    reset_token = db.Column(db.String, unique=True, nullable=True)
+    reset_token_expires = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f'<Users:{self.id} - email: {self.email} >'
+    
+    def generate_reset_token(self, expires_in=3600):
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expires = datetime.utcnow() + timedelta(seconds=expires_in)
+        return self.reset_token
 
     def serialize(self):
-        return {"id": self.id,
-                "email": self.email,
-                "first_name": self.first_name,
-                "last_name": self.last_name,
-                "phone_number": self.phone_number,
-                "address": self.address,
-                "profile_image": self.profile_image or None,
-                "is_active": self.is_active,
-                "is_admin": self.is_admin}
+        return {
+            "id": self.id,
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "phone_number": self.phone_number,
+            "address": self.address,
+            "profile_image": self.profile_image or None,
+            "is_active": self.is_active,
+            "is_admin": self.is_admin
+        }
+    
 
 
 class Bookings(db.Model):

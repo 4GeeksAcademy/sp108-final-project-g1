@@ -41,6 +41,14 @@ export default function storeReducer(store, action = {}) {
         case 'currentBooking':
             return { ...store, currentBooking: action.payload };
 
+        case "updateBookingStatus":
+            return { ...state, SbookingsDetail: state.bookingsDetail.map(booking =>
+                    booking.id === action.payload.id
+                        ? { ...booking, status_reserved: action.payload.status }
+                        : booking
+                )
+            };
+
         case 'hutsDetail':
             return { ...store, hutsDetail: action.payload };
 

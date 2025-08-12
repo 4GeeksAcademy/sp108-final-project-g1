@@ -68,7 +68,9 @@ useEffect(() => {
             onClick={() => handleOnClickHut(hut)}
             icon={{
               url: "https://maps.google.com/mapfiles/ms/icons/lodging.png",
-              scaledSize: new window.google.maps.Size(32, 32)
+              scaledSize: new google.maps.Size(32, 32),  // Sin 'window.'
+              origin: new google.maps.Point(0, 0),
+              anchor: new google.maps.Point(16, 16)
             }}
           />
         ))}

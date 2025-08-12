@@ -13,7 +13,7 @@ export const CurrentBooking = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchCurrentBooking = async () => {
+    const fetchCurrentBooking = async (id) => {
       if (!id) {
         setLoading(false)
         return
