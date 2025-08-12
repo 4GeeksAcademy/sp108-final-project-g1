@@ -1,57 +1,120 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import useGlobalReducer from "../hooks/useGlobalReducer"
+import { getUserById, deactivateUser } from "../services/users"
 
 export const Profile = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const navigate = useNavigate()
-
   const { store, dispatch } = useGlobalReducer()
+  const [isOpen, setIsOpen] = useState(false)
+  const [profileUser, setProfileUser] = useState(store.currentUser)
+  const [loadingGuest, setLoadingGuest] = useState(false)
+  const [processingDeactivate, setProcessingDeactivate] = useState(false)
+  const navigate = useNavigate()
+  const { id } = useParams()
+  const host = import.meta.env.VITE_BACKEND_URL
+
+  const foundUser = store.users?.find(u => String(u.id) === String(id))
 
   useEffect(() => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token')
     if (!token) {
-      dispatch({ type: "currentUser", payload: null });
-      navigate("/login");
+      dispatch({ type: "currentUser", payload: null })
+      navigate("/login")
+      return
     }
-  }, []);
+
+    if (!id) {
+      setProfileUser(store.currentUser)
+      return
+    }
+
+    if (foundUser) {
+      setProfileUser(foundUser)
+      return
+    }
+
+    const fetchGuest = async () => {
+      try {
+        setLoadingGuest(true)
+        const fetchedUser = await getUserById({ id, host, token: store.token })
+        setProfileUser(fetchedUser)
+      } catch (error) {
+        console.error(error)
+        alert(error.message || 'Error cargando el huésped')
+        navigate(-1)
+      } finally {
+        setLoadingGuest(false)
+      }
+    }
+
+    fetchGuest()
+  }, [id, foundUser, store.currentUser, store.token, host, dispatch, navigate])
+
+  const handleBackProfile = () => {
+    navigate(-1)
+  }
+
+  const handleDeactivate = async () => {
+    try {
+      setProcessingDeactivate(true)
+      const targetId = store.currentUser?.id
+      if (!targetId) throw new Error('No hay usuario autenticado')
+      await deactivateUser({ id: targetId, host, token: store.token })
+      localStorage.removeItem('token')
+      sessionStorage.removeItem('token')
+      dispatch({ type: 'logout' })
+      setIsOpen(false)
+      navigate('/login')
+    } catch (e) {
+      console.error(e)
+      alert(e.message || 'No se pudo completar la operación')
+    } finally {
+      setProcessingDeactivate(false)
+    }
+  }
 
   return (
     <div>
       {
-        store.currentUser && (
+        profileUser && !loadingGuest && (
           <div className="flex justify-center items-center min-h-screen p-4">
             <div className="rounded-3xl border-8 border-brown-250 w-full max-w-2xl bg-green-150 space-y-6 md:space-y-8 p-4 md:p-6">
               <div className="flex flex-col sm:flex-row items-center gap-4 bg-profile rounded-3xl md:rounded-full border border-brown-550 p-4 md:p-0">
                 <img
                   className="h-20 md:h-40 lg:h-40 w-20 md:w-40 lg:w-40 rounded-full border-4 border-white"
-                  src={store.currentUser.profile_image || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"}
+                  src={profileUser.profile_image || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"}
                   alt="Foto de perfil"
                 />
                 <div className="text-center sm:text-left">
-                  <h2 className="font-bold text-xl md:text-2xl text-white">{store.currentUser.first_name || "No especificado"}</h2>
-                  <span className="text-sm text-gray-200">{store.currentUser.email}</span>
+                  <h2 className="font-bold text-xl md:text-2xl text-white">{profileUser.first_name || "No especificado"}</h2>
+                  <span className="text-sm text-gray-200">{profileUser.email}</span>
                 </div>
               </div>
+
               <div className="text-center bg-white/20 rounded-lg p-3">
-                <p className="break-words"><span className="font-bold">Teléfono:</span> {store.currentUser.phone_number || "No especificado"}</p>
-                <p className="break-words"><span className="font-bold">Dirección: </span> {store.currentUser.address || "No especificado"}</p>
+                <p className="break-words"><span className="font-bold">Teléfono:</span> {profileUser.phone_number || "No especificado"}</p>
+                <p className="break-words"><span className="font-bold">Dirección: </span> {profileUser.address || "No especificado"}</p>
               </div>
-              <div className="flex flex-wrap justify-center gap-3 text-xs md:text-sm">
-                <Link to="/bookings" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
-                  Ver mis reservas
-                </Link>
-                <Link to="/" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
-                  Ver mis reseñas
-                </Link>
-                <button
-                  onClick={() => setIsOpen(true)}
-                  className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1"
-                >
-                  Borrar mi cuenta
-                </button>
-              </div>
+
+              {
+                (!store.currentUser?.is_admin && String(profileUser?.id) === String(store.currentUser?.id)) && (
+                  <div className="flex flex-wrap justify-center gap-3 text-xs md:text-sm">
+                    <Link to="/bookings" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
+                      Ver mis reservas
+                    </Link>
+                    <Link to="/reviews" className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1">
+                      Ver mis reseñas
+                    </Link>
+                    <button
+                      onClick={() => setIsOpen(true)}
+                      className="hover:underline hover:scale-[1.02] hover:text-green-350 px-2 py-1"
+                    >
+                      Borrar mi cuenta
+                    </button>
+                  </div>
+                )
+              }
+
               {isOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
                   <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
@@ -60,7 +123,7 @@ export const Profile = () => {
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <h3 className="text-lg md:text-xl font-semibold">Estás por eliminar tu cuenta permanentemente</h3>
-                          <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700 ml-2">
+                          <button type="button" onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-gray-700 ml-2">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -78,39 +141,69 @@ export const Profile = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row justify-end gap-2 border-t p-4">
                       <button
+                        type="button"
                         onClick={() => setIsOpen(false)}
                         className="px-4 py-2 text-gray-600 hover:text-gray-800"
                       >
                         Cancelar
                       </button>
                       <button
-                        onClick={() => setIsOpen(false)}
-                        className="px-4 py-2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 hover:scale-[1.02] text-white"
+                        type="button"
+                        onClick={handleDeactivate}
+                        disabled={processingDeactivate}
+                        className={`px-4 py-2 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 hover:scale-[1.02] text-white ${processingDeactivate ? 'opacity-60 cursor-not-allowed' : ''}`}
                       >
-                        Aceptar
+                        {processingDeactivate ? 'Procesando...' : 'Aceptar'}
                       </button>
                     </div>
                   </div>
                 </div>
               )}
-              <div className="flex flex-col sm:flex-row justify-between gap-3">
-                <Link
-                  to="/"
+
+              <div className="hidden md:flex flex-col sm:flex-row justify-between gap-3">
+                <button onClick={handleBackProfile}
                   className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                 >
-                  Atrás
-                </Link>
-                <Link
-                  to="/edit-profile"
-                  className="bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                  ← Volver atrás
+                </button>
+                {
+                  (!store.currentUser?.is_admin && String(profileUser?.id) === String(store.currentUser?.id)) && (
+                    <Link
+                      to="/edit-profile"
+                      className="bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                    >
+                      Modificar
+                    </Link>
+                  )
+                }
+              </div>
+              <div className="md:hidden flex flex-col justify-between gap-3">
+                {
+                  (!store.currentUser?.is_admin && String(profileUser?.id) === String(store.currentUser?.id)) && (
+                    <Link
+                      to="/edit-profile"
+                      className="bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                    >
+                      Modificar
+                    </Link>
+                  )
+                }
+                <button onClick={handleBackProfile}
+                  className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                 >
-                  Modificar
-                </Link>
+                  ← Volver atrás
+                </button>
               </div>
             </div>
           </div>
         )
       }
+
+      {loadingGuest && (
+        <div className="flex justify-center items-center min-h-screen p-4">
+          <div className="text-white/80">Cargando perfil...</div>
+        </div>
+      )}
     </div>
-  );
-};
+  )
+}

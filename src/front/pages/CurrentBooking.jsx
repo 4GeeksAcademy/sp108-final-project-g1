@@ -7,33 +7,33 @@ import { Link } from "react-router-dom";
 
 
 export const CurrentBooking = () => {
-  const { id } = useParams();
-  const { store, dispatch } = useGlobalReducer();
-  const currentBooking = store.bookingsDetail[0];
-  const [loading, setLoading] = useState(true);
+  const { id } = useParams()
+  const { store, dispatch } = useGlobalReducer()
+  const currentBooking = store.bookingsDetail.find(booking => booking.id === parseInt(id))
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCurrentBooking = async () => {
       if (!id) {
-        setLoading(false);
-        return;
+        setLoading(false)
+        return
       }
 
       try {
-        const data = await getCurrentBooking(id);
-        dispatch({ type: "currentBooking", payload: data });
+        const data = await getCurrentBooking(id)
+        dispatch({ type: "currentBooking", payload: data })
       } catch (err) {
-        console.error("Error cargando reserva:", err);
+        console.error("Error cargando reserva:", err)
         if (err.message.includes('Sesión expirada')) {
-          dispatch({ type: 'logout' });
+          dispatch({ type: 'logout' })
         }
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     };
 
-    fetchCurrentBooking();
-  }, [id]);
+    fetchCurrentBooking()
+  }, [id])
 
   if (loading) {
     return (
@@ -52,7 +52,6 @@ export const CurrentBooking = () => {
   }
 
   const hutName = currentBooking.hut_to?.name || 'Cabaña sin nombre'
-  const hutLocation = currentBooking.hut_to?.location || 'Sin ubicación'
 
   return (
     <div className="current-booking bg-gray-900 min-h-screen p-4 md:p-6 lg:p-8">
@@ -115,12 +114,17 @@ export const CurrentBooking = () => {
           </div>
 
           <div className="flex justify-center px-5 py-3 bg-gradient-to-t from-green-550 to-green-250 rounded-bl-xl rounded-br-xl">
-            <Link to="/bookings">
-                <button className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base p-2 hover:scale-[1.02] text-white">
+
+            {
+              store.currentUser.is_admin ?
+                <Link to="/bookings" className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base p-2 hover:scale-[1.02] text-white">
+                  Volver a "Reservas"
+                </Link>
+                :
+                <Link to="/bookings" className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base p-2 hover:scale-[1.02] text-white">
                   Volver a "Mis Reservas"
-                </button>
-            </Link>
-            
+                </Link>
+            }
           </div>
         </div>
       </div>

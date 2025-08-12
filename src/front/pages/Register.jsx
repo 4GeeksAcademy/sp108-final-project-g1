@@ -4,7 +4,7 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { register } from "../services/auth";
 
 const Register = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -55,6 +55,7 @@ const Register = () => {
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results] })
 
       navigate('/');
     } catch (err) {

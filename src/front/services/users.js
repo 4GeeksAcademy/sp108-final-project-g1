@@ -20,30 +20,47 @@ export const getUsers = async () => {
 }
 
 export const getProfile = async () => {
-  const token =
-    localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
 
-  if (!token) {
-    throw new Error("No hay token de autenticación");
-  }
+    if (!token) {
+        throw new Error("No hay token de autenticación");
+    }
 
-  const response = await fetch(`${host}users/profile`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    const response = await fetch(`${host}users/profile`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
 
-  if (response.status === 401) {
-    throw new Error("Sesión expirada");
-  }
+    if (response.status === 401) {
+        throw new Error("Sesión expirada");
+    }
 
-  if (!response.ok) {
-    throw new Error("Error al obtener el perfil del usuario");
-  }
+    if (!response.ok) {
+        throw new Error("Error al obtener el perfil del usuario");
+    }
 
-  return await response.json();
+    return await response.json();
+}
+
+export const getUserById = async ({ id, host, token }) => {
+    try {
+        const response = await fetch(`${host}api/users/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`No se pudo cargar el usuario ${id}`);
+        }
+        const data = await response.json();
+        return data?.user || data?.results || data;
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const putCurrentUser = async (id, userData) => {
@@ -74,27 +91,22 @@ export const putCurrentUser = async (id, userData) => {
     }
 }
 
-// export const desactivateCurrentUser = async (id) => {
-//     if (!id) throw new Error("ID de usuario no proporcionado");
-//     try {
-//         const response = await fetch(`${host}api/users/${id}`, {
-//             method: 'PUT',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${localStorage.getItem('token')}`
-//             },
-//             body: JSON.stringify({
-//                 is_active: false,
-//             })
-//         });
-//         const data = await response.json()
-//         if (!response.ok) {
-//             throw new Error(data.message);
-//         }
-//         localStorage.removeItem("token");
-//         return true;
-//     } catch (error) {
-//         console.error("Error al eliminar el usuario:", error.message);
-//         return false;
-//     }
-// };
+export const deactivateUser = async ({ id, host, token }) => {
+    if (!id) throw new Error('ID de usuario no proporcionado')
+    const response = await fetch(`${host}api/users/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ is_active: false })
+    })
+    const data = await response.json()
+    if (!response.ok) {
+        throw new Error(data.message)
+    }
+    if (!response.ok) {
+        throw new Error(data?.message || 'No se pudo desactivar el usuario')
+    }
+    return data?.user || data?.results || data
+}

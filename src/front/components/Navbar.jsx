@@ -55,7 +55,7 @@ export const Navbar = () => {
           </li>
           {token && (
             <li>
-              <Link to="/profile" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Mi Perfil</Link>
+              <Link to={`/profile/${store.currentUser.id}`} className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Mi Perfil</Link>
             </li>
           )}
 
@@ -104,7 +104,7 @@ export const Navbar = () => {
               </li>
               {token && (
                 <li className="group">
-                  <Link to="/profile" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                  <Link to={`/profile/${store.currentUser.id}`} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                     <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
                     <span>Mi perfil</span>
                   </Link>

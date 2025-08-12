@@ -133,14 +133,18 @@ export const SingleHut = () => {
             </div>
           </div>
 
-          <div className="mb-6 flex-1">
+          <div className="mb-6 flex-1 overflow-y-auto">
             <h2 className="text-xl font-semibold border-b border-green-200 pb-2">Descripción</h2>
             <p className="mt-3 text-base leading-relaxed break-words">{hut.description}</p>
           </div>
 
-          <div>
-            <button onClick={handleReserveClick} className="w-full py-3 bg-gradient-to-br from-brown-550 to-green-450 p-3 rounded-3xl hover:scale-[1.02] text-white font-bold rounded-lg transition-transform text-lg">Reservar ahora</button>
-            <button onClick={() => navigate(-1)} className="w-full mt-3 py-2 hover:text-brown-550 font-medium">← Volver atrás</button>
+          <div className='flex flex-col gap-4 items-center'>
+            {
+              !store.currentUser.is_admin && (
+                <button onClick={handleReserveClick} className="w-full py-3 bg-gradient-to-br from-brown-550 to-green-450 p-3 rounded-3xl hover:scale-[1.02] text-white font-bold rounded-lg transition-transform text-lg">Reservar ahora</button>
+              )
+            }
+            <button onClick={() => navigate(-1)} className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white">← Volver atrás</button>
           </div>
         </div>
       </div>

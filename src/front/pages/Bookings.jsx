@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Form, useNavigate } from 'react-router-dom'
+import { Form, useNavigate, useParams } from 'react-router-dom'
 import { getBookingsDetail } from '../services/book'
 import useGlobalReducer from "../hooks/useGlobalReducer"
 import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions'
@@ -44,6 +44,8 @@ const Bookings = () => {
   const { store, dispatch } = useGlobalReducer()
   const bookings = store.bookingsDetail
   const currentUser = store.currentUser
+  const { id } = useParams()
+  const users = store.users
   const [formData, setFormData] = useState({
     title: "",
     comment: "",
@@ -136,9 +138,14 @@ const Bookings = () => {
 
   return (
     <div className="py-12 px-4 sm:px-6 lg:px-8 bg-black/50 min-h-screen">
-      <div className="text-center mb-12">
+      <div className="mb-12">
         <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6">
-          <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis reservas</span>
+          {
+            store.currentUser.is_admin ?
+              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Reservas</span>
+              :
+              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis reservas</span>
+          }
         </h1>
         <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
 
@@ -162,29 +169,29 @@ const Bookings = () => {
                       <h2 className="text-2xl font-bold text-brown-550 mb-2">{booking.hut_to.name}</h2>
                       <p className="text-green-450 font-medium mb-4">{booking.hut_to.location_to.city}</p>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="grid grid-cols-2 gap-4 mb-4 text-xl">
                         <div>
-                          <p className="text-sm">Check-in</p>
-                          <p className="font-medium text-brown-550">{formatDate(booking.start_date)}</p>
+                          <p className="">Check-in</p>
+                          <p className=" text-brown-550">{formatDate(booking.start_date)}</p>
                         </div>
                         <div>
-                          <p className="text-sm">Check-out</p>
-                          <p className="font-medium text-brown-550">{formatDate(booking.end_date)}</p>
+                          <p className="">Check-out</p>
+                          <p className="text-brown-550">{formatDate(booking.end_date)}</p>
                         </div>
                         <div>
-                          <p className="text-sm">Noches</p>
-                          <p className="font-medium text-brown-550">
+                          <p className="">Noches</p>
+                          <p className="text-brown-550">
                             {calculateNights(booking.start_date, booking.end_date)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm">Huéspedes</p>
-                          <p className="font-medium text-brown-550">{booking.guests}</p>
+                          <p className="">Huéspedes</p>
+                          <p className="text-brown-550">{booking.guests}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="md:w-1/3 md:pl-6">
+                    <div className="md:w-1/3 md:pl-6 text-center">
                       <div className="bg-green-150 p-4 rounded-lg border border-green-250">
                         <p className="text-sm text-brown-450 mb-1">Total</p>
                         <p className="text-2xl font-bold text-brown-550 mb-4">
@@ -194,7 +201,7 @@ const Bookings = () => {
                       <div className='flex gap-2 mt-4 text-center'>
                         {currentUser.is_admin && (
                           <button
-                            onClick={() => navigate(`/profile`)}
+                            onClick={() => navigate(`/profile/${booking.user_id}`)}
                             className="flex-1 bg-brown-450 hover:bg-brown-550 text-white rounded-md mt-4 p-2 transition-colors"
                           >Huesped</button>
                         )}
@@ -210,7 +217,7 @@ const Bookings = () => {
                       </div>
                       <div className="flex gap-2 mt-4">
                         <button
-                          onClick={() => navigate(`/current-booking/${booking.hut_to.id}`)}
+                          onClick={() => navigate(`/current-booking/${booking.id}`)}
                           className="flex-1 bg-brown-450 hover:bg-brown-550 text-white font-medium py-2 px-4 rounded-md transition-colors"
                         >
                           Ver Reserva

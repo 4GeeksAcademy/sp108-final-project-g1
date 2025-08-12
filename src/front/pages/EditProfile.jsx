@@ -126,11 +126,15 @@ export const EditProfile = () => {
         autoClose: 3000,
         theme: "colored"
       })
-      navigate('/profile')
+      navigate(`/profile/${updatedUser.results.id}`)
     } catch (error) {
       console.error("Error al guardar:", error)
       alert(error.message || "Error al actualizar el perfil")
     }
+  }
+
+  const handleReturnProfile = () => {
+    navigate(-1)
   }
 
   return (
@@ -201,12 +205,13 @@ export const EditProfile = () => {
           />
         </div>
         <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
-          <Link
-            to="/profile"
+          <button
+            onClick={handleReturnProfile}
+            type="button"
             className="bg-gradient-to-br from-brown-250 to-green-250 text-center p-3 rounded-3xl border border-brown-250 hover:scale-[1.02] transition-transform md:w-1/4 text-white"
           >
             Cancelar
-          </Link>
+          </button>
           <button
             type="submit"
             disabled={isUploading}

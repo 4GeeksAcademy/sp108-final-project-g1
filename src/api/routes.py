@@ -146,13 +146,12 @@ def register():
 def users():
     response_body = {}
     if request.method == 'GET':
-        response_body['message'] = "RECIBIDO"
+        response_body['message'] = 'RECIBIDO'
         rows = db.session.execute(
-            db.select(Users).where(Users.is_active)).scalars()
-        response_body['results'] = [row.serialize()
-                                    for row in rows]
+            db.select(Users)
+        ).scalars()
+        response_body['results'] = [row.serialize() for row in rows]
         return response_body, 200
-
 
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
@@ -201,19 +200,14 @@ def user(id):
 @jwt_required()
 def get_user_bookings(user_id):
     response_body = {}
-
-    # Verificar que el usuario autenticado coincide con el user_id solicitado
     current_user_id = get_jwt_identity()
     is_admin = get_jwt_identity()
     if is_admin:
         bookings = Bookings.query.all()
-
     if current_user_id != user_id:
         response_body['success'] = False
         response_body['message'] = "No autorizado para ver estas reservas"
         return response_body, 403
-
-    # Obtener las reservas del usuario
     bookings = db.session.query(
         Bookings,
         Huts.name.label('hut_name'),
@@ -552,7 +546,7 @@ def delete_review(id):
     return response_body, 200
 
 
-@api.route('reviews/<int:id>', methods=['PUT'])
+@api.route('/reviews/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_review(id):
     response_body = {}
@@ -570,6 +564,21 @@ def put_review(id):
     response_body['results'] = review.serialize()
     # response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
+
+
+@api.route('/reviews/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_reviews_by_user(user_id):
+    claims = get_jwt()
+    if claims['user_id'] != user_id and not claims.get('is_admin'):
+        return {"message": "No autorizado"}, 403
+    rows = db.session.execute(
+        db.select(Reviews).where(Reviews.user_id == user_id)
+    ).scalars()
+    return {
+        "message": "Reseñas cargadas correctamente",
+        "results": [row.serialize() for row in rows]
+    }, 200
 
 
 @api.route('/huts', methods=['POST'])

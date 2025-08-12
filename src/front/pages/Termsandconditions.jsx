@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 export const TermsAndConditions = () => {
 
   return (
-    <div className="flex flex-col items-center mx-auto px-4 py-12 bg-black/50 min-h-screen">
+    <div className="flex flex-col items-center mx-auto px-4 py-12 bg-components">
       <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6 text-white">
         <span className="bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent">Términos y Condiciones</span>
       </h1>

@@ -195,9 +195,9 @@ const Huts = () => {
               key={hut.id}
               className="relative bg-white border-4 border-brown-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
             >
-              {isLogged && (
+              {isLogged && !store.currentUser?.is_admin && (
                 <button onClick={() => handleFavorite(hut)}
-                  className='absolute z-50 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
+                  className='absolute z-10 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
                   {isFavorite(hut.id) ?
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-red-400 icon icon-tabler icons-tabler-filled icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" /></svg>
                     :
@@ -238,7 +238,7 @@ const Huts = () => {
                   </span>
                 </div>
 
-                <p className="text-brown-450 mb-4 line-clamp-2">{hut.description || 'Descripción no disponible'}</p>
+                <p className="text-brown-450 mb-4 line-clamp-2 min-h-[80px] overflow-y-auto">{hut.description || 'Descripción no disponible'}</p>
 
                 <div className="grid grid-cols-3 gap-2 mb-5">
                   <div className="bg-green-100 rounded-lg p-2 text-center">
@@ -262,12 +262,16 @@ const Huts = () => {
                   >
                     Ver detalles
                   </Link>
+                  {
+                    !store.currentUser.is_admin && (
                   <button
                     onClick={() => handleReserveClick(hut)}
                     className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                   >
                     Reservar
                   </button>
+                    )
+                  }
                 </div>
               </div>
             </div>

@@ -4,7 +4,7 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { login } from "../services/auth";
 
 const Login = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -41,6 +41,7 @@ const Login = () => {
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results]})
 
 
       navigate('/');
