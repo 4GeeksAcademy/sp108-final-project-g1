@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from "react-router-dom"
 import useGlobalReducer from "../hooks/useGlobalReducer"
 
+
 export const Profile = () => {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()

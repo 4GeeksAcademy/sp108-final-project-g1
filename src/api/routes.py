@@ -14,17 +14,10 @@ from flask_bcrypt import Bcrypt
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 
-
 api = Blueprint('api', __name__)
-CORS(api)  # Allow CORS requests to this API
+CORS(api)
+
 bcrypt = Bcrypt()
-
-
-@api.route('/hello', methods=['GET'])
-def handle_hello():
-    response_body = {}
-    response_body['message'] = "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    return response_body, 200
 
 
 @api.route('/upload', methods=['POST'])
@@ -113,7 +106,7 @@ def login():
 def register():
     response_body = {}
     data = request.json
-    
+
     if not data.get('email'):
         response_body['message'] = 'Falta Email'
         return response_body, 400
@@ -122,22 +115,23 @@ def register():
         return response_body, 400
 
     email = data.get('email').lower()
-    
+
     existing_user = db.session.execute(
         db.select(Users).where(Users.email == email)
     ).scalar()
-    
+
     if existing_user:
         response_body['message'] = 'El correo electrónico ya está registrado'
-        return response_body, 409  
+        return response_body, 409
 
     user = Users()
     user.email = email
-    user.password = bcrypt.generate_password_hash(data.get('password')).decode("utf-8")
+    user.password = bcrypt.generate_password_hash(
+        data.get('password')).decode("utf-8")
     user.first_name = data.get('first_name')
     user.is_active = True
     user.is_admin = data.get('is_admin', False)
-    
+
     db.session.add(user)
     db.session.commit()
 
@@ -146,12 +140,13 @@ def register():
         'is_admin': user.is_admin,
         'email': user.email
     }
-    access_token = create_access_token(identity=user.email, additional_claims=claims)
-    
+    access_token = create_access_token(
+        identity=user.email, additional_claims=claims)
+
     response_body['message'] = 'Usuario registrado exitosamente'
     response_body['access_token'] = access_token
     response_body['results'] = user.serialize()
-    
+
     return response_body, 201
 
 

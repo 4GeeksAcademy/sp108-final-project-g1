@@ -8,11 +8,11 @@ import { Link } from "react-router-dom";
 export const CurrentBooking = () => {
   const { id } = useParams();
   const { store, dispatch } = useGlobalReducer();
-  const currentBooking = store.bookingsDetail[0];
+  const currentBooking = store.currentBooking
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCurrentBooking = async () => {
+    const fetchCurrentBooking = async (id) => {
       if (!id) {
         setLoading(false);
         return;

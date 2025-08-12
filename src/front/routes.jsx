@@ -15,6 +15,8 @@ import { Profile } from "./pages/Profile.jsx";
 import { EditProfile } from "./pages/EditProfile.jsx";
 import { CurrentBooking } from "./pages/CurrentBooking.jsx";
 import HutForm from "./components/HutForm.jsx";
+import {UserProfile} from "./pages/UserProfile.jsx"
+import ResetPassword from './pages/ResetPassword';
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -40,6 +42,8 @@ export const router = createBrowserRouter(
       <Route path="/contact" element={<Contact />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/profile/:userId" element={<UserProfile />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
     </Route>
   )
 );

@@ -74,27 +74,23 @@ export const putCurrentUser = async (id, userData) => {
     }
 }
 
-// export const desactivateCurrentUser = async (id) => {
-//     if (!id) throw new Error("ID de usuario no proporcionado");
-//     try {
-//         const response = await fetch(`${host}api/users/${id}`, {
-//             method: 'PUT',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${localStorage.getItem('token')}`
-//             },
-//             body: JSON.stringify({
-//                 is_active: false,
-//             })
-//         });
-//         const data = await response.json()
-//         if (!response.ok) {
-//             throw new Error(data.message);
-//         }
-//         localStorage.removeItem("token");
-//         return true;
-//     } catch (error) {
-//         console.error("Error al eliminar el usuario:", error.message);
-//         return false;
-//     }
-// };
+
+export const getUserById = async (userId) => {
+  try {
+    const response = await fetch(`${host}api/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al obtener usuario');
+    }
+
+    const data = await response.json();
+    return data.results;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    throw error;
+  }
+};

@@ -103,3 +103,26 @@ export const createBooking = async (bookingData) => {
         throw error; // Relanzamos el error para que el componente pueda manejarlo
     }
 }
+
+
+export const deleteBooking = async (bookingId) => {
+  try {
+    const response = await fetch(`${host}api/bookings/${bookingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al cancelar la reserva');
+    }
+
+    const data = await response.json();
+    return data.results;
+  } catch (error) {
+    console.error("ERROR AL CANCELAR RESERVA", error);
+    throw error;
+  }
+};
