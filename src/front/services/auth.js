@@ -1,50 +1,57 @@
-// src/api/auth.js
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '');
+// Función auxiliar para manejar las respuestas HTTP
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    const errorData = await response.json();
+    const errorMsg = errorData.message || 'Error en la solicitud';
+    throw new Error(errorMsg);
+  }
+  return response.json();
+};
 
-/**
- * Función para manejar todas las peticiones API
- */
-const apiRequest = async (endpoint, method, body = null) => {
+export const login = async (dataToSend) => {
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method,
-      headers: {
+    const response = await fetch(`${API_BASE_URL}/api/login`, {
+      method: "POST",
+      headers: { 
         "Content-Type": "application/json",
-        "Accept": "application/json",
-        "X-Requested-With": "XMLHttpRequest"
+        "Accept": "application/json"
       },
-      credentials: 'include',
-      mode: 'cors',
-      body: body ? JSON.stringify(body) : null
+      body: JSON.stringify(dataToSend),
+      credentials: 'include' // Para manejar cookies si es necesario
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({
-        message: `Error HTTP: ${response.status}`
-      }));
-      throw new Error(errorData.message || 'Error en la solicitud');
-    }
-
-    return await response.json();
+    
+    return await handleResponse(response);
   } catch (error) {
-    console.error(`Error en ${method} ${endpoint}:`, error);
-    throw error;
+    console.error('Error en login:', error.message);
+    throw new Error(error.message || 'Error al iniciar sesión');
   }
 };
 
-// Servicios específicos
-export const authService = {
-  register: (userData) => apiRequest('/api/register', 'POST', userData),
-  login: (credentials) => apiRequest('/api/login', 'POST', credentials)
+export const register = async (dataToSend) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/register`, {
+      method: 'POST',
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(dataToSend),
+      credentials: 'include' // Para manejar cookies si es necesario
+    });
+    
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Error en register:', error.message);
+    throw new Error(error.message || 'Error al registrar usuario');
+  }
 };
 
-// Función para manejar alertas (opcional)
-export const showAlert = (dispatch, message, type = 'error') => {
+// Función para manejar alertas (si es necesario)
+export const handleAlert = (dispatch, message, type = 'error') => {
   dispatch({
-    type: 'SET_ALERT',
+    type: 'handle_alert',
     payload: { message, type }
   });
-  
-  setTimeout(() => dispatch({ type: 'CLEAR_ALERT' }), 5000);
 };

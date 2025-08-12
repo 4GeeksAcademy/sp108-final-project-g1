@@ -9,7 +9,6 @@ const Register = () => {
     name: '',
     email: '',
     password: '',
-    password_confirmation: '',
     agreeTerms: false
   });
   const [loading, setLoading] = useState(false);
