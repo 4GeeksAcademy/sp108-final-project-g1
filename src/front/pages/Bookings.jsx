@@ -234,9 +234,9 @@ const Bookings = () => {
                               Ver Huésped
                             </button>
                           )}
-                          <button
-                            onClick={() => setIsOpen(true)}
-                            className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
+                          <button 
+                          onClick={() => setIsOpen(true)}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
                             Deja tu reseña
                           </button>
                         </div>
@@ -258,8 +258,7 @@ const Bookings = () => {
                         </div>
 
                         {/* Botones especiales (Stripe y Cancelar) */}
-                        <div className="flex flex-col justify-center items-center overflow-hidden"
-                        >
+                        <div className="flex flex-col justify-center items-center overflow-hidden">
                           {!currentUser.is_admin && (
                             <stripe-buy-button
                               buy-button-id="buy_btn_1Rv7GQEtAORreSL7tnocAHYB"
