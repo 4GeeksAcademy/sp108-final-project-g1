@@ -34,35 +34,36 @@ export const getBookingsDetail = async () => {
 }
 
 export const getCurrentBooking = async (id) => {
-    checkAuth();
+    checkAuth()
     try {
-        const response = await fetch(`uri/${id}`,
-            {
-                headers:
-                {
-                    'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
-                }
+        const response = await fetch(`uri/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
             }
-        )
+        })
         if (!response.ok) {
             if (response.status === 401) {
-                throw new Error('Sesión expirada');
+                throw new Error('Sesión expirada')
             }
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            if (response.status === 404) {
+                console.log("No se encontró la reserva con el ID", id)
+                return null
+            }
+            throw new Error(`Error ${response.status}: ${response.statusText}`)
         }
-
-        if (!response.ok && response.status == 404) {
-            console.log("NO ENCONTRÈ LA LISTA DE RESERVAS")
-        };
-        const data = await response.json();
+        const data = await response.json()
         console.log("Datos de la API:", data)
-        return data.results
+
+        if (data && data.results) {
+            return data.results
+        }
+        console.log("Estructura de datos inesperada:", data)
+        throw new Error("Datos no válidos de la API")
     } catch (error) {
-        console.error("ERROR AL CARGAR RESERVAS", error);
-        throw error; // ¡Importante! Si no relanzas el error, el componente nunca lo capturará.
+        console.error("ERROR AL CARGAR RESERVAS", error)
+        throw error
     }
 }
-
 
 export const createBooking = async (bookingData) => {
     checkAuth();

@@ -4,7 +4,7 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { register } from "../services/auth";
 
 const Register = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,7 +56,8 @@ const Register = () => {
       localStorage.setItem('token', result.access_token);
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
-      dispatch({ type: 'currentUser', payload: result.user });
+      dispatch({ type: 'currentUser', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results] })
 
       navigate('/');
     } catch (err) {
@@ -109,35 +110,69 @@ const Register = () => {
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
     </div>
 
-    {/* Contenido del login (encima del video) */}
-    <div className="relative z-10 px-4 py-12 bg-white bg-opacity-90 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl">
+   
+      {/* Contenido del login (encima del video) */}
+      <div className="relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl">
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-350">
-          Crear una cuenta
-        </h2>
-        <p className="mt-2 text-center text-sm text-brown-150">
-          ¿Ya tienes una cuenta?{' '}
-          <Link to="/login" className="font-medium text-green-150 hover:text-green-350">
-            Inicia sesión
-          </Link>
-        </p>
-      </div>
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
+            Crear una cuenta
+          </h2>
+          <p className="mt-2 text-center text-sm text-brown-350">
+            ¿Ya tienes una cuenta?{' '}
+            <Link to="/login" className="font-medium text-green-150 hover:text-green-250">
+              Inicia sesión
+            </Link>
+          </p>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
-              {error}
-            </div>
-          )}
-          
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Nombre completo
-              </label>
-              <div className="mt-1">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-opacity-50 bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">
+                {error}
+              </div>
+            )}
+
+            <form className="space-y-6" onSubmit={handleSubmit}>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Correo electrónico
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center">
                 <input
                   id="name"
                   name="name"
@@ -148,6 +183,12 @@ const Register = () => {
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
+                <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-900">
+                  Acepto los{' '}
+                  <Link to="/termsandconditions" className="text-indigo-900 hover:text-indigo-700">
+                    términos y condiciones
+                  </Link>
+                </label>
               </div>
             </div>
 
