@@ -23,6 +23,7 @@ flask-bcrypt = "*"
 bcrypt = "*"
 font-font-awesome = "*"
 fns = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.13"

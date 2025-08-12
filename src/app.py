@@ -14,6 +14,7 @@ from flask_jwt_extended import JWTManager
 import cloudinary
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
