@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from "react-router-dom"
 import useGlobalReducer from '../hooks/useGlobalReducer'
+import { toast } from 'react-toastify';
 
 export const EditProfile = () => {
   const { store, dispatch } = useGlobalReducer()
@@ -37,12 +38,20 @@ export const EditProfile = () => {
     if (!file) return
 
     if (!file.type.match('image.*')) {
-      alert('Por favor, selecciona un archivo de imagen')
+      toast.warning('Por favor, selecciona un archivo de imagen', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
       return
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB
-      alert('La imagen es demasiado grande (máximo 5MB)')
+      toast.warning('La imagen es demasiado grande (máximo 5MB)', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
       return
     }
 
@@ -112,12 +121,20 @@ export const EditProfile = () => {
       const storage = localStorage.getItem("token") ? localStorage : sessionStorage
       storage.setItem('currentUser', JSON.stringify(updatedUser.results))
 
-      alert("¡Perfil actualizado correctamente!")
-      navigate('/profile')
+      toast.success('¡Perfil actualizado correctamente!', {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored"
+      })
+      navigate(`/profile/${updatedUser.results.id}`)
     } catch (error) {
       console.error("Error al guardar:", error)
       alert(error.message || "Error al actualizar el perfil")
     }
+  }
+
+  const handleReturnProfile = () => {
+    navigate(-1)
   }
 
   return (
@@ -188,12 +205,13 @@ export const EditProfile = () => {
           />
         </div>
         <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
-          <Link
-            to="/profile"
+          <button
+            onClick={handleReturnProfile}
+            type="button"
             className="bg-gradient-to-br from-brown-250 to-green-250 text-center p-3 rounded-3xl border border-brown-250 hover:scale-[1.02] transition-transform md:w-1/4 text-white"
           >
             Cancelar
-          </Link>
+          </button>
           <button
             type="submit"
             disabled={isUploading}

@@ -65,7 +65,8 @@ class Bookings(db.Model):
     payment_date = db.Column(db.Date, default=datetime.utcnow)
     transaction_payment = db.Column(db.String, unique=False, nullable=True)
     status_payment = db.Column(db.Boolean, unique=False, nullable=True)
-    hut_id = db.Column(db.Integer, db.ForeignKey('huts.id', ondelete="CASCADE"))
+    hut_id = db.Column(db.Integer, db.ForeignKey(
+        'huts.id', ondelete="CASCADE"))
     hut_to = db.relationship('Huts', foreign_keys=[hut_id])
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete="CASCADE"))
@@ -99,7 +100,7 @@ class Huts(db.Model):
     bathroom = db.Column(db.Integer, unique=False, nullable=False)
     price_per_night = db.Column(db.Float, unique=False, nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey(
-        'locations.id', ondelete="CASCADE"), nullable = False)
+        'locations.id', ondelete="CASCADE"), nullable=False)
     location_to = db.relationship('Locations', foreign_keys=[location_id])
     is_active = db.Column(db.Boolean, unique=False, nullable=False)
     image_url = db.Column(db.String, unique=False, nullable=False)
@@ -118,7 +119,7 @@ class Huts(db.Model):
                 'location_id': self.location_id,
                 'is_active': self.is_active,
                 'image_url': self.image_url,
-                'location_to' : self.location_to.serialize()
+                'location_to': self.location_to.serialize()
                 }
 
 
@@ -208,6 +209,7 @@ class Reviews(db.Model):
         return {'id': self.id,
                 'hut_id': self.hut_id,
                 'user_id': self.user_id,
+                'user_name': self.user_to.first_name,
                 'rating': self.rating,
                 'comment': self.comment,
                 'created_at': self.created_at.isoformat()}

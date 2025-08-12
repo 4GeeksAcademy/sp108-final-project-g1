@@ -16,7 +16,11 @@ import { EditProfile } from "./pages/EditProfile.jsx";
 import { CurrentBooking } from "./pages/CurrentBooking.jsx";
 import HutForm from "./components/HutForm.jsx";
 import {UserProfile} from "./pages/UserProfile.jsx"
-import ResetPassword from './pages/ResetPassword';
+import { Favorites } from "./pages/Favorites.jsx";
+import { TermsAndConditions } from "./pages/Termsandconditions.jsx";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy.jsx";
+import { UserReviews } from "./pages/UserReviews.jsx";
+import { Reviews } from "./pages/Reviews.jsx";
 
 /* 
 CreateRoutesFromElements function allows you to build route elements declaratively.
@@ -37,13 +41,17 @@ export const router = createBrowserRouter(
       <Route path="/maps" element={<MapPage />} />
       <Route path="/huts/:id" element={<SingleHut />} />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
-      <Route path="/current-booking/:int" element={<CurrentBooking />} />
+      <Route path="/current-booking/:id" element={<CurrentBooking />} />
       <Route path="/huts/new" element={<ProtectedRoute><HutForm /></ProtectedRoute>} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/:id" element={<Profile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
       <Route path="/profile/:userId" element={<UserProfile />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/favorites" element={<Favorites />} />
+      <Route path="/termsandconditions" element={<TermsAndConditions />} />
+      <Route path="/privacyandpolicy" element={<PrivacyPolicy />} />
+      <Route path="/user-reviews" element={<UserReviews />} />
+      <Route path="/reviews" element={<Reviews />} />
     </Route>
   )
 );

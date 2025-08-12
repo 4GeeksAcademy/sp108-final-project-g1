@@ -5,7 +5,7 @@ import { login, requestPasswordReset } from "../services/auth"; // Asegúrate de
 
 
 const Login = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -44,6 +44,7 @@ const Login = () => {
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results]})
 
       navigate('/');
     } catch (err) {
@@ -74,24 +75,8 @@ const Login = () => {
         background: 'danger',
         visible: true
       }
-    })
+    });
     navigate('/');
-  };
-
-  // Función para manejar el envío del formulario de recuperación
-  const handlePasswordReset = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      await requestPasswordReset(resetEmail);
-      setResetSuccess(true);
-    } catch (err) {
-      setError(err.message || 'Error al solicitar recuperación de contraseña');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -109,24 +94,18 @@ const Login = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
 
-      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-green-150 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
-            {showResetForm ? 'Recuperar contraseña' : 'Iniciar sesión'}
-          </h2>
-          <p className="mt-2 text-center text-sm text-brown-150">
-            {showResetForm ? (
-              'Ingresa tu email para recibir instrucciones'
-            ) : (
-              <>
-                O{' '}
-                <Link to="/register" className="font-medium text-green-150 hover:text-green-250">
-                  crea una cuenta nueva
-                </Link>
-              </>
-            )}
-          </p>
-        </div>
+      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
+          Iniciar sesión
+        </h2>
+        <p className="mt-2 text-center text-sm text-brown-150">
+          O{' '}
+          <Link to="/register" className="font-medium text-green-150 hover:text-green-250">
+            crea una cuenta nueva
+          </Link>
+        </p>
+      </div>
 
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-green-150 py-8 px-4 shadow sm:rounded-lg sm:px-10">

@@ -154,13 +154,12 @@ def register():
 def users():
     response_body = {}
     if request.method == 'GET':
-        response_body['message'] = "RECIBIDO"
+        response_body['message'] = 'RECIBIDO'
         rows = db.session.execute(
-            db.select(Users).where(Users.is_active)).scalars()
-        response_body['results'] = [row.serialize()
-                                    for row in rows]
+            db.select(Users)
+        ).scalars()
+        response_body['results'] = [row.serialize() for row in rows]
         return response_body, 200
-
 
 @api.route('/users/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
@@ -209,19 +208,14 @@ def user(id):
 @jwt_required()
 def get_user_bookings(user_id):
     response_body = {}
-
-    # Verificar que el usuario autenticado coincide con el user_id solicitado
     current_user_id = get_jwt_identity()
     is_admin = get_jwt_identity()
     if is_admin:
         bookings = Bookings.query.all()
-
     if current_user_id != user_id:
         response_body['success'] = False
         response_body['message'] = "No autorizado para ver estas reservas"
         return response_body, 403
-
-    # Obtener las reservas del usuario
     bookings = db.session.query(
         Bookings,
         Huts.name.label('hut_name'),
@@ -333,22 +327,24 @@ def delete_bookings(id):
     return response_body, 200
 
 
-@api.route('/hut-favorites', methods=['GET'])
+@api.route('/favorites', methods=['GET'])
 @jwt_required()
-def get_hut_favorites():
+def get_favorites():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
+    print(user_id)
     hut_favorites = HutFavorites.query.filter_by(user_id=user_id).all()
+    print(hut_favorites)
     response_body['message'] = 'Lista de favoritos'
-    response_body['results'] = [hut_favorite.serialize()
-                                for hut_favorite in hut_favorites]
+    response_body['results'] = [favorite.serialize()
+                                for favorite in hut_favorites]
     return response_body, 200
 
 
-@api.route('/hut-favorites', methods=['POST'])
+@api.route('/favorites', methods=['POST'])
 @jwt_required()
-def get_huts_favorites():
+def add_favorite():
     response_body = {}
     claims = get_jwt()
     user_id = claims['user_id']
@@ -360,38 +356,38 @@ def get_huts_favorites():
         return response_body, 404
     existing_favorite = db.session.execute(db.select(HutFavorites).where(
         (HutFavorites.user_id == user_id) &
-        (HutFavorites.hut_id == hut_id))).scalar()
+        (HutFavorites.hut_id == hut_id)
+    )).scalar()
     if existing_favorite:
         response_body['message'] = 'Esta cabaña ya está en tus favoritos'
         return response_body, 409
-    hut_favorites = HutFavorites()
-    hut_favorites.hut_id = data.get('hut_id', None)
-    hut_favorites.user_id = user_id
-    db.session.add(hut_favorites)
+    new_favorite = HutFavorites()
+    new_favorite.hut_id = hut_id
+    new_favorite.user_id = user_id
+    db.session.add(new_favorite)
     db.session.commit()
     response_body['message'] = 'Añadido en favoritos'
-    response_body['results'] = hut_favorites.serialize()
-    return response_body, 200
+    response_body['results'] = new_favorite.serialize()
+    return response_body, 201
 
 
-@api.route('/hut-favorites/<int:id>', methods=['DELETE'])
+@api.route('/favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_hut_favorite(id):
+def delete_favorite(id):
     response_body = {}
     claims = get_jwt()
-    hut_favorite = db.session.execute(
-        db.select(HutFavorites).where(HutFavorites.id == id)).scalar()
-    if not hut_favorite:
+    favorite = db.session.execute(
+        db.select(HutFavorites).where(HutFavorites.id == id)
+    ).scalar()
+    if not favorite:
         response_body['message'] = f'El favorito con id {id} no existe'
         return response_body, 404
-    if hut_favorite.user_id != claims['user_id']:
+    if favorite.user_id != claims['user_id']:
         response_body['message'] = 'No tienes permiso para eliminar este favorito'
         return response_body, 403
-
-    db.session.delete(hut_favorite)
+    db.session.delete(favorite)
     db.session.commit()
-    user_id = claims['user_id']
-    response_body['message'] = f'El usuario {user_id} ha eliminado Cabaña {id} de favoritos'
+    response_body['message'] = f'El usuario {claims["user_id"]} ha eliminado el favorito {id}'
     return response_body, 200
 
 
@@ -560,7 +556,7 @@ def delete_review(id):
     return response_body, 200
 
 
-@api.route('reviews/<int:id>', methods=['PUT'])
+@api.route('/reviews/<int:id>', methods=['PUT'])
 @jwt_required()
 def put_review(id):
     response_body = {}
@@ -578,6 +574,21 @@ def put_review(id):
     response_body['results'] = review.serialize()
     # response_body['results'] = [row.serialize() for row in rows]
     return response_body, 200
+
+
+@api.route('/reviews/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_reviews_by_user(user_id):
+    claims = get_jwt()
+    if claims['user_id'] != user_id and not claims.get('is_admin'):
+        return {"message": "No autorizado"}, 403
+    rows = db.session.execute(
+        db.select(Reviews).where(Reviews.user_id == user_id)
+    ).scalars()
+    return {
+        "message": "Reseñas cargadas correctamente",
+        "results": [row.serialize() for row in rows]
+    }, 200
 
 
 @api.route('/huts', methods=['POST'])

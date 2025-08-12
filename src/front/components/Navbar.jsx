@@ -10,10 +10,8 @@ export const Navbar = () => {
   const { store, dispatch } = useGlobalReducer()
   const navigate = useNavigate();
   const token = localStorage.getItem('token') || sessionStorage.getItem('token')
-
-  const currentUser = store.currentUser
-
   const isLogged = store.isLogged
+
   const handleMenu = () => {
     setMenuIsActive(!menuIsActive)
   }
@@ -57,16 +55,24 @@ export const Navbar = () => {
               <Link to="/bookings" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Reservas</Link>
             </li>
           )}
-          {token && (
+          {token && !store.currentUser.is_admin && (
             <li>
-              <Link to="/" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Favoritos</Link>
-            </li>)}
-          <li>
-            <Link to="/contact" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Contacto</Link>
-          </li>
-          {token && (
+              <Link to="/favorites" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Favoritos</Link>
+            </li>
+          )}
+          {!store.currentUser.is_admin && (
             <li>
-              <Link to="/profile" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Mi Perfil</Link>
+              <Link to="/contact" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Contacto</Link>
+            </li>
+          )}
+          {token && !store.currentUser.is_admin && (
+            <li>
+              <Link to={`/profile/${store.currentUser.id}`} className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Mi Perfil</Link>
+            </li>
+          )}
+          {store.currentUser.is_admin && (
+            <li>
+              <Link to="/reviews" className="hidden md:block hover:bg-green-450 hover:rounded py-1 px-2 transition">Reseñas</Link>
             </li>
           )}
 
@@ -99,28 +105,42 @@ export const Navbar = () => {
                   </Link>
                 </li>
               )}
-              {token && (
+              {token && !store.currentUser.is_admin && (
                 <li className="group">
-                  <Link to="/" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                  <Link to="/favorites" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                     <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M21 12l-9 -9l-9 9h2v7a2 2 0 0 0 2 2h6" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2c.39 0 .754 .112 1.061 .304" /><path d="M19 21.5l2.518 -2.58a1.74 1.74 0 0 0 0 -2.413a1.627 1.627 0 0 0 -2.346 0l-.168 .172l-.168 -.172a1.627 1.627 0 0 0 -2.346 0a1.74 1.74 0 0 0 0 2.412l2.51 2.59z" /></svg>
                     <span>Favoritos</span>
                   </Link>
                 </li>
               )}
-              <li className="group">
-                <Link to="/contact" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
-                  <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
-                  <span>Contacto</span>
-                </Link>
-              </li>
-              {token && (
+              {
+                !store.currentUser.is_admin && (
+                  <li className="group">
+                    <Link to="/contact" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                      <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
+                      <span>Contacto</span>
+                    </Link>
+                  </li>
+                )
+              }
+              {token && !store.currentUser.is_admin && (
                 <li className="group">
-                  <Link to="/profile" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                  <Link to={`/profile/${store.currentUser.id}`} className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
                     <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h3.5" /><path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z" /></svg>
                     <span>Mi perfil</span>
                   </Link>
                 </li>
               )}
+              {
+                store.currentUser.is_admin && (
+                  <li className="group">
+                    <Link to="/reviews" className="relative rounded-xl overflow-hidden bg-gradient-to-br from-brown-550 to-brown-150 border border-green-250 flex items-center hover:scale-105 hover:contrast-125 transition px-4 py-3 gap-4" onClick={() => setMenuIsActive(false)}>
+                      <svg className="group-hover:scale-150 group-hover:-rotate-12 transition" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.75" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" /><path d="M3 7l9 6l9 -6" /></svg>
+                      <span>Reseñas</span>
+                    </Link>
+                  </li>
+                )
+              }
             </ul>
           </div>
         )
