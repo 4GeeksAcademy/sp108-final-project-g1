@@ -4,7 +4,7 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 import { login } from "../services/auth";
 
 const Login = () => {
-  const { dispatch } = useGlobalReducer();
+  const { store, dispatch } = useGlobalReducer();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -41,6 +41,7 @@ const Login = () => {
       dispatch({ type: 'token', payload: result.access_token });
       dispatch({ type: 'isLogged', payload: true });
       dispatch({ type: 'currentUser', payload: result.results });
+      dispatch({ type: 'users', payload: [...store.users, result.results]})
 
 
       navigate('/');
@@ -60,7 +61,6 @@ const Login = () => {
   };
 
 
-
   const handleReset = () => {
     setFormData({
       email: '',
@@ -75,6 +75,7 @@ const Login = () => {
         visible: true
       }
     });
+    navigate('/');
   };
 
   return (
@@ -94,7 +95,7 @@ const Login = () => {
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
 
-      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-green-150 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
+      <div className='relative z-10 px-4 py-12 wood-bg border-8 border-brown-250 sm:mx-auto sm:w-full sm:max-w-md rounded-lg shadow-xl'>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-green-250">
           Iniciar sesión

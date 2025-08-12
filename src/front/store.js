@@ -12,9 +12,9 @@ export const initialStore = () => {
         isLogged: !!token,
         bookingsDetail: [],
         hutsDetail: [],
-        favorites: [],
         currentBooking: {},
-        reviews: []
+        reviews: [],
+        favorites: []
     };
 };
 
@@ -44,26 +44,17 @@ export default function storeReducer(store, action = {}) {
         case 'hutsDetail':
             return { ...store, hutsDetail: action.payload };
 
-        case 'add_favorite':
-            return {
-                ...store,
-                favorites: [...store.favorites, action.payload],
-                hutsDetail: store.hutsDetail.map(hut =>
-                    hut.id === action.payload.hut_id ? { ...hut, is_favorite: true } : hut
-                )
-            };
+        case 'favorites':
+            return { ...store, favorites: action.payload }
 
-        case 'remove_favorite':
-            return {
-                ...store,
-                favorites: store.favorites.filter(fav => fav.hut_id !== action.payload),
-                hutsDetail: store.hutsDetail.map(hut =>
-                    hut.id === action.payload ? { ...hut, is_favorite: false } : hut
-                )
-            };
+        case 'add_favorites':
+            return { ...store, favorites: [...store.favorites, action.payload] }
+
+        case 'remove_favorites':
+            return { ...store, favorites: store.favorites.filter(favorite => favorite.id !== action.payload) }
 
         case 'reviews':
-            return { ...store, reviews: action.payload}
+            return { ...store, reviews: [...store.reviews, action.payload] }
 
         case 'logout':
             localStorage.removeItem('token');
