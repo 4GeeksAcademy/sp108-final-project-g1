@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.body {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588800/casa-en-arbol_pyjoxw.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.bg-components {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588800/casa-en-arbol_pyjoxw.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.contact {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588799/madera-fondo-contacto_nwadym.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Esto se tendrá que quitar una vez hayamos implementado los fetch de los usuarios */
+.bg-profile {
+    background: url("https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588996/profile-wood_vwwvvn.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wood-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754588798/wood-bg_bvhh0a.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+.current-booking {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754766606/960x0-5_ud8ct2.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.booking-bg {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(https://res.cloudinary.com/dmtvki1tj/image/upload/v1754766646/36864489-rustical-wood-texture_sg3pos.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.bookings-target {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.3)), url(./assets/img/madera-amarilla.png);
+    /* Aquí pondrías la imagen de madera */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* Sombra para resaltar */
+}
