@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Form, useNavigate, useParams } from 'react-router-dom'
-import { getBookingsDetail } from '../services/book'
-import useGlobalReducer from "../hooks/useGlobalReducer"
-import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions'
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, Form, useParams } from 'react-router-dom';
+import { getBookingsDetail, deleteBooking } from '../services/book';
+import useGlobalReducer from "../hooks/useGlobalReducer";
+import { calculateNights, calculateTotalStayCost } from '../tools/utilFunctions';
+import BuyButtonComponent from '../components/BuyButton';
 import { postReview } from '../services/reviews'
 import { toast } from 'react-toastify';
 
@@ -36,13 +37,15 @@ const StarRating = ({ rating = 0, onRatingChange = () => { } }) => {
 }
 
 const Bookings = () => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [cancellingId, setCancellingId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const navigate = useNavigate();
+  const { store, dispatch } = useGlobalReducer();
+  const bookings = store.bookingsDetail;
   const [isOpen, setIsOpen] = useState(false)
   const [activeBooking, setActiveBooking] = useState(null)
-  const { store, dispatch } = useGlobalReducer()
-  const bookings = store.bookingsDetail
   const currentUser = store.currentUser
   const { id } = useParams()
   const users = store.users
@@ -55,20 +58,41 @@ const Bookings = () => {
   useEffect(() => {
     const getBookings = async () => {
       try {
-        const bookingsData = await getBookingsDetail()
-        dispatch({ type: "bookingsDetail", payload: bookingsData })
+        const bookingsData = await getBookingsDetail();
+        dispatch({ type: "bookingsDetail", payload: bookingsData });
       } catch (err) {
         setError(err.message)
         if (err.message.includes('Sesión expirada')) {
-          localStorage.removeItem('token')
-          sessionStorage.removeItem('token')
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
+    };
+    getBookings();
+  }, []);
+
+  const handleCancelBooking = async (bookingId) => {
+    const isactive = window.confirm('¿Estás seguro que deseas cancelar esta reserva?');
+    if (!isactive) return;
+    setCancellingId(bookingId);
+    try {
+      await deleteBooking(bookingId);
+      const bookingsData = await getBookingsDetail();
+      dispatch({ type: "bookingsDetail", payload: bookingsData });
+      setSuccessMessage('Reserva cancelada exitosamente');
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      setError(err.message);
+      if (err.message.includes('Sesión expirada')) {
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+      }
+    } finally {
+      setCancellingId(null);
     }
-    getBookings()
-  }, [])
+  };
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' }
@@ -112,6 +136,7 @@ const Bookings = () => {
     }
   }
 
+
   if (loading) {
     return (
       <div className="min-h-screen bg-brown-150 flex items-center justify-center">
@@ -144,7 +169,7 @@ const Bookings = () => {
             store.currentUser.is_admin ?
               <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Reservas</span>
               :
-              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis reservas</span>
+              <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis Reservas</span>
           }
         </h1>
         <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
@@ -198,42 +223,76 @@ const Bookings = () => {
                           {calculateTotalStayCost(booking.hut_to.price_per_night, calculateNights(booking.start_date, booking.end_date))} €
                         </p>
                       </div>
-                      <div className='flex gap-2 mt-4 text-center'>
-                        {currentUser.is_admin && (
-                          <button
-                            onClick={() => navigate(`/profile/${booking.user_id}`)}
-                            className="flex-1 bg-brown-450 hover:bg-brown-550 text-white rounded-md mt-4 p-2 transition-colors"
-                          >Huesped</button>
-                        )}
-                        {!currentUser.is_admin && (
-                          <button onClick={() => {
-                            setActiveBooking(booking)
-                            setIsOpen(true)
-                          }}
-                            className='flex-1 bg-brown-450 hover:bg-brown-550 text-white rounded-md mt-4 p-2 transition-colors'>
+                      <div className="mt-4 space-y-3 p-4 bg-white rounded-lg">
+                        {/* Fila de botones superiores */}
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {currentUser.is_admin && (
+                            <button
+                              onClick={() => navigate(`/profile/${booking.user_id}`)}
+                              className="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md"
+                            >
+                              Ver Huésped
+                            </button>
+                          )}
+                          <button 
+                          onClick={() => setIsOpen(true)}
+                          className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
                             Deja tu reseña
                           </button>
-                        )}
-                      </div>
-                      <div className="flex gap-2 mt-4">
-                        <button
-                          onClick={() => navigate(`/current-booking/${booking.id}`)}
-                          className="flex-1 bg-brown-450 hover:bg-brown-550 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                        >
-                          Ver Reserva
-                        </button>
-                        <button
-                          onClick={() => navigate(`/huts/${booking.hut_to.id}`)}
-                          className="flex-1 bg-brown-450 hover:bg-brown-550 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                        >
-                          Ver Cabaña
-                        </button>
+                        </div>
+
+                        {/* Fila de botones inferiores */}
+                        <div className="flex flex-col lg:flex-row gap-2">
+                          <button
+                            onClick={() => navigate(`/current-booking/${booking.id}`)}
+                            className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md"
+                          >
+                            Ver Reserva
+                          </button>
+                          <button
+                            onClick={() => navigate(`/huts/${booking.hut_to.id}`)}
+                            className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md"
+                          >
+                            Ver Cabaña
+                          </button>
+                        </div>
+
+                        {/* Botones especiales (Stripe y Cancelar) */}
+                        <div className="flex flex-col justify-center items-center overflow-hidden">
+                          {!currentUser.is_admin && (
+                            <stripe-buy-button
+                              buy-button-id="buy_btn_1Rv7GQEtAORreSL7tnocAHYB"
+                              publishable-key="pk_test_51RqDDmEtAORreSL72MG2GvWCRmOpqvFUiavX1SxF0mCGgSfboGFJzfNojRPTzYJlU9uHBVVLxytkxbctJQd9wUpG00qklO3xus"
+                            >
+                            </stripe-buy-button>
+                          )}
+                          {(booking.status_reserved === 'active' &&
+                            (currentUser.id === booking.user_id || currentUser.is_admin)) && (
+                              <button
+                                onClick={() => handleCancelBooking(booking.id)}
+                                disabled={cancellingId === booking.id}
+                                className={`flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base shadow-md ${cancellingId === booking.id ? 'opacity-75' : ''
+                                  }`}
+                              >
+                                {cancellingId === booking.id ? (
+                                  <>
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Cancelando...
+                                  </>
+                                ) : (
+                                  'Cancelar Reserva'
+                                )}
+                              </button>
+                            )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {booking.status === 'pending' && (
+                {booking.status_reserved === 'pending' && (
                   <div className="bg-green-250/50 px-6 py-3 border-t border-green-350">
                     <p className="text-green-550 font-medium flex items-center">
                       <span className="inline-block w-3 h-3 rounded-full bg-green-350 mr-2"></span>
@@ -246,7 +305,6 @@ const Bookings = () => {
           </div>
         )}
       </div>
-
       {isOpen && (
         <Form onSubmit={handleReview} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">

@@ -135,14 +135,13 @@ const Huts = () => {
   )
 
   if (error) return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-red-50 rounded-xl border border-red-100 text-center">
-      <h3 className="text-xl font-semibold text-red-600 mb-3">Error al cargar las cabañas</h3>
-      <p className="text-red-500 mb-5">{error.message}</p>
+    <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
+      <p className="text-brown-550 text-xl mb-6">No tienes reservas actualmente</p>
       <button
-        onClick={() => window.location.reload()}
-        className="px-5 py-2.5 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+        onClick={() => navigate('/huts')}
+        className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
       >
-        Reintentar
+        Explorar Cabañas Disponibles
       </button>
     </div>
   )
@@ -179,11 +178,11 @@ const Huts = () => {
       )}
 
       {store.hutsDetail.length === 0 ? (
-        <div className="max-w-lg mx-auto bg-brown-50 rounded-xl p-8 text-center">
-          <p className="text-xl text-brown-550 mb-6">No hay cabañas disponibles</p>
+        <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
+          <p className="text-brown-550 text-xl mb-6">No hay cabañas disponibles</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
+            className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
           >
             Reintentar
           </button>
@@ -265,12 +264,12 @@ const Huts = () => {
                   </Link>
                   {
                     !store.currentUser.is_admin && (
-                  <button
-                    onClick={() => handleReserveClick(hut)}
-                    className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
-                  >
-                    Reservar
-                  </button>
+                      <button
+                        onClick={() => handleReserveClick(hut)}
+                        className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                      >
+                        Reservar
+                      </button>
                     )
                   }
                 </div>

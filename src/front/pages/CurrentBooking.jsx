@@ -13,7 +13,7 @@ export const CurrentBooking = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchCurrentBooking = async () => {
+    const fetchCurrentBooking = async (id) => {
       if (!id) {
         setLoading(false)
         return
@@ -106,10 +106,10 @@ export const CurrentBooking = () => {
                 <span>{currentBooking.status_reserved === 'active' ? '✅ Confirmado' : '⚠ Pendiente'}</span>
               </li>
 
-              <li className="flex justify-between pb-2">
+              {/* <li className="flex justify-between pb-2">
                 <span className="font-semibold text-gray-300">Estado del pago:</span>
                 <span>{currentBooking.status_payment ? '✅ Confirmado' : '⚠ Pendiente'}</span>
-              </li>
+              </li> */}
             </ul>
           </div>
 

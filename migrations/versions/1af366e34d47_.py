@@ -1,14 +1,8 @@
 """empty message
 
-<<<<<<<< HEAD:migrations/versions/b45b84806b2d_.py
-Revision ID: b45b84806b2d
+Revision ID: 1af366e34d47
 Revises: 
-Create Date: 2025-08-12 19:16:30.357021
-========
-Revision ID: 5692e9650d4f
-Revises: 
-Create Date: 2025-08-12 19:16:32.492127
->>>>>>>> 140306f41faadccdcb62ba3391b30b4fc3502635:migrations/versions/5692e9650d4f_.py
+Create Date: 2025-08-13 12:06:41.881412
 
 """
 from alembic import op
@@ -16,11 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-<<<<<<<< HEAD:migrations/versions/b45b84806b2d_.py
-revision = 'b45b84806b2d'
-========
-revision = '5692e9650d4f'
->>>>>>>> 140306f41faadccdcb62ba3391b30b4fc3502635:migrations/versions/5692e9650d4f_.py
+revision = '1af366e34d47'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -44,18 +34,13 @@ def upgrade():
     sa.Column('last_name', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('phone_number', sa.String(), nullable=True),
-    sa.Column('address', sa.String(), nullable=True),
-    sa.Column('profile_image', sa.String(), nullable=True),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('is_admin', sa.Boolean(), nullable=False),
-    sa.Column('reset_token', sa.String(), nullable=True),
-    sa.Column('reset_token_expires', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('phone_number'),
-    sa.UniqueConstraint('reset_token')
+    sa.UniqueConstraint('phone_number')
     )
     op.create_table('huts',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -65,7 +50,7 @@ def upgrade():
     sa.Column('bedrooms', sa.Integer(), nullable=False),
     sa.Column('bathroom', sa.Integer(), nullable=False),
     sa.Column('price_per_night', sa.Float(), nullable=False),
-    sa.Column('location_id', sa.Integer(), nullable=False),
+    sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('image_url', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ondelete='CASCADE'),
@@ -75,14 +60,14 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('start_date', sa.Date(), nullable=False),
     sa.Column('end_date', sa.Date(), nullable=False),
-    sa.Column('total_price', sa.Float(), nullable=True),
+    sa.Column('total_price', sa.Float(), nullable=False),
     sa.Column('status_reserved', sa.Enum('active', 'ocupated', 'cancelled', name='status_reserved'), nullable=False),
     sa.Column('guests', sa.Integer(), nullable=False),
-    sa.Column('special_requests', sa.String(length=500), nullable=True),
+    sa.Column('special_requests', sa.String(length=500), nullable=False),
     sa.Column('created_at', sa.Date(), nullable=True),
     sa.Column('payment_date', sa.Date(), nullable=True),
-    sa.Column('transaction_payment', sa.String(), nullable=True),
-    sa.Column('status_payment', sa.Boolean(), nullable=True),
+    sa.Column('transaction_payment', sa.String(), nullable=False),
+    sa.Column('status_payment', sa.Boolean(), nullable=False),
     sa.Column('hut_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['hut_id'], ['huts.id'], ondelete='CASCADE'),

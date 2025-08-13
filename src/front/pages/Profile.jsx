@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import useGlobalReducer from "../hooks/useGlobalReducer"
 import { getUserById, deactivateUser } from "../services/users"
 
+
 export const Profile = () => {
   const { store, dispatch } = useGlobalReducer()
   const [isOpen, setIsOpen] = useState(false)

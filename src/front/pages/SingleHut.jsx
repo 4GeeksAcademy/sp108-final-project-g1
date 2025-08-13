@@ -63,9 +63,11 @@ export const SingleHut = () => {
       [name]: name === 'guests' ? parseInt(value) : value
     }))
   }
+
   const handleReturn = () => {
     useNavigate(-1)
   }
+
   const handleBookingSubmit = async e => {
     e.preventDefault()
     setBookingError(null)
@@ -97,6 +99,8 @@ export const SingleHut = () => {
   return (
     <div className="body w-full min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
       <div className="bg-white rounded-2xl border-4 border-green-250 shadow-xl flex flex-col lg:flex-row overflow-hidden max-w-6xl w-full h-auto lg:h-[90vh]">
+
+     
         <div className="lg:w-1/2 h-56 lg:h-full flex-shrink-0">
           <img src={hut.image_url} alt={hut.name} className="w-full h-full object-cover" />
         </div >
@@ -135,7 +139,7 @@ export const SingleHut = () => {
           <button onClick={handleReserveClick} className="w-full py-3 bg-gradient-to-br from-brown-550 to-green-450 p-3 rounded-3xl hover:scale-[1.02] text-white font-bold rounded-lg transition-transform text-lg">Reservar ahora</button>
         )
       }
-      <button onClick={() => navigate(-1)} className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white">← Volver atrás</button>
+      <button onClick={() => navigate(-1)} className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/2 p-2 hover:scale-[1.02] text-white">← Volver atrás</button>
     </div>
   </div>
       </div >
@@ -187,14 +191,3 @@ export const SingleHut = () => {
     </div >
   )
 }
-
-
-
-
-
-
-
-
-
-
-
