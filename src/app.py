@@ -12,7 +12,7 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 import cloudinary
 from flask_cors import CORS
-
+from dotenv import load_dotenv
 
 load_dotenv()
 
