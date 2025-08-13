@@ -20,9 +20,6 @@ wtforms = "==3.1.2"
 sqlalchemy = "*"
 flask-migrate = "*"
 flask-bcrypt = "*"
-bcrypt = "*"
-font-font-awesome = "*"
-fns = "*"
 flask-cors = "*"
 
 [requires]
