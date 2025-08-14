@@ -234,9 +234,9 @@ const Bookings = () => {
                               Ver Huésped
                             </button>
                           )}
-                          <button 
-                          onClick={() => setIsOpen(true)}
-                          className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
+                          <button
+                            onClick={() => { setActiveBooking(booking); setIsOpen(true); }}
+                            className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-md transition-colors duration-200 text-sm sm:text-base shadow-md">
                             Deja tu reseña
                           </button>
                         </div>
@@ -347,8 +347,8 @@ const Bookings = () => {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-end gap-2 border-t p-4">
-              <button
-                onClick={() => setIsOpen(false)}
+             <button
+                onClick={() => { setIsOpen(false); setActiveBooking(null); }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Cancelar
@@ -362,8 +362,9 @@ const Bookings = () => {
             </div>
           </div>
         </Form>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }
 
