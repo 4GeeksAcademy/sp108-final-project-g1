@@ -61,7 +61,15 @@ export const UserReviews = () => {
             <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
 
             {reviews.length === 0 ? (
-                < p className="text-center text-white/80" > Aún no has dejado reseñas</p>
+                <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
+                    <p className="text-brown-550 text-xl mb-6">Aún no has dejado reseñas</p>
+                    <button
+                        onClick={() => navigate('/huts')}
+                        className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
+                    >
+                        Explorar Cabañas Disponibles
+                    </button>
+                </div>
             ) : (
                 <ul className="space-y-4 max-w-3xl mx-auto">
                     {reviews.map(review => (

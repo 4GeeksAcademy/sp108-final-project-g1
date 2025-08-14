@@ -36,13 +36,13 @@ export const Favorites = () => {
   return (
     <div className="py-12 px-4 sm:px-6 lg:px-8 bg-black/50 min-h-screen">
       <h1 className="text-4xl text-center md:text-6xl lg:text-8xl font-bold tracking-tight mb-6">
-        <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Tus Cabañas Favoritas</span>
+        <span className='bg-gradient-to-br from-brown-450 to-brown-250 bg-clip-text text-transparent'>Mis Cabañas Favoritas</span>
       </h1>
       <div className="w-full h-[2px] bg-gradient-to-r from-transparent via-white to-transparent opacity-50 mb-8"></div>
 
       {store.favorites.length === 0 ? (
         <div className="bg-brown-150 border-2 border-brown-250 rounded-lg p-8 text-center shadow-sm">
-          <p className="text-brown-550 text-xl mb-6">No tienes reservas actualmente</p>
+          <p className="text-brown-550 text-xl mb-6">No tienes favoritos actualmente</p>
           <button
             onClick={() => navigate('/huts')}
             className="bg-green-350 hover:bg-green-450 text-white font-bold py-3 px-8 rounded-md shadow-md transition-all hover:shadow-lg"
@@ -54,7 +54,7 @@ export const Favorites = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {store.favorites.map(favorite => (
             <div key={favorite.id} className="relative bg-white rounded-lg shadow-md overflow-hidden border-4 border-brown-250">
-              { !store.currentUser.is_admin && (
+              {!store.currentUser.is_admin && (
                 <button
                   onClick={() => handleFavorite(favorite.hut_id)}
                   className='absolute z-30 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'
@@ -72,10 +72,13 @@ export const Favorites = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="p-4 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-brown-550">{favorite.hut_name}</h2>
+                <div>
+                  <h2 className="text-xl font-semibold text-brown-550">{favorite.hut_name}</h2>
+                  <span>{favorite.hut_to.location_to?.region}</span>
+                </div>
                 <Link
                   to={`/huts/${favorite.hut_id}`}
-                  className="flex-none basis-1/2 md:basis-1/4 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center p-2 hover:scale-[1.02] text-white"
+                  className="flex-none basis-1/2 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center p-2 hover:scale-[1.02] text-white"
                 >
                   Ver detalles
                 </Link>

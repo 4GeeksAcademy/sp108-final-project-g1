@@ -6,7 +6,6 @@ import { getFavorites, addFavorite, removeFavorite } from '../services/favorites
 import useGlobalReducer from '../hooks/useGlobalReducer'
 import { format } from 'date-fns'
 
-
 const Huts = () => {
   const { store, dispatch } = useGlobalReducer()
   const [loading, setLoading] = useState(true)
@@ -22,6 +21,9 @@ const Huts = () => {
   })
   const [bookingError, setBookingError] = useState(null)
   const [bookingSuccess, setBookingSuccess] = useState(false)
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 12
 
   useEffect(() => {
     const fetchHuts = async () => {
@@ -56,6 +58,15 @@ const Huts = () => {
     fetchFavorites()
   }, [isLogged, dispatch])
 
+  const totalPages = Math.max(1, Math.ceil(store.hutsDetail.length / pageSize))
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [totalPages, currentPage])
+
+  const paginatedHuts = store.hutsDetail.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
   const handleReserveClick = (hut) => {
     setSelectedHut(hut)
     setShowModal(true)
@@ -74,8 +85,8 @@ const Huts = () => {
     setBookingSuccess(false)
   }
 
-  const handleBookingChange = (e) => {
-    const { name, value } = e.target
+  const handleBookingChange = (event) => {
+    const { name, value } = event.target
     setBookingData(prev => ({
       ...prev,
       [name]: name === 'guests' ? parseInt(value) : value
@@ -127,6 +138,12 @@ const Huts = () => {
     return store.favorites.some(favorite => favorite.hut_id === hutId)
   }
 
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-550 mb-4"></div>
@@ -162,14 +179,7 @@ const Huts = () => {
         >
           <div className="text-center p-5 w-full">
             <div className="mx-auto flex items-center justify-center h-14 w-14 rounded-full bg-green-100 mb-3">
-              <svg
-                className="h-8 w-8 text-green-550"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
+              <svg className="h-8 w-8 text-green-550" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
             </div>
             <h3 className="text-lg font-medium text-green-550 mb-1">Añadir cabaña</h3>
             <p className="text-sm text-brown-450 px-2">Crear nueva cabaña</p>
@@ -188,95 +198,123 @@ const Huts = () => {
           </button>
         </div>
       ) : (
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {store.hutsDetail.map((hut) => (
-            <div
-              key={hut.id}
-              className="relative bg-white border-4 border-brown-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
-            >
-              {isLogged && !store.currentUser?.is_admin && (
-                <button onClick={() => handleFavorite(hut)}
-                  className='absolute z-40 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
-                  {isFavorite(hut.id) ?
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-red-400 icon icon-tabler icons-tabler-filled icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" /></svg>
-                    :
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-red icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
-                  }
-                </button>
-              )}
-              <div className="fixed bottom-6 right-6 z-50">
-                <button
-                  onClick={() => window.location.href = '/maps'}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Abrir Mapa
-                </button>
-              </div>
-              <div className="relative">
-                <img
-                  src={hut.image_url || 'https://via.placeholder.com/400x300'}
-                  alt={hut.name || 'Cabaña'}
-                  className="w-full h-60 object-cover"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/400x300'
-                    e.target.alt = 'Imagen no disponible'
-                  }}
-                />
-
-              </div>
-
-              <div className="p-5">
-                <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-xl font-bold text-green-550 truncate">{hut.name || 'Cabaña'}</h2>
-                  <span className="text-lg font-semibold text-brown-550 whitespace-nowrap">
-                    ${hut.price_per_night || '0'}<span className="text-sm font-normal text-brown-350">/noche</span>
-                  </span>
-                </div>
-
-                <p className="text-brown-450 mb-4 line-clamp-2 min-h-[80px] overflow-y-auto">{hut.description || 'Descripción no disponible'}</p>
-
-                <div className="grid grid-cols-3 gap-2 mb-5">
-                  <div className="bg-green-100 rounded-lg p-2 text-center">
-                    <p className="text-xs text-green-550">Huéspedes</p>
-                    <p className="font-semibold text-brown-550">{hut.capacity || '-'}</p>
-                  </div>
-                  <div className="bg-green-100 rounded-lg p-2 text-center">
-                    <p className="text-xs text-green-550">Dormitorios</p>
-                    <p className="font-semibold text-brown-550">{hut.bedrooms || '-'}</p>
-                  </div>
-                  <div className="bg-green-100 rounded-lg p-2 text-center">
-                    <p className="text-xs text-green-550">Baños</p>
-                    <p className="font-semibold text-brown-550">{hut.bathroom || '-'}</p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between gap-3">
-                  <Link
-                    to={`/huts/${hut.id}`}
-                    className="flex-1 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {paginatedHuts.map((hut) => (
+              <div
+                key={hut.id}
+                className="relative bg-white border-4 border-brown-250 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duración-300"
+              >
+                {isLogged && !store.currentUser?.is_admin && (
+                  <button onClick={() => handleFavorite(hut)}
+                    className='absolute z-40 inline-flex items-center justify-center w-12 h-8 text-xs font-bold bg-neutral-100 border-2 border-black rounded-full top-2 end-2'>
+                    {isFavorite(hut.id) ?
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-red-400 icon icon-tabler icons-tabler-filled icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6.979 3.074a6 6 0 0 1 4.988 1.425l.037 .033l.034 -.03a6 6 0 0 1 4.733 -1.44l.246 .036a6 6 0 0 1 3.364 10.008l-.18 .185l-.048 .041l-7.45 7.379a1 1 0 0 1 -1.313 .082l-.094 -.082l-7.493 -7.422a6 6 0 0 1 3.176 -10.215z" /></svg>
+                      :
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bg-red icon icon-tabler icons-tabler-outline icon-tabler-heart"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
+                    }
+                  </button>
+                )}
+                <div className="fixed bottom-6 right-6 z-50">
+                  <button
+                    onClick={() => window.location.href = '/maps'}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
                   >
-                    Ver detalles
-                  </Link>
-                  {
-                    !store.currentUser.is_admin && (
-                      <button
-                        onClick={() => handleReserveClick(hut)}
-                        className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
-                      >
-                        Reservar
-                      </button>
-                    )
-                  }
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    Abrir Mapa
+                  </button>
+                </div>
+                <div className="relative">
+                  <img
+                    src={hut.image_url || 'https://via.placeholder.com/400x300'}
+                    alt={hut.name || 'Cabaña'}
+                    className="w-full h-60 object-cover"
+                    onError={(event) => {
+                      event.target.src = 'https://via.placeholder.com/400x300'
+                      event.target.alt = 'Imagen no disponible'
+                    }}
+                  />
+                </div>
+
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h2 className="text-xl font-bold text-green-550 truncate">{hut.name || 'Cabaña'}</h2>
+                      <span className="text-sm font-sm text-green-550 truncate">{hut.location_to?.region}</span>
+                    </div>
+                    <span className="text-lg font-semibold text-brown-550 whitespace-nowrap">
+                      ${hut.price_per_night || '0'}<span className="text-sm font-normal text-brown-350">/noche</span>
+                    </span>
+                  </div>
+
+                  <p className="text-brown-450 mb-4 line-clamp-2 min-h-[80px] overflow-y-auto">{hut.description || 'Descripción no disponible'}</p>
+
+                  <div className="grid grid-cols-3 gap-2 mb-5">
+                    <div className="bg-green-100 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-550">Huéspedes</p>
+                      <p className="font-semibold text-brown-550">{hut.capacity || '-'}</p>
+                    </div>
+                    <div className="bg-green-100 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-550">Dormitorios</p>
+                      <p className="font-semibold text-brown-550">{hut.bedrooms || '-'}</p>
+                    </div>
+                    <div className="bg-green-100 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-550">Baños</p>
+                      <p className="font-semibold text-brown-550">{hut.bathroom || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between gap-3">
+                    <Link
+                      to={`/huts/${hut.id}`}
+                      className="flex-1 bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                    >
+                      Ver detalles
+                    </Link>
+                    {
+                      !store.currentUser.is_admin && (
+                        <button
+                          onClick={() => handleReserveClick(hut)}
+                          className="flex-1 bg-gradient-to-br from-brown-550 to-green-450 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
+                        >
+                          Reservar
+                        </button>
+                      )
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-3 py-2 rounded-lg border ${currentPage === 1 ? 'border-gray-300 text-gray-400 cursor-not-allowed' : 'border-green-350 text-green-550 hover:bg-green-50'}`}
+            >
+              Anterior
+            </button>
+
+            {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => goToPage(page)}
+                className={`w-10 h-10 rounded-lg border text-sm font-medium ${currentPage === page ? 'bg-green-450 text-white border-green-450' : 'border-green-350 text-green-550 hover:bg-green-50'}`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={() => goToPage(currentPage - 0 + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-2 rounded-lg border ${currentPage === totalPages ? 'border-gray-300 text-gray-400 cursor-not-allowed' : 'border-green-350 text-green-550 hover:bg-green-50'}`}
+            >
+              Siguiente
+            </button>
+          </div>
+        </>
       )}
 
       {showModal && selectedHut && (
@@ -297,13 +335,9 @@ const Huts = () => {
             <div className="p-6">
               {bookingSuccess ? (
                 <div className="text-center">
-                  <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <svg className="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                   <h3 className="text-lg font-medium text-green-550 mt-4">¡Reserva confirmada!</h3>
-                  <p className="mt-2 text-brown-450">
-                    Tu reserva en {selectedHut.name} ha sido confirmada.
-                  </p>
+                  <p className="mt-2 text-brown-450">Tu reserva en {selectedHut.name} ha sido confirmada.</p>
                   <button
                     onClick={() => window.location.href = '/bookings'}
                     className="mt-6 w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
@@ -316,9 +350,7 @@ const Huts = () => {
                   <div className="space-y-4 mb-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-brown-550 mb-1">
-                          Fecha de llegada
-                        </label>
+                        <label className="block text-sm font-medium text-brown-550 mb-1">Fecha de llegada</label>
                         <input
                           type="date"
                           name="start_date"
@@ -330,9 +362,7 @@ const Huts = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-brown-550 mb-1">
-                          Fecha de salida
-                        </label>
+                        <label className="block text-sm font-medium text-brown-550 mb-1">Fecha de salida</label>
                         <input
                           type="date"
                           name="end_date"
@@ -344,11 +374,8 @@ const Huts = () => {
                         />
                       </div>
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-brown-550 mb-1">
-                        Huéspedes (máx. {selectedHut.capacity})
-                      </label>
+                      <label className="block text-sm font-medium text-brown-550 mb-1">Huéspedes (máx. {selectedHut.capacity})</label>
                       <input
                         type="number"
                         name="guests"
@@ -360,11 +387,8 @@ const Huts = () => {
                         required
                       />
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-brown-550 mb-1">
-                        Solicitudes especiales
-                      </label>
+                      <label className="block text-sm font-medium text-brown-550 mb-1">Solicitudes especiales</label>
                       <textarea
                         name="special_requests"
                         value={bookingData.special_requests}
@@ -374,19 +398,8 @@ const Huts = () => {
                       />
                     </div>
                   </div>
-
-                  {bookingError && (
-                    <div className="mb-4 p-3 bg-red-100 text-red-600 rounded text-sm">
-                      {bookingError}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors"
-                  >
-                    Confirmar Reserva
-                  </button>
+                  {bookingError && <div className="mb-4 p-3 bg-red-100 text-red-600 rounded text-sm">{bookingError}</div>}
+                  <button type="submit" className="w-full py-3 bg-green-350 text-white font-medium rounded-lg hover:bg-green-450 transition-colors">Confirmar Reserva</button>
                 </form>
               ) : (
                 <button
