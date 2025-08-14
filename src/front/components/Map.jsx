@@ -82,7 +82,7 @@ useEffect(() => {
             onCloseClick={() => setSelectedHut(null)}
           >
             <div className="p-2">
-              <div className="bg-gradient-to-r from-green-400 to-green-600 p-3">
+              <div className="bg-green-350 p-3">
           <h3 className="font-bold text-white text-lg">{selectedHut.name}</h3>
         </div>
               <div className="p-4">
@@ -103,7 +103,7 @@ useEffect(() => {
               />
               <Link
                 to={`/huts/${selectedHut.id}`}
-                className="block w-full text-center bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors duration-300"
+                className="block w-full text-center bg-green-350 hover:bg-green-550 text-white py-2 px-4 rounded-lg transition-colors duration-300"
               >
                 Ver detalles
               </Link>

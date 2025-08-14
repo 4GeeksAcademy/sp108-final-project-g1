@@ -29,6 +29,11 @@ export const Profile = () => {
       return
     }
 
+    if (String(id) === String(store.currentUser?.id)) {
+      setProfileUser(store.currentUser)
+      return
+    }
+
     if (foundUser) {
       setProfileUser(foundUser)
       return
@@ -52,7 +57,7 @@ export const Profile = () => {
   }, [id, foundUser, store.currentUser, store.token, host, dispatch, navigate])
 
   const handleBackProfile = () => {
-    navigate(-1)
+    navigate('/')
   }
 
   const handleDeactivate = async () => {
@@ -87,7 +92,7 @@ export const Profile = () => {
                   alt="Foto de perfil"
                 />
                 <div className="text-center sm:text-left">
-                  <h2 className="font-bold text-xl md:text-2xl text-white">{profileUser.first_name || "No especificado"}</h2>
+                  <h2 className="font-bold text-xl md:text-2xl text-white">{profileUser.first_name || "No especificado"} {profileUser.last_name || ""}</h2>
                   <span className="text-sm text-gray-200">{profileUser.email}</span>
                 </div>
               </div>
@@ -182,7 +187,7 @@ export const Profile = () => {
                 <button onClick={handleBackProfile}
                   className="bg-gradient-to-br from-brown-250 to-green-250 rounded-3xl border border-brown-250 text-center text-sm md:text-base md:w-1/4 p-2 hover:scale-[1.02] text-white"
                 >
-                  ← Volver atrás
+                  ← Ir a Home
                 </button>
                 {
                   (!store.currentUser?.is_admin && String(profileUser?.id) === String(store.currentUser?.id)) && (
