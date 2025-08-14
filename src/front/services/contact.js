@@ -1,18 +1,24 @@
-export const postContact = async (formData) => {
-  try {
-    const response = await fetch("https://formspree.io/f/movllynz", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(formData)
-    })
+export const postContact = async ({ name, email, message }) => {
+  const fd = new FormData()
+  fd.append("name", name)
+  fd.append("email", email)
+  fd.append("message", message)
 
-    if (!response.ok) throw new Error("Error al enviar el mensaje")
+  const response = await fetch("https://formspree.io/f/movllynz", {
+    method: "POST",
+    headers: { "Accept": "application/json" },
+    body: fd
+  })
 
-    return true
-  } catch (error) {
-    console.error("Error en contactService:", error)
-    throw error
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    const msg =
+      data?.errors?.map((x) => x.message).join(", ")
+      || data?.message
+      || `Error al enviar el mensaje (HTTP ${response.status})`
+    throw new Error(msg)
   }
+
+  return true
 }

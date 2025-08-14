@@ -49,7 +49,6 @@ class Users(db.Model):
         }
     
 
-
 class Bookings(db.Model):
     __tablename__ = 'bookings'
     id = db.Column(db.Integer, primary_key=True)
@@ -141,7 +140,9 @@ class HutFavorites(db.Model):
                 'hut_id': self.hut_id,
                 'user_id': self.user_id,
                 'hut_name': self.hut_to.name,
-                'hut_image_url': self.hut_to.image_url}
+                'hut_image_url': self.hut_to.image_url,
+                'hut_to': self.hut_to.serialize()
+               }
 
 
 class HutsAlbum(db.Model):

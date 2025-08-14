@@ -42,7 +42,7 @@ export const Home = () => {
                   <p className="text-sm mt-1">- {randomReview.user_name} -</p>
                 </div>
               ) : (
-                <p className="mt-2">Cargando reseña...</p>
+                <p className="mt-2">No hay reseñas disponibles</p>
               )}
             </div>
           </article>
